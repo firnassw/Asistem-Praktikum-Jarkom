@@ -1,0 +1,37 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent, within } from '@testing-library/react';
+import { App } from '../App';
+
+describe('Layout Shell UI', () => {
+  it('merender layout lengkap dan navigasi bottom bar di mobile', () => {
+    render(<App />);
+
+    // Bottom navigation bar ada 4 item utama
+    const bottomNav = screen.getByRole('navigation', { name: /Navigasi Bawah Mobile/i });
+    expect(bottomNav).toBeInTheDocument();
+
+    expect(within(bottomNav).getByRole('link', { name: /Beranda/i })).toBeInTheDocument();
+    expect(within(bottomNav).getByRole('link', { name: /Subnet/i })).toBeInTheDocument();
+    expect(within(bottomNav).getByRole('link', { name: /Rencana/i })).toBeInTheDocument();
+    expect(within(bottomNav).getByRole('button', { name: /Lainnya/i })).toBeInTheDocument();
+  });
+
+  it('dapat membuka drawer navigasi saat tombol Lainnya atau menu bar diklik', () => {
+    render(<App />);
+
+    const lainnyaBtn = screen.getByRole('button', { name: /Lainnya/i });
+    fireEvent.click(lainnyaBtn);
+
+    // Dialog drawer terbuka
+    const dialog = screen.getByRole('dialog', { name: /Navigasi Menu/i });
+    expect(dialog).toBeInTheDocument();
+
+    // Tombol tutup drawer ada
+    const closeBtn = screen.getByRole('button', { name: /Tutup menu/i });
+    expect(closeBtn).toBeInTheDocument();
+    fireEvent.click(closeBtn);
+
+    // Dialog tertutup
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+});

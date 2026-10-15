@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FCE76C;
+  --color-primary-pressed: #F2D640;
+  --color-secondary: #8BD0FC;
+  --color-tertiary: #FF8F5C;
+  --color-ink: #1F1E22;
+  --color-ink-raised: #2E2D33;
+  --color-on-ink: #FFFFFF;
+  --color-background: #F5F6F8;
+  --color-surface: #FFFFFF;
+  --color-line: #E3E5EA;
+  --color-line-strong: #8A8F9C;
+  --color-text: #1F1E22;
+  --color-text-muted: #5B5F6B;
+  --color-faded: #D6D9E2;
+  --color-secondary-soft: #E3F4FE;
+  --color-primary-soft: #FFF8D1;
+  --color-tertiary-soft: #FFE6DA;
+  --color-subnet-4: #C9D0E4;
+  --color-success: #16794C;
+  --color-success-soft: #E3F4EA;
+  --color-warning: #8A5A00;
+  --color-warning-soft: #FFF4D6;
+  --color-error: #B3261E;
+  --color-error-soft: #FCE8E6;
+
+  --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #F5F6F8;
+    color: #1F1E22;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Focus ring style per DESIGN.md: ink 3px ring with 2px offset */
+  :focus-visible {
+    outline: 3px solid #1F1E22;
+    outline-offset: 2px;
+  }
+}
+
+/* Typography Utility Classes per DESIGN.md */
+.font-display-xl {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 48px;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-lg {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-md {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 30px;
+  letter-spacing: -0.005em;
+}
+
+.font-title {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: 0em;
+}
+
+.font-body-md {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  letter-spacing: 0em;
+}
+
+.font-body-sm {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0em;
+}
+
+.font-label {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+}
+
+.font-label-lg {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: 0.01em;
+}
+
+.font-numeral-faded {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 72px;
+  font-weight: 300;
+  line-height: 72px;
+  letter-spacing: -0.03em;
+  color: #D6D9E2;
+}
+
+.font-mono-md {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0em;
+}
+
+.font-mono-sm {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0em;
+}
+
+/* Print CSS per DESIGN.md */
+@media print {
+  aside,
+  header,
+  .mobile-bottom-tabs,
+  .btn-print-hide,
+  .offset-layer {
+    display: none !important;
+  }
+
+  body, main {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
