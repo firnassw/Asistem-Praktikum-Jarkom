@@ -15,6 +15,7 @@ from app.core.errors import (
 )
 from app.core.registry import get_all_features
 from app.core.schemas import ModulMetadata
+from app.modules.jaringan.router import router as jaringan_router
 
 app = FastAPI(
     title="Asisten Praktikum Jaringan API",
@@ -42,6 +43,9 @@ app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
+# Daftarkan router modul
+app.include_router(jaringan_router)
+
 
 @app.get("/api/health", summary="Health check endpoint")
 async def health_check() -> Dict[str, str]:
@@ -53,3 +57,4 @@ async def health_check() -> Dict[str, str]:
 async def list_modul() -> List[ModulMetadata]:
     """Mengembalikan daftar seluruh modul fitur yang terdaftar di registry."""
     return get_all_features()
+

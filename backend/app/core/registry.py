@@ -122,8 +122,15 @@ _DEFAULT_FEATURES = [
 
 def init_default_registry() -> None:
     """Menginisialisasi registry dengan fitur default."""
+    try:
+        from app.modules.jaringan.solver import hitung_subnet
+        subnet_solver = hitung_subnet
+    except ImportError:
+        subnet_solver = None
+
     for feat in _DEFAULT_FEATURES:
-        register_feature(feat)
+        solver_fn = subnet_solver if feat.id == "subnet" else None
+        register_feature(feat, solver=solver_fn)
 
 
 # Inisialisasi default saat modul di-import

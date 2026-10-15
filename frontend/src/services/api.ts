@@ -70,4 +70,19 @@ export const api = {
   async getModul(): Promise<ModulMetadata[]> {
     return request<ModulMetadata[]>('/modul');
   },
+
+  /**
+   * Analisis subnetting satu IP
+   */
+  async hitungSubnet(payload: {
+    alamat_ip: string;
+    prefix?: number | null;
+    subnet_mask?: string | null;
+  }): Promise<import('../types/api').StrukturJawaban> {
+    return request<import('../types/api').StrukturJawaban>('/jaringan/subnet', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
+

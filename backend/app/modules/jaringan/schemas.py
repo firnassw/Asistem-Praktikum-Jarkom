@@ -1,0 +1,99 @@
+"""
+Skema input dan validasi untuk modul subnetting jaringan.
+"""
+
+from typing import List, Optional, Tuple
+from pydantic import BaseModel, Field
+
+from app.core.errors import (
+    AppError,
+    IP_TIDAK_VALID,
+    MASK_TIDAK_VALID,
+    PERMINTAAN_TIDAK_VALID,
+    PREFIX_TIDAK_VALID,
+)
+
+
+def validate_ipv4_format(ip_str: str, field_name: str = "alamat_ip") -> List[int]:
+    """
+    Memvalidasi format IPv4 titik-desimal:
+    - Harus 4 oktet dipisahkan titik.
+    - Tiap oktet 0-255.
+    - Tanpa nol di depan (misal: '192.168.01.1' ditolak).
+    """
+    if not isinstance(ip_str, str) or not ip_str.strip():
+        raise AppError(IP_TIDAK_VALID, field=field_name)
+
+    parts = ip_str.strip().split(".")
+    if len(parts) != 4:
+        raise AppError(IP_TIDAK_VALID, field=field_name)
+
+    octets: List[int] = []
+    for part in parts:
+        if not part.isdigit():
+            raise AppError(IP_TIDAK_VALID, field=field_name)
+        # Menolak nol di depan jika panjang lebih dari 1 digit (misalnya '01', '005')
+        if len(part) > 1 and part[0] == "0":
+            raise AppError(IP_TIDAK_VALID, field=field_name)
+        val = int(part)
+        if val < 0 or val > 255:
+            raise AppError(IP_TIDAK_VALID, field=field_name)
+        octets.append(val)
+
+    return octets
+
+
+def mask_to_prefix(mask_str: str) -> int:
+    """
+    Memvalidasi subnet mask apakah memiliki bit 1 berurutan dari kiri.
+    Mengembalikan prefix (0-32).
+    Jika tidak valid, melempar AppError(MASK_TIDAK_VALID, field='subnet_mask').
+    """
+    octets = validate_ipv4_format(mask_str, field_name="subnet_mask")
+    mask_int = (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]
+
+    # Himpunan mask valid (bit 1 berurutan dari kiri)
+    valid_masks = {}
+    for p in range(33):
+        if p == 0:
+            m = 0
+        else:
+            m = (0xFFFFFFFF << (32 - p)) & 0xFFFFFFFF
+        valid_masks[m] = p
+
+    if mask_int not in valid_masks:
+        raise AppError(MASK_TIDAK_VALID, field="subnet_mask")
+
+    return valid_masks[mask_int]
+
+
+def prefix_to_mask(prefix: int) -> Tuple[int, str]:
+    """
+    Mengubah prefix (0-32) menjadi (mask_int, mask_str).
+    """
+    if prefix < 0 or prefix > 32:
+        raise AppError(PREFIX_TIDAK_VALID, field="prefix")
+
+    if prefix == 0:
+        mask_int = 0
+    else:
+        mask_int = (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF
+
+    o1 = (mask_int >> 24) & 255
+    o2 = (mask_int >> 16) & 255
+    o3 = (mask_int >> 8) & 255
+    o4 = mask_int & 255
+    mask_str = f"{o1}.{o2}.{o3}.{o4}"
+    return mask_int, mask_str
+
+
+class SubnetRequest(BaseModel):
+    """
+    Permintaan analisis subnet satu IP:
+    - alamat_ip (wajib): IPv4 titik-desimal tanpa nol di depan.
+    - prefix (opsional jika subnet_mask diisi): 0-32.
+    - subnet_mask (opsional jika prefix diisi): mask IPv4 valid.
+    """
+    alamat_ip: str = Field(..., description="Alamat IPv4")
+    prefix: Optional[int] = Field(None, description="Prefix CIDR (0-32)")
+    subnet_mask: Optional[str] = Field(None, description="Subnet mask IPv4")

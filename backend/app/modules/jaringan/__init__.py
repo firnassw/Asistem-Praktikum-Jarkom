@@ -1,0 +1,3 @@
+"""
+Modul praktikum jaringan komputer.
+"""
