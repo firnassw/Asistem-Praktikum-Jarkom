@@ -21,8 +21,8 @@ export interface StrukturJawaban {
   diketahui: DiketahuiItem[];
   langkah: LangkahItem[];
   hasil_akhir: {
-    ringkasan?: SubnetRingkasan;
-    tabel?: SubnetTableRow[];
+    ringkasan?: SubnetRingkasan | VlsmRingkasan | FlsmRingkasan | any;
+    tabel?: SubnetTableRow[] | VlsmTableRow[];
     total_subnets?: number;
     ringkasan_tabel?: boolean;
     [key: string]: any;
@@ -61,10 +61,78 @@ export interface SubnetPayload {
   subnet_mask?: string | null;
 }
 
+export interface KebutuhanItem {
+  nama: string;
+  host: number;
+}
+
+export interface VlsmPayload {
+  alamat_induk: string;
+  prefix_induk: number;
+  kebutuhan: KebutuhanItem[];
+}
+
+export interface FlsmPayload {
+  alamat_induk: string;
+  prefix_induk: number;
+  kebutuhan: KebutuhanItem[];
+  gaya_modul?: boolean;
+}
+
+export interface VlsmTableRow {
+  no: number;
+  nama: string;
+  host_diminta: number;
+  host_tersedia: number;
+  prefix: number;
+  subnet_mask: string;
+  subnet: string;
+  host_pertama: string;
+  host_terakhir: string;
+  broadcast: string;
+  status: 'Terpakai' | 'Tidak muat' | 'Cadangan' | string;
+  ukuran_blok: number;
+  warna: string;
+  bit_host?: number;
+}
+
+export interface VlsmRingkasan {
+  metode: 'VLSM';
+  total_ruangan: number;
+  ruangan_terakomodasi: number;
+  kapasitas_induk: number;
+  total_alamat_dialokasikan: number;
+  sisa_alamat: number;
+  persen_terpakai: number;
+  sisa_rentang?: {
+    mulai: string;
+    akhir: string;
+    jumlah: number;
+  } | null;
+}
+
+export interface FlsmRingkasan {
+  metode: 'FLSM';
+  host_terbesar: number;
+  prefix_seragam: number;
+  subnet_mask_seragam: string;
+  ukuran_blok: number;
+  host_tersedia: number;
+  total_subnet_terbentuk: number;
+  subnet_terpakai: number;
+  subnet_cadangan: number;
+  kapasitas_induk: number;
+  total_alamat_dialokasikan: number;
+  sisa_alamat: number;
+  gaya_modul: boolean;
+}
+
 export interface ApiError {
   kode: string;
   pesan: string;
   field?: string | null;
+  prefix_saran?: number;
+  [key: string]: any;
 }
 
 export interface ModulMetadata {

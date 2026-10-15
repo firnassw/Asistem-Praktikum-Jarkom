@@ -118,6 +118,56 @@ export const StepCard: React.FC<StepCardProps> = ({
       );
     }
 
+    if (tabelData?.tipe === 'alokasi_blok_vlsm' || tabelData?.tipe === 'alokasi_blok_flsm') {
+      const baris = (tabelData.baris || []) as any[];
+      return (
+        <div className="flex flex-col gap-2.5">
+          {langkah.rumus && (
+            <div className="p-3 bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] font-mono text-[13px] text-[#1F1E22]">
+              {langkah.rumus}
+            </div>
+          )}
+          <div className="p-3.5 bg-[#F5F6F8] rounded-[14px] border-2 border-[#1F1E22] font-mono text-xs space-y-2.5 text-[#1F1E22]">
+            {baris.map((b: any) => (
+              <div
+                key={b.no}
+                className="flex items-start gap-2.5 pt-2 first:pt-0 border-t border-[#1F1E22]/10 first:border-t-0"
+              >
+                <span
+                  style={{ backgroundColor: b.warna || '#8BD0FC' }}
+                  className="font-bold text-[#1F1E22] border border-[#1F1E22] px-2 py-0.5 rounded text-[11px] shrink-0"
+                >
+                  Blok {b.no}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <strong className="text-[13px] font-bold">
+                      {b.status === 'Tidak muat' ? `${b.nama}: Tidak muat` : `${b.subnet}/${b.prefix}`}
+                    </strong>
+                    {b.status === 'Terpakai' && (
+                      <span className="text-[11px] text-[#5B5F6B]">
+                        ({b.nama} • {b.host_diminta} host • blok {b.ukuran_blok})
+                      </span>
+                    )}
+                    {b.status === 'Cadangan' && (
+                      <span className="text-[11px] font-sans px-1.5 py-0.5 bg-[#D6D9E2] rounded text-[#1F1E22]">
+                        Cadangan
+                      </span>
+                    )}
+                  </div>
+                  {b.status !== 'Tidak muat' && (
+                    <span className="text-[11px] text-[#5B5F6B] block mt-0.5 truncate">
+                      NA: {b.subnet} | BA: {b.broadcast} | Host: {b.host_pertama} s.d. {b.host_terakhir}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     if (langkah.rumus) {
       return (
         <div className="p-3 bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] font-mono text-[13px] text-[#1F1E22]">

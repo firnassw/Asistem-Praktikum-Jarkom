@@ -97,3 +97,40 @@ class SubnetRequest(BaseModel):
     alamat_ip: str = Field(..., description="Alamat IPv4")
     prefix: Optional[int] = Field(None, description="Prefix CIDR (0-32)")
     subnet_mask: Optional[str] = Field(None, description="Subnet mask IPv4")
+
+
+class KebutuhanItem(BaseModel):
+    """
+    Item kebutuhan host untuk satu ruangan / lab:
+    - nama (wajib): 1-30 karakter, unik.
+    - host (wajib): bilangan bulat >= 1.
+    """
+    nama: str = Field(..., description="Nama ruangan atau subnet (1-30 karakter)")
+    host: int = Field(..., description="Jumlah kebutuhan host perangkat (>= 1)")
+
+
+class VlsmRequest(BaseModel):
+    """
+    Permintaan alokasi VLSM (Variable Length Subnet Mask):
+    - alamat_induk: IPv4 titik-desimal (harus alamat jaringan untuk prefix_induk).
+    - prefix_induk: 0-30.
+    - kebutuhan: list 1-20 ruangan.
+    """
+    alamat_induk: str = Field(..., description="Alamat induk IPv4 (Network Address)")
+    prefix_induk: int = Field(..., description="Prefix induk (0-30)")
+    kebutuhan: List[KebutuhanItem] = Field(..., description="Daftar kebutuhan host (1-20 ruangan)")
+
+
+class FlsmRequest(BaseModel):
+    """
+    Permintaan alokasi FLSM (Fixed Length Subnet Mask):
+    - alamat_induk: IPv4 titik-desimal (harus alamat jaringan untuk prefix_induk).
+    - prefix_induk: 0-30.
+    - kebutuhan: list 1-20 ruangan.
+    - gaya_modul: izinkan alokasi subnet berurutan melampaui batas induk.
+    """
+    alamat_induk: str = Field(..., description="Alamat induk IPv4 (Network Address)")
+    prefix_induk: int = Field(..., description="Prefix induk (0-30)")
+    kebutuhan: List[KebutuhanItem] = Field(..., description="Daftar kebutuhan host (1-20 ruangan)")
+    gaya_modul: bool = Field(False, description="Opsi gaya modul praktikum (lanjutkan melewati batas induk)")
+

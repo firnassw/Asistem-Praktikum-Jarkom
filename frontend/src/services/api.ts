@@ -2,19 +2,29 @@
  * Klien API untuk komunikasi dengan backend FastAPI.
  */
 
-import type { ApiError, ModulMetadata } from '../types/api';
+import type {
+  ApiError,
+  FlsmPayload,
+  ModulMetadata,
+  StrukturJawaban,
+  VlsmPayload,
+} from '../types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export class ApiException extends Error {
   kode: string;
   field?: string | null;
+  prefix_saran?: number;
+  extra?: Record<string, any>;
 
   constructor(error: ApiError) {
     super(error.pesan);
     this.name = 'ApiException';
     this.kode = error.kode;
     this.field = error.field;
+    this.prefix_saran = error.prefix_saran;
+    this.extra = error;
   }
 }
 
@@ -78,11 +88,30 @@ export const api = {
     alamat_ip: string;
     prefix?: number | null;
     subnet_mask?: string | null;
-  }): Promise<import('../types/api').StrukturJawaban> {
-    return request<import('../types/api').StrukturJawaban>('/jaringan/subnet', {
+  }): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/subnet', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Alokasi VLSM (Variable Length Subnet Mask)
+   */
+  async hitungVlsm(payload: VlsmPayload): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/vlsm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Alokasi FLSM (Fixed Length Subnet Mask)
+   */
+  async hitungFlsm(payload: FlsmPayload): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/flsm', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   },
 };
-

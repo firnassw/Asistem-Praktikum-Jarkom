@@ -212,3 +212,301 @@ def susun_langkah_subnet(data: Dict[str, Any]) -> StrukturJawaban:
         kesimpulan=kesimpulan,
         peringatan=peringatan,
     )
+
+
+def susun_langkah_vlsm(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah-langkah alokasi VLSM sesuai standar ujian praktikum:
+    1. Urutkan kebutuhan host dari terbesar ke terkecil.
+    2. Tentukan prefix dan ukuran blok tiap kebutuhan.
+    3. Alokasikan blok alamat secara berurutan.
+    """
+    alamat_induk = data["alamat_induk"]
+    prefix_induk = data["prefix_induk"]
+    mask_induk = data["mask_induk"]
+    kapasitas_induk = data["kapasitas_induk"]
+    total_host_diminta = data["total_host_diminta"]
+    total_alamat_dialokasikan = data["total_alamat_dialokasikan"]
+    sisa_alamat = data["sisa_alamat"]
+    sisa_rentang = data["sisa_rentang"]
+    kebutuhan_input = data["kebutuhan_input"]
+    kebutuhan_terurut = data["kebutuhan_terurut"]
+    tabel = data["tabel"]
+    peringatan = data["peringatan"]
+
+    # 1. Diketahui
+    daftar_kebutuhan_str = ", ".join(f"{k['nama']}: {k['host']} host" for k in kebutuhan_input)
+    diketahui = [
+        DiketahuiItem(label="Induk Jaringan", nilai=f"{alamat_induk}/{prefix_induk} (Mask: {mask_induk}, Kapasitas: {kapasitas_induk} IP)"),
+        DiketahuiItem(label="Metode Alokasi", nilai="VLSM (Variable Length Subnet Mask)"),
+        DiketahuiItem(label="Daftar Kebutuhan", nilai=daftar_kebutuhan_str),
+    ]
+
+    # 2. Langkah 1: Urutkan Kebutuhan
+    urutan_str = " → ".join(f"{k['nama']} ({k['host']} host)" for k in kebutuhan_terurut)
+    langkah1 = LangkahItem(
+        judul="Urutkan kebutuhan host dari terbesar ke terkecil",
+        penjelasan=(
+            "Metode VLSM memprioritaskan alokasi dari blok subnet terbesar ke terkecil. "
+            "Pengurutan ini menjamin bahwa setiap alamat jaringan (Network Address) selalu "
+            "jatuh pada batas kelipatan ukuran bloknya (boundary alignment), sehingga tidak "
+            "terjadi fragmentasi ruang alamat IP."
+        ),
+        rumus=None,
+        tabel={
+            "tipe": "urutan_kebutuhan",
+            "daftar": [f"{i + 1}. {k['nama']} ({k['host']} host)" for i, k in enumerate(kebutuhan_terurut)],
+        },
+        hasil=f"Urutan alokasi: {urutan_str}",
+    )
+
+    # 3. Langkah 2: Tentukan Prefix dan Ukuran Blok
+    perhitungan_prefix = []
+    hasil_prefix_parts = []
+    for r in tabel:
+        if r["status"] != "Tidak muat":
+            perhitungan_prefix.append({
+                "nama": r["nama"],
+                "host_diminta": r["host_diminta"],
+                "rumus": f"{r['host_diminta']} + 2 = {r['host_diminta'] + 2} <= 2^{r['bit_host']} ({r['ukuran_blok']})",
+                "prefix": f"/{r['prefix']}",
+                "blok": r["ukuran_blok"],
+                "mask": r["subnet_mask"],
+            })
+            hasil_prefix_parts.append(f"{r['nama']}: /{r['prefix']} ({r['ukuran_blok']} IP)")
+
+    langkah2 = LangkahItem(
+        judul="Tentukan prefix dan ukuran blok tiap kebutuhan",
+        penjelasan=(
+            "Untuk setiap ruangan, hitung jumlah bit host (y) yang memenuhi: "
+            "host + 2 (Network + Broadcast) <= 2^y. Prefix dihitung dengan rumus "
+            "prefix = 32 - y (dengan batas minimal /30 untuk alokasi host). "
+            "Ukuran blok subnet adalah 2^y alamat."
+        ),
+        rumus="host + 2 <= 2^y, prefix = 32 - y, ukuran blok = 2^y",
+        tabel={
+            "tipe": "perhitungan_prefix",
+            "baris": perhitungan_prefix,
+        },
+        hasil="; ".join(hasil_prefix_parts),
+    )
+
+    # 4. Langkah 3: Alokasikan Blok Alamat Berurutan
+    alokasi_parts = []
+    for r in tabel:
+        if r["status"] != "Tidak muat":
+            alokasi_parts.append(
+                f"{r['nama']} ({r['subnet']}/{r['prefix']}): host {r['host_pertama']} - {r['host_terakhir']}, BA {r['broadcast']}"
+            )
+        else:
+            alokasi_parts.append(f"{r['nama']} ({r['host_diminta']} host): Tidak muat di jaringan induk")
+
+    langkah3 = LangkahItem(
+        judul="Alokasikan blok alamat secara berurutan",
+        penjelasan=(
+            f"Tempatkan blok subnet secara kontigu (berdampingan tanpa celah) mulai dari "
+            f"alamat induk {alamat_induk}. Setiap subnet memiliki Network Address (NA) di "
+            f"awal blok, Broadcast Address (BA) di akhir blok, serta rentang host valid di antaranya."
+        ),
+        rumus="NA = cursor, BA = cursor + ukuran blok - 1, host = (NA + 1) s.d. (BA - 1)",
+        tabel={
+            "tipe": "alokasi_blok_vlsm",
+            "baris": tabel,
+        },
+        hasil=f"Total dialokasikan: {total_alamat_dialokasikan}/{kapasitas_induk} IP | Sisa bebas: {sisa_alamat} IP",
+    )
+
+    langkah_list = [langkah1, langkah2, langkah3]
+
+    # 5. Hasil Akhir
+    ruangan_terakomodasi = sum(1 for r in tabel if r["status"] == "Terpakai")
+    persen_terpakai = (total_alamat_dialokasikan * 100) // kapasitas_induk if kapasitas_induk else 0
+
+    hasil_akhir = {
+        "ringkasan": {
+            "metode": "VLSM",
+            "total_ruangan": len(kebutuhan_input),
+            "ruangan_terakomodasi": ruangan_terakomodasi,
+            "kapasitas_induk": kapasitas_induk,
+            "total_alamat_dialokasikan": total_alamat_dialokasikan,
+            "sisa_alamat": sisa_alamat,
+            "persen_terpakai": persen_terpakai,
+            "sisa_rentang": sisa_rentang,
+        },
+        "tabel": tabel,
+    }
+
+    # 6. Kesimpulan Utuh Bahasa Indonesia
+    if ruangan_terakomodasi == len(kebutuhan_input):
+        if sisa_rentang:
+            kesimpulan = (
+                f"Alokasi VLSM untuk jaringan induk {alamat_induk}/{prefix_induk} berhasil "
+                f"mengakomodasi seluruh {len(kebutuhan_input)} ruangan dengan menggunakan "
+                f"{total_alamat_dialokasikan} dari {kapasitas_induk} alamat IP ({persen_terpakai}%). "
+                f"Tersisa {sisa_alamat} alamat IP bebas ({sisa_rentang['mulai']} s.d. {sisa_rentang['akhir']}) "
+                f"yang siap digunakan untuk ekspansi jaringan mendatang."
+            )
+        else:
+            kesimpulan = (
+                f"Alokasi VLSM untuk jaringan induk {alamat_induk}/{prefix_induk} berhasil "
+                f"mengakomodasi seluruh {len(kebutuhan_input)} ruangan dengan menggunakan "
+                f"seluruh {total_alamat_dialokasikan} alamat IP induk tanpa menyisakan ruang bebas."
+            )
+    else:
+        tidak_muat = [r["nama"] for r in tabel if r["status"] == "Tidak muat"]
+        kesimpulan = (
+            f"Alokasi VLSM untuk jaringan induk {alamat_induk}/{prefix_induk} (kapasitas {kapasitas_induk} IP) "
+            f"hanya dapat menampung {ruangan_terakomodasi} dari {len(kebutuhan_input)} ruangan. "
+            f"Sebanyak {len(tidak_muat)} ruangan ({', '.join(tidak_muat)}) tidak muat dan "
+            f"memerlukan jaringan induk dengan prefix lebih kecil (kapasitas lebih besar)."
+        )
+
+    return StrukturJawaban(
+        fitur="vlsm",
+        diketahui=diketahui,
+        langkah=langkah_list,
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=peringatan,
+    )
+
+
+def susun_langkah_flsm(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah-langkah alokasi FLSM sesuai standar ujian praktikum:
+    1. Tentukan kebutuhan host terbesar dan prefix seragam.
+    2. Periksa kecukupan subnet pada jaringan induk.
+    3. Alokasikan blok subnet berukuran tetap.
+    """
+    alamat_induk = data["alamat_induk"]
+    prefix_induk = data["prefix_induk"]
+    mask_induk = data["mask_induk"]
+    kapasitas_induk = data["kapasitas_induk"]
+    host_terbesar = data["host_terbesar"]
+    p = data["prefix_seragam"]
+    mask_seragam = data["subnet_mask_seragam"]
+    ukuran_blok = data["ukuran_blok"]
+    host_tersedia = data["host_tersedia"]
+    bit_host = data["bit_host"]
+    m = data["m"]
+    n = data["n"]
+    r = data["r"]
+    gaya_modul = data["gaya_modul"]
+    total_alamat_dialokasikan = data["total_alamat_dialokasikan"]
+    sisa_alamat = data["sisa_alamat"]
+    kebutuhan_input = data["kebutuhan_input"]
+    tabel = data["tabel"]
+    peringatan = data["peringatan"]
+
+    # 1. Diketahui
+    daftar_kebutuhan_str = ", ".join(f"{k['nama']}: {k['host']} host" for k in kebutuhan_input)
+    diketahui = [
+        DiketahuiItem(label="Induk Jaringan", nilai=f"{alamat_induk}/{prefix_induk} (Kapasitas: {kapasitas_induk} IP)"),
+        DiketahuiItem(label="Metode Alokasi", nilai="FLSM (Fixed Length Subnet Mask)"),
+        DiketahuiItem(label="Kebutuhan Terbesar", nilai=f"{host_terbesar} host"),
+        DiketahuiItem(label="Daftar Kebutuhan", nilai=daftar_kebutuhan_str),
+    ]
+
+    # 2. Langkah 1: Kebutuhan terbesar dan prefix seragam
+    langkah1 = LangkahItem(
+        judul="Tentukan kebutuhan host terbesar dan prefix seragam",
+        penjelasan=(
+            f"Pada metode FLSM, seluruh subnet menggunakan panjang subnet mask yang seragam. "
+            f"Ukuran subnet ditentukan oleh kebutuhan host terbesar ({host_terbesar} host) "
+            f"agar seluruh ruangan dapat tertampung. Rumus pemenuhan host: "
+            f"{host_terbesar} + 2 <= 2^{bit_host} ({ukuran_blok} alamat/subnet), sehingga "
+            f"prefix seragam yang digunakan adalah /{p} (subnet mask {mask_seragam})."
+        ),
+        rumus=f"host_terbesar + 2 <= 2^y, prefix = 32 - y (/{p})",
+        tabel=None,
+        hasil=f"Kebutuhan terbesar: {host_terbesar} host → Prefix seragam: /{p} (Ukuran blok: {ukuran_blok} IP, {host_tersedia} host valid)",
+    )
+
+    # 3. Langkah 2: Periksa kecukupan subnet
+    if gaya_modul and "MELEWATI_INDUK" in peringatan:
+        penjelasan_l2 = (
+            f"Jaringan induk /{prefix_induk} hanya memuat {n} subnet /{p} (2^({p} - {prefix_induk}) = {n}), "
+            f"sedangkan dibutuhkan {m} subnet. Opsi 'gaya modul praktikum' aktif, sehingga "
+            f"alokasi {m} subnet tetap dilanjutkan secara berurutan meskipun melampaui batas alamat induk."
+        )
+        hasil_l2 = f"Subnet induk: {n} | Dibutuhkan: {m} subnet (Alokasi dilanjutkan gaya modul praktikum)"
+    else:
+        penjelasan_l2 = (
+            f"Jumlah subnet berukuran /{p} yang dapat dibentuk dari jaringan induk /{prefix_induk} "
+            f"adalah 2^({p} - {prefix_induk}) = {n} subnet. Karena jumlah ruangan yang diminta ({m}) "
+            f"dapat ditampung dalam kapasitas {n} subnet, pembagian FLSM dapat dipenuhi."
+        )
+        hasil_l2 = f"Subnet tersedia: {n} | Dibutuhkan: {m} subnet"
+
+    langkah2 = LangkahItem(
+        judul="Periksa kecukupan subnet pada jaringan induk",
+        penjelasan=penjelasan_l2,
+        rumus=f"Jumlah subnet = 2^(prefix_subnet - prefix_induk) = 2^({p} - {prefix_induk}) = {n}",
+        tabel=None,
+        hasil=hasil_l2,
+    )
+
+    # 4. Langkah 3: Alokasikan blok subnet berukuran tetap
+    cadangan_count = sum(1 for r_row in tabel if r_row["status"] == "Cadangan")
+    langkah3 = LangkahItem(
+        judul="Alokasikan blok subnet berukuran tetap",
+        penjelasan=(
+            f"Bagikan blok subnet berukuran /{p} ({ukuran_blok} alamat) secara berurutan mulai dari "
+            f"alamat induk {alamat_induk}. Sebanyak {m} subnet awal dialokasikan untuk kebutuhan ruangan, "
+            f"dan {cadangan_count} subnet berikutnya ditandai sebagai 'Cadangan'."
+        ),
+        rumus=f"Ukuran tiap blok = 2^(32 - {p}) = {ukuran_blok} alamat",
+        tabel={
+            "tipe": "alokasi_blok_flsm",
+            "baris": tabel,
+        },
+        hasil=f"Terbentuk {len(tabel)} subnet berukuran /{p} ({m} terpakai, {cadangan_count} cadangan)",
+    )
+
+    langkah_list = [langkah1, langkah2, langkah3]
+
+    # 5. Hasil Akhir
+    hasil_akhir = {
+        "ringkasan": {
+            "metode": "FLSM",
+            "host_terbesar": host_terbesar,
+            "prefix_seragam": p,
+            "subnet_mask_seragam": mask_seragam,
+            "ukuran_blok": ukuran_blok,
+            "host_tersedia": host_tersedia,
+            "total_subnet_terbentuk": len(tabel),
+            "subnet_terpakai": m,
+            "subnet_cadangan": cadangan_count,
+            "kapasitas_induk": kapasitas_induk,
+            "total_alamat_dialokasikan": total_alamat_dialokasikan,
+            "sisa_alamat": sisa_alamat,
+            "gaya_modul": gaya_modul,
+        },
+        "tabel": tabel,
+    }
+
+    # 6. Kesimpulan Utuh Bahasa Indonesia
+    if "MELEWATI_INDUK" in peringatan:
+        kesimpulan = (
+            f"Alokasi FLSM menghasilkan {len(tabel)} subnet berukuran /{p}. "
+            f"Alokasi ini melampaui batas kapasitas induk {alamat_induk}/{prefix_induk} "
+            f"sesuai opsi gaya modul praktikum. Disarankan menggunakan induk /{r} atau "
+            f"beralih ke metode VLSM untuk efisiensi ruang alamat."
+        )
+    else:
+        kesimpulan = (
+            f"Pembagian FLSM dari induk {alamat_induk}/{prefix_induk} berhasil membentuk "
+            f"{len(tabel)} subnet berukuran /{p} ({ukuran_blok} IP per subnet). Sebanyak {m} "
+            f"subnet dialokasikan untuk kebutuhan ruangan dan {cadangan_count} subnet "
+            f"ditandai sebagai cadangan."
+        )
+
+    return StrukturJawaban(
+        fitur="flsm",
+        diketahui=diketahui,
+        langkah=langkah_list,
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=peringatan,
+    )
+

@@ -77,6 +77,7 @@ class AppError(Exception):
         pesan: Optional[str] = None,
         field: Optional[str] = None,
         status_code: int = status.HTTP_400_BAD_REQUEST,
+        extra: Optional[Dict[str, Any]] = None,
         **format_kwargs: Any
     ):
         self.kode = kode
@@ -88,14 +89,21 @@ class AppError(Exception):
             self.pesan = DEFAULT_MESSAGES.get(kode, "Terjadi kesalahan.")
         self.field = field
         self.status_code = status_code
+        self.extra = extra or {}
+        # Jika r ada di format_kwargs, simpan juga sebagai prefix_saran jika belum ada
+        if "r" in format_kwargs and "prefix_saran" not in self.extra:
+            self.extra["prefix_saran"] = format_kwargs["r"]
         super().__init__(self.pesan)
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        res = {
             "kode": self.kode,
             "pesan": self.pesan,
             "field": self.field
         }
+        if self.extra:
+            res.update(self.extra)
+        return res
 
 
 async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:

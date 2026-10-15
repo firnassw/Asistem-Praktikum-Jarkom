@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import type { SubnetTableRow } from '../types/api';
+import type { SubnetTableRow, VlsmTableRow } from '../types/api';
 import { getSubnetColor } from './AddressBar';
 import { Copy, Check, Printer } from 'lucide-react';
 
 interface ResultTableProps {
-  tabel: SubnetTableRow[];
+  tabel: (SubnetTableRow | VlsmTableRow)[] | any[];
   targetIp?: string;
   prefix?: number;
   totalSubnets?: number;
   ringkasanTabel?: boolean;
+  judul?: string;
+  mode?: 'subnet' | 'vlsm_flsm';
 }
 
 export const ResultTable: React.FC<ResultTableProps> = ({
@@ -17,16 +19,56 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   prefix,
   totalSubnets,
   ringkasanTabel = false,
+  judul,
+  mode,
 }) => {
   const [copied, setCopied] = useState(false);
 
+  // Deteksi otomatis apakah tabel VLSM/FLSM
+  const isVlsmFlsm =
+    mode === 'vlsm_flsm' ||
+    (tabel.length > 0 && ('host_diminta' in tabel[0] || 'nama' in tabel[0]));
+
   const handleCopyTable = () => {
-    // Susun format teks tabel siap salin untuk laporan
-    const header = ['No', 'Subnet (NA)', 'Host Awal', 'Host Akhir', 'Broadcast (BA)'].join('\t');
-    const rows = tabel.map((r) =>
-      [r.no, r.subnet, r.host_pertama, r.host_terakhir, r.broadcast].join('\t')
-    );
-    const textToCopy = [header, ...rows].join('\n');
+    let textToCopy = '';
+
+    if (isVlsmFlsm) {
+      const header = [
+        'No',
+        'Ruangan',
+        'Host Diminta',
+        'Host Tersedia',
+        'Prefix',
+        'Subnet Mask',
+        'Subnet (NA)',
+        'Host Pertama',
+        'Host Terakhir',
+        'Broadcast (BA)',
+        'Status',
+      ].join('\t');
+      const rows = (tabel as VlsmTableRow[]).map((r) =>
+        [
+          r.no,
+          r.nama,
+          r.host_diminta,
+          r.host_tersedia,
+          `/${r.prefix}`,
+          r.subnet_mask,
+          r.subnet,
+          r.host_pertama,
+          r.host_terakhir,
+          r.broadcast,
+          r.status,
+        ].join('\t')
+      );
+      textToCopy = [header, ...rows].join('\n');
+    } else {
+      const header = ['No', 'Subnet (NA)', 'Host Awal', 'Host Akhir', 'Broadcast (BA)'].join('\t');
+      const rows = (tabel as SubnetTableRow[]).map((r) =>
+        [r.no, r.subnet, r.host_pertama, r.host_terakhir, r.broadcast].join('\t')
+      );
+      textToCopy = [header, ...rows].join('\n');
+    }
 
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
@@ -37,16 +79,22 @@ export const ResultTable: React.FC<ResultTableProps> = ({
     window.print();
   };
 
+  const displayJudul =
+    judul ||
+    (isVlsmFlsm
+      ? `Tabel Alokasi Subnet`
+      : `Tabel Alokasi Seluruh Subnet ${prefix ? `(CIDR /${prefix})` : ''}`);
+
   return (
     <section className="bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm flex flex-col gap-4 w-full">
       {/* Header Tabel & Tombol Aksi */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-[#E3E5EA]">
         <div>
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#5B5F6B]">
-            Distribusi Lengkap
+            {isVlsmFlsm ? 'Alokasi Subnet' : 'Distribusi Lengkap'}
           </span>
           <h3 className="font-title text-[18px] font-bold text-[#1F1E22]">
-            Tabel Alokasi Seluruh Subnet {prefix ? `(CIDR /${prefix})` : ''}
+            {displayJudul}
           </h3>
         </div>
 
@@ -54,7 +102,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
           <button
             onClick={handleCopyTable}
             type="button"
-            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5"
+            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer"
           >
             {copied ? <Check size={15} className="text-[#16794C]" /> : <Copy size={15} />}
             <span>{copied ? 'Tersalin' : 'Salin tabel'}</span>
@@ -62,7 +110,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
           <button
             onClick={handlePrint}
             type="button"
-            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5"
+            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer"
           >
             <Printer size={15} />
             <span>Cetak</span>
@@ -72,58 +120,143 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 
       {/* Wadah Tabel yang Menggulir di Wadahnya Sendiri (overflow-x-auto) */}
       <div className="w-full overflow-x-auto rounded-[12px] border border-[#1F1E22]/15">
-        <table className="w-full text-left border-collapse min-w-[640px]">
-          <thead>
-            <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">
-              <th className="py-3 px-3.5 w-24">Subnet</th>
-              <th className="py-3 px-3.5">Network (NA)</th>
-              <th className="py-3 px-3.5">Host Awal</th>
-              <th className="py-3 px-3.5">Host Akhir</th>
-              <th className="py-3 px-3.5">Broadcast (BA)</th>
-              <th className="py-3 px-3.5 text-center w-36">Status</th>
-            </tr>
-          </thead>
-          <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
-            {tabel.map((row, idx) => {
-              const color = getSubnetColor(idx);
-              const isTarget = row.aktif;
+        {isVlsmFlsm ? (
+          <table className="w-full text-left border-collapse min-w-[760px]">
+            <thead>
+              <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">
+                <th className="py-3 px-3.5">Ruangan</th>
+                <th className="py-3 px-3 text-right">Host Diminta</th>
+                <th className="py-3 px-3 text-right">Host Tersedia</th>
+                <th className="py-3 px-3.5">Prefix / Mask</th>
+                <th className="py-3 px-3.5">Subnet (NA)</th>
+                <th className="py-3 px-3.5">Host Pertama</th>
+                <th className="py-3 px-3.5">Host Terakhir</th>
+                <th className="py-3 px-3.5">Broadcast (BA)</th>
+                <th className="py-3 px-3.5 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
+              {(tabel as VlsmTableRow[]).map((row, idx) => {
+                const color = row.warna || getSubnetColor(idx);
+                const isTidakMuat = row.status === 'Tidak muat';
+                const isCadangan = row.status === 'Cadangan';
 
-              return (
-                <tr
-                  key={row.no}
-                  className={`transition-colors ${
-                    isTarget
-                      ? 'bg-[#FFF8D1] font-bold text-[#1F1E22]'
-                      : 'hover:bg-[#F5F6F8]/80 text-[#1F1E22]'
-                  }`}
-                >
-                  <td className="py-2.5 px-3.5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        style={{ backgroundColor: color }}
-                        className="w-2.5 h-2.5 rounded-full border border-[#1F1E22]/30 shrink-0"
-                      />
-                      <span className="font-sans font-bold">#{row.no}</span>
-                    </div>
-                  </td>
-                  <td className="py-2.5 px-3.5 font-bold">{row.na}</td>
-                  <td className="py-2.5 px-3.5">{row.host_pertama}</td>
-                  <td className="py-2.5 px-3.5">{row.host_terakhir}</td>
-                  <td className="py-2.5 px-3.5 font-bold">{row.broadcast}</td>
-                  <td className="py-2.5 px-3.5 text-center">
-                    {isTarget ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-extrabold bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22]/20 shadow-2xs">
-                        ● Target {targetIp ? `(${targetIp})` : ''}
-                      </span>
-                    ) : (
-                      <span className="text-[#8A8F9C]">-</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                return (
+                  <tr
+                    key={row.no || idx}
+                    className={`transition-colors ${
+                      isTidakMuat
+                        ? 'bg-[#FCE8E6]/40 text-[#1F1E22]'
+                        : isCadangan
+                        ? 'bg-[#F5F6F8]/60 text-[#5B5F6B]'
+                        : 'hover:bg-[#F5F6F8]/80 text-[#1F1E22]'
+                    }`}
+                  >
+                    <td className="py-2.5 px-3.5 font-sans">
+                      <div className="flex items-center gap-2">
+                        <span
+                          style={{ backgroundColor: color }}
+                          className="w-2.5 h-2.5 rounded-full border border-[#1F1E22]/30 shrink-0"
+                        />
+                        <span className="font-bold text-[#1F1E22]">{row.nama}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-right">
+                      {isCadangan ? '-' : row.host_diminta}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-medium">
+                      {isTidakMuat ? '-' : row.host_tersedia}
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-[#1F1E22]">/{row.prefix}</span>
+                        <span className="text-[10px] text-[#5B5F6B]">{row.subnet_mask}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3.5 font-bold text-[#16794C]">
+                      {row.subnet}
+                    </td>
+                    <td className="py-2.5 px-3.5">{row.host_pertama}</td>
+                    <td className="py-2.5 px-3.5">{row.host_terakhir}</td>
+                    <td className="py-2.5 px-3.5 font-bold text-[#B3261E]">
+                      {row.broadcast}
+                    </td>
+                    <td className="py-2.5 px-3.5 text-center">
+                      {row.status === 'Terpakai' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-extrabold bg-[#E3F4EA] text-[#16794C] border border-[#16794C]/30">
+                          Terpakai
+                        </span>
+                      )}
+                      {row.status === 'Cadangan' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-bold bg-[#D6D9E2] text-[#1F1E22] border border-[#1F1E22]/20">
+                          Cadangan
+                        </span>
+                      )}
+                      {row.status === 'Tidak muat' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-bold bg-[#FCE8E6] text-[#B3261E] border border-[#B3261E]/30">
+                          Tidak muat
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <table className="w-full text-left border-collapse min-w-[640px]">
+            <thead>
+              <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">
+                <th className="py-3 px-3.5 w-24">Subnet</th>
+                <th className="py-3 px-3.5">Network (NA)</th>
+                <th className="py-3 px-3.5">Host Awal</th>
+                <th className="py-3 px-3.5">Host Akhir</th>
+                <th className="py-3 px-3.5">Broadcast (BA)</th>
+                <th className="py-3 px-3.5 text-center w-36">Status</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
+              {(tabel as SubnetTableRow[]).map((row, idx) => {
+                const color = getSubnetColor(idx);
+                const isTarget = row.aktif;
+
+                return (
+                  <tr
+                    key={row.no}
+                    className={`transition-colors ${
+                      isTarget
+                        ? 'bg-[#FFF8D1] font-bold text-[#1F1E22]'
+                        : 'hover:bg-[#F5F6F8]/80 text-[#1F1E22]'
+                    }`}
+                  >
+                    <td className="py-2.5 px-3.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          style={{ backgroundColor: color }}
+                          className="w-2.5 h-2.5 rounded-full border border-[#1F1E22]/30 shrink-0"
+                        />
+                        <span className="font-sans font-bold">#{row.no}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3.5 font-bold">{row.na}</td>
+                    <td className="py-2.5 px-3.5">{row.host_pertama}</td>
+                    <td className="py-2.5 px-3.5">{row.host_terakhir}</td>
+                    <td className="py-2.5 px-3.5 font-bold">{row.broadcast}</td>
+                    <td className="py-2.5 px-3.5 text-center">
+                      {isTarget ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-extrabold bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22]/20 shadow-2xs">
+                          ● Target {targetIp ? `(${targetIp})` : ''}
+                        </span>
+                      ) : (
+                        <span className="text-[#8A8F9C]">-</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {ringkasanTabel && (
