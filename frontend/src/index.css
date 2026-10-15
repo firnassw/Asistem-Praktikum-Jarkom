@@ -148,6 +148,15 @@
   letter-spacing: 0em;
 }
 
+/* Sembunyikan scrollbar bawaan browser pada elemen interaktif horizontal */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Print CSS per DESIGN.md */
 @media print {
   aside,

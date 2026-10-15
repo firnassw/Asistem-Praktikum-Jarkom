@@ -34,8 +34,14 @@ export const AddressBar: React.FC<AddressBarProps> = ({
 
   return (
     <div className="w-full flex flex-col gap-3">
-      {/* 1. Bar Horizontal Blok Subnet */}
-      <div className="w-full h-11 rounded-[14px] border-2 border-[#1F1E22] bg-[#FFFFFF] p-1 flex items-stretch gap-1 overflow-x-auto shadow-xs select-none">
+      {/* 1. Bar Horizontal Blok Subnet Tanpa Scrollbar Kering */}
+      <div
+        className="w-full h-14 rounded-[16px] border-2 border-[#1F1E22] bg-[#FFFFFF] p-1.5 flex items-stretch gap-1.5 shadow-xs select-none overflow-x-auto no-scrollbar"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
         {displaySubnets.map((sub, idx) => {
           const color = getSubnetColor(idx);
           const isTarget = sub.aktif;
@@ -45,20 +51,18 @@ export const AddressBar: React.FC<AddressBarProps> = ({
               key={sub.no}
               title={`Subnet ${sub.no}: ${sub.subnet} (${sub.host_pertama} - ${sub.host_terakhir})`}
               style={{ backgroundColor: color }}
-              className={`flex-1 min-w-[70px] sm:min-w-[85px] rounded-[8px] flex items-center justify-center px-1 text-center transition-all ${
+              className={`flex-1 min-w-[58px] sm:min-w-0 rounded-[10px] flex flex-col items-center justify-center px-1.5 py-1 text-center transition-all ${
                 isTarget
-                  ? 'border-2 border-[#1F1E22] font-extrabold shadow-sm scale-y-105'
-                  : 'border border-[#1F1E22]/30 opacity-85 hover:opacity-100'
+                  ? 'border-2 border-[#1F1E22] shadow-xs ring-2 ring-[#1F1E22]/20 font-extrabold'
+                  : 'border border-[#1F1E22]/30 opacity-90 hover:opacity-100'
               }`}
             >
-              <div className="flex flex-col items-center leading-none">
-                <span className="font-sans text-[11px] font-bold text-[#1F1E22] truncate max-w-full">
-                  #{sub.no}
-                </span>
-                <span className="font-mono text-[10px] text-[#1F1E22] truncate max-w-full">
-                  .{sub.na.split('.').pop()}
-                </span>
-              </div>
+              <span className="font-sans text-[11px] font-extrabold text-[#1F1E22] leading-tight">
+                #{sub.no}
+              </span>
+              <span className="font-mono text-[11px] font-bold text-[#1F1E22] leading-tight">
+                .{sub.na.split('.').pop()}
+              </span>
             </div>
           );
         })}
@@ -66,7 +70,7 @@ export const AddressBar: React.FC<AddressBarProps> = ({
         {hasMore && (
           <div
             title={`+${tabelSubnet.length - 8} subnet lainnya`}
-            className="flex-none px-2 rounded-[8px] bg-[#D6D9E2] border border-[#1F1E22]/30 flex items-center justify-center font-mono text-[11px] font-bold text-[#1F1E22]"
+            className="flex-none px-2.5 rounded-[10px] bg-[#D6D9E2] border border-[#1F1E22]/30 flex items-center justify-center font-mono text-[11px] font-bold text-[#1F1E22]"
           >
             +{tabelSubnet.length - 8}
           </div>
