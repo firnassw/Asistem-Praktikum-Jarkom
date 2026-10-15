@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asisten Praktikum Jaringan - Rencana Ruangan</title>
+  <!-- Google Fonts: Montserrat & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FCE76C',
+            'primary-pressed': '#F2D640',
+            secondary: '#8BD0FC',
+            tertiary: '#FF8F5C',
+            ink: '#1F1E22',
+            'ink-raised': '#2E2D33',
+            'on-ink': '#FFFFFF',
+            background: '#F5F6F8',
+            surface: '#FFFFFF',
+            line: '#E3E5EA',
+            'line-strong': '#8A8F9C',
+            'text-muted': '#5B5F6B',
+            faded: '#D6D9E2',
+            'secondary-soft': '#E3F4FE',
+            'primary-soft': '#FFF8D1',
+            'tertiary-soft': '#FFE6DA',
+            'subnet-4': '#C9D0E4',
+            success: '#16794C',
+            'success-soft': '#E3F4EA',
+            warning: '#8A5A00',
+            'warning-soft': '#FFF4D6',
+            error: '#B3261E',
+            'error-soft': '#FCE8E6',
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          borderRadius: {
+            sm: '6px',
+            md: '12px',
+            lg: '20px',
+            xl: '28px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F5F6F8;
+      color: #1F1E22;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Neo-brutalist offset block styling */
+    .offset-container {
+      position: relative;
+    }
+    .offset-layer {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: -8px;
+      bottom: -8px;
+      border-radius: 20px;
+      z-index: 0;
+    }
+    .offset-content {
+      position: relative;
+      z-index: 1;
+      background-color: #FFFFFF;
+      border: 2px solid #1F1E22;
+      border-radius: 20px;
+    }
+
+    /* Table custom scroll */
+    .table-container {
+      overflow-x: auto;
+    }
+    .table-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: #8A8F9C;
+      border-radius: 9999px;
+    }
+
+    /* Buttons with 2px ink border */
+    .btn-ink-border {
+      border: 2px solid #1F1E22;
+      transition: transform 0.1s ease, background-color 0.15s ease;
+    }
+    .btn-ink-border:active {
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex text-[#1F1E22]">
+
+  <!-- SIDEBAR (264px, background ink #1F1E22) -->
+  <aside class="w-[264px] min-w-[264px] bg-[#1F1E22] text-white flex flex-col justify-between p-4 min-h-screen sticky top-0 h-screen overflow-y-auto">
+    <div class="space-y-6">
+      <!-- App Brand Logo & Name -->
+      <div class="px-3 py-2 flex items-center space-x-3">
+        <div class="w-10 h-10 bg-[#FCE76C] rounded-md border-2 border-white flex items-center justify-center font-extrabold text-[#1F1E22] text-lg font-mono">
+          APJ
+        </div>
+        <div>
+          <h1 class="font-extrabold text-sm leading-tight text-white tracking-tight">Asisten Praktikum</h1>
+          <p class="text-xs text-gray-400 font-medium">Jaringan Komputer</p>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="space-y-1.5" aria-label="Navigasi Utama">
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          Beranda
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+          Subnetting
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          FLSM dan VLSM
+        </a>
+
+        <!-- Active Item: Rencana ruangan -->
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold bg-[#FCE76C] text-[#1F1E22] border-2 border-[#1F1E22] shadow-sm">
+          <svg class="w-4 h-4 mr-3 text-[#1F1E22]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+          Rencana ruangan
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+          </svg>
+          Konversi basis
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+          </svg>
+          Generator DHCP
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          Tabel IP
+        </a>
+
+        <a href="#" class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Tentang
+        </a>
+      </nav>
+    </div>
+
+    <!-- Modul Practical Reference badge -->
+    <div class="bg-[#2E2D33] rounded-md p-3 border border-[#8A8F9C]/30 text-xs">
+      <div class="flex items-center space-x-1.5 text-[#FCE76C] font-bold mb-1">
+        <span class="inline-block w-2 h-2 rounded-full bg-[#16794C]"></span>
+        <span>Modul Jarkom v3.2</span>
+      </div>
+      <p class="text-gray-300 text-[11px] leading-relaxed">Kompatibel Packet Tracer & Ujian Praktikum Jaringan Komputer.</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA (max-w-[1280px], padding 32px) -->
+  <main class="flex-1 max-w-[1280px] p-8 overflow-y-auto">
+
+    <!-- HEADER BAND (yellow #FCE76C, rounded-xl 28px, border ink 2px) -->
+    <section class="bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[28px] p-8 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="font-extrabold text-3xl md:text-4xl text-[#1F1E22] tracking-tight mb-2">
+          Rencana ruangan
+        </h2>
+        <p class="text-[#1F1E22] font-medium text-base">
+          Isi jumlah device tiap ruangan, dapatkan pembagian subnet lengkap dengan langkahnya.
+        </p>
+      </div>
+      <div class="flex items-center space-x-2 self-start md:self-auto">
+        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-white text-[#1F1E22] border-2 border-[#1F1E22]">
+          <span class="w-2 h-2 rounded-full bg-[#16794C] mr-1.5"></span>
+          Mode VLSM Aktif
+        </span>
+      </div>
+    </section>
+
+    <!-- TWO-COLUMN WORKSPACE: FORM (5/12) & RESULT (7/12) -->
+    <div class="grid grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT FORM COLUMN (5 of 12, sticky top-6) -->
+      <div class="col-span-12 lg:col-span-5 sticky top-6">
+        <div class="bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b border-[#E3E5EA] pb-3">
+            <h3 class="font-extrabold text-lg text-[#1F1E22]">Formulir Alokasi</h3>
+            <span class="text-xs font-bold text-[#5B5F6B] bg-[#F5F6F8] px-2.5 py-1 rounded-md border border-[#E3E5EA]">Kelas C Private</span>
+          </div>
+
+          <!-- Input Dua Digit Terakhir NIM & Chip IP Global -->
+          <div>
+            <label for="nim-input" class="block text-xs font-bold uppercase tracking-wider text-[#1F1E22] mb-1.5">
+              Dua digit terakhir NIM
+            </label>
+            <div class="flex items-center space-x-3">
+              <input
+                id="nim-input"
+                type="text"
+                value="50"
+                class="w-24 h-12 bg-white text-[#1F1E22] font-mono text-base font-bold text-center border-2 border-[#8A8F9C] rounded-[12px] focus:outline-none focus:border-[#1F1E22] focus:ring-2 focus:ring-[#1F1E22]/20"
+              />
+              <div class="flex-1 bg-[#FFF8D1] border-2 border-[#1F1E22] rounded-[12px] h-12 px-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-[#1F1E22]">IP Global:</span>
+                <span class="font-mono text-xs font-bold text-[#1F1E22] bg-white px-2 py-0.5 rounded border border-[#1F1E22]">192.168.50.0/24</span>
+              </div>
+            </div>
+            <p class="text-[12px] text-[#5B5F6B] mt-1.5 font-medium">Blok jaringan induk otomatis disesuaikan dengan digit NIM.</p>
+          </div>
+
+          <!-- Stepper Jumlah Ruangan -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-[#1F1E22] mb-1.5">
+              Jumlah ruangan
+            </label>
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center border-2 border-[#1F1E22] rounded-[12px] overflow-hidden bg-white">
+                <button type="button" aria-label="Kurangi ruangan" class="w-11 h-11 flex items-center justify-center font-bold text-lg text-[#1F1E22] hover:bg-[#F5F6F8] active:bg-[#E3E5EA] transition-colors border-r-2 border-[#1F1E22]">
+                  −
+                </button>
+                <div class="w-14 text-center font-mono font-bold text-lg text-[#1F1E22]">
+                  5
+                </div>
+                <button type="button" aria-label="Tambah ruangan" class="w-11 h-11 flex items-center justify-center font-bold text-lg text-[#1F1E22] hover:bg-[#F5F6F8] active:bg-[#E3E5EA] transition-colors border-l-2 border-[#1F1E22]">
+                  +
+                </button>
+              </div>
+              <button type="button" class="btn-ink-border h-11 px-4 bg-white hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[12px] flex items-center space-x-1.5 ml-auto">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span>Samakan semua</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Editable Rows of Rooms -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#5B5F6B] px-1">
+              <span>Daftar Ruangan & Warna Subnet</span>
+              <span>Jumlah Device</span>
+            </div>
+
+            <!-- Row 1: Lab Basis Data (Secondary / Blue #8BD0FC) -->
+            <div class="flex items-center space-x-2 bg-[#F5F6F8] p-2 rounded-[12px] border border-[#E3E5EA]">
+              <div class="w-3.5 h-9 rounded-sm bg-[#8BD0FC] border border-[#1F1E22]" title="Subnet 1: Biru"></div>
+              <input
+                type="text"
+                value="Lab Basis Data"
+                class="flex-1 h-9 px-2.5 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-bold text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+              />
+              <div class="relative w-20">
+                <input
+                  type="number"
+                  value="60"
+                  class="w-full h-9 px-2 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-mono font-bold text-right text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+                />
+              </div>
+              <button type="button" aria-label="Hapus ruangan" class="p-1.5 text-[#5B5F6B] hover:text-[#B3261E] rounded hover:bg-[#FCE8E6] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+
+            <!-- Row 2: Lab PPSI (Primary / Yellow #FCE76C) -->
+            <div class="flex items-center space-x-2 bg-[#F5F6F8] p-2 rounded-[12px] border border-[#E3E5EA]">
+              <div class="w-3.5 h-9 rounded-sm bg-[#FCE76C] border border-[#1F1E22]" title="Subnet 2: Kuning"></div>
+              <input
+                type="text"
+                value="Lab PPSI"
+                class="flex-1 h-9 px-2.5 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-bold text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+              />
+              <div class="relative w-20">
+                <input
+                  type="number"
+                  value="34"
+                  class="w-full h-9 px-2 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-mono font-bold text-right text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+                />
+              </div>
+              <button type="button" aria-label="Hapus ruangan" class="p-1.5 text-[#5B5F6B] hover:text-[#B3261E] rounded hover:bg-[#FCE8E6] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+
+            <!-- Row 3: Ruang Dosen (Tertiary / Orange #FF8F5C) -->
+            <div class="flex items-center space-x-2 bg-[#F5F6F8] p-2 rounded-[12px] border border-[#E3E5EA]">
+              <div class="w-3.5 h-9 rounded-sm bg-[#FF8F5C] border border-[#1F1E22]" title="Subnet 3: Oranye"></div>
+              <input
+                type="text"
+                value="Ruang Dosen"
+                class="flex-1 h-9 px-2.5 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-bold text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+              />
+              <div class="relative w-20">
+                <input
+                  type="number"
+                  value="30"
+                  class="w-full h-9 px-2 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-mono font-bold text-right text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+                />
+              </div>
+              <button type="button" aria-label="Hapus ruangan" class="p-1.5 text-[#5B5F6B] hover:text-[#B3261E] rounded hover:bg-[#FCE8E6] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+
+            <!-- Row 4: Ruang Seminar (Subnet-4 / Gray-Blue #C9D0E4) -->
+            <div class="flex items-center space-x-2 bg-[#F5F6F8] p-2 rounded-[12px] border border-[#E3E5EA]">
+              <div class="w-3.5 h-9 rounded-sm bg-[#C9D0E4] border border-[#1F1E22]" title="Subnet 4: Abu-biru"></div>
+              <input
+                type="text"
+                value="Ruang Seminar"
+                class="flex-1 h-9 px-2.5 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-bold text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+              />
+              <div class="relative w-20">
+                <input
+                  type="number"
+                  value="8"
+                  class="w-full h-9 px-2 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-mono font-bold text-right text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+                />
+              </div>
+              <button type="button" aria-label="Hapus ruangan" class="p-1.5 text-[#5B5F6B] hover:text-[#B3261E] rounded hover:bg-[#FCE8E6] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+
+            <!-- Row 5: Server (Repeats to Subnet 1 / Blue #8BD0FC) -->
+            <div class="flex items-center space-x-2 bg-[#F5F6F8] p-2 rounded-[12px] border border-[#E3E5EA]">
+              <div class="w-3.5 h-9 rounded-sm bg-[#8BD0FC] border border-[#1F1E22]" title="Subnet 5: Biru berulang"></div>
+              <input
+                type="text"
+                value="Server"
+                class="flex-1 h-9 px-2.5 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-bold text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+              />
+              <div class="relative w-20">
+                <input
+                  type="number"
+                  value="1"
+                  class="w-full h-9 px-2 bg-white border border-[#8A8F9C] rounded-[6px] text-xs font-mono font-bold text-right text-[#1F1E22] focus:outline-none focus:border-[#1F1E22]"
+                />
+              </div>
+              <button type="button" aria-label="Hapus ruangan" class="p-1.5 text-[#5B5F6B] hover:text-[#B3261E] rounded hover:bg-[#FCE8E6] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gateway Toggle & Cadangan Pertumbuhan -->
+          <div class="pt-2 border-t border-[#E3E5EA] space-y-4">
+            <!-- Gateway Toggle -->
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-xs font-bold text-[#1F1E22] block">Hitung gateway (+1 host per ruangan)</span>
+                <span class="text-[11px] text-[#5B5F6B] font-medium leading-tight block mt-0.5">
+                  Tambahkan 1 IP interface router pada setiap subnet.
+                </span>
+              </div>
+              <!-- Toggle switch OFF -->
+              <button type="button" role="switch" aria-checked="false" class="w-12 h-6 bg-[#D6D9E2] border-2 border-[#1F1E22] rounded-full p-0.5 flex items-center transition-colors">
+                <div class="w-4 h-4 bg-white rounded-full border border-[#1F1E22] shadow-sm transform transition-transform"></div>
+              </button>
+            </div>
+
+            <!-- Cadangan Pertumbuhan & Mode -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[#1F1E22] mb-1">
+                  Cadangan
+                </label>
+                <div class="flex items-center border-2 border-[#8A8F9C] rounded-[12px] px-3 h-11 bg-white focus-within:border-[#1F1E22]">
+                  <input type="text" value="0" class="w-full text-right font-mono font-bold text-xs text-[#1F1E22] focus:outline-none" />
+                  <span class="text-xs font-bold text-[#5B5F6B] ml-1">%</span>
+                </div>
+              </div>
+
+              <!-- Segmented Control Mode (VLSM selected | FLSM) -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-[#1F1E22] mb-1">
+                  Mode Alokasi
+                </label>
+                <div class="h-11 border-2 border-[#1F1E22] rounded-[12px] p-1 flex bg-[#F5F6F8]">
+                  <button type="button" class="flex-1 bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22] rounded-[8px] font-bold text-xs shadow-sm">
+                    VLSM
+                  </button>
+                  <button type="button" class="flex-1 text-[#5B5F6B] font-bold text-xs hover:text-[#1F1E22]">
+                    FLSM
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons: Hitung (Primary Yellow) & Isi contoh (Secondary White) -->
+          <div class="pt-2 space-y-2.5">
+            <!-- Exactly ONE primary button per screen -->
+            <button type="button" class="btn-ink-border w-full h-12 bg-[#FCE76C] hover:bg-[#F2D640] text-[#1F1E22] font-extrabold text-sm rounded-[12px] flex items-center justify-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+              <span>Hitung Rencana Subnet</span>
+            </button>
+            <button type="button" class="btn-ink-border w-full h-11 bg-white hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[12px] flex items-center justify-center space-x-2">
+              <svg class="w-3.5 h-3.5 text-[#5B5F6B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              <span>Isi Contoh Soal Praktikum</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT RESULT COLUMN (7 of 12) -->
+      <div class="col-span-12 lg:col-span-7 space-y-6">
+
+        <!-- 1. SUMMARY CARD with Address-Block Bar -->
+        <div class="bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-[#5B5F6B]">Ringkasan Alokasi IP</span>
+              <h3 class="font-extrabold text-xl text-[#1F1E22] mt-0.5">
+                5 subnet dialokasikan. 180 dari 256 alamat terpakai.
+              </h3>
+            </div>
+            <div class="text-right">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#E3F4EA] text-[#16794C] border border-[#16794C]">
+                Sisa 76 IP (/256)
+              </span>
+            </div>
+          </div>
+
+          <!-- Horizontal Address-Block Bar -->
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-bold text-[#5B5F6B] mb-1.5 font-mono">
+              <span>192.168.50.0</span>
+              <span>Blok Jaringan: 256 Host</span>
+              <span>192.168.50.255</span>
+            </div>
+            <!-- Progress / Allocation Multi-Bar -->
+            <div class="w-full h-10 rounded-[12px] border-2 border-[#1F1E22] overflow-hidden flex bg-[#E3E5EA]">
+              <!-- Segment 1: Lab Basis Data (64 addresses = 25%) - #8BD0FC -->
+              <div class="h-full bg-[#8BD0FC] border-r-2 border-[#1F1E22] flex flex-col items-center justify-center px-1 text-[11px] font-bold text-[#1F1E22]" style="width: 25%;" title="Lab Basis Data (64 IP, /26)">
+                <span class="truncate leading-none">Basis Data</span>
+                <span class="text-[9px] font-mono leading-none mt-0.5">/26</span>
+              </div>
+
+              <!-- Segment 2: Lab PPSI (64 addresses = 25%) - #FCE76C -->
+              <div class="h-full bg-[#FCE76C] border-r-2 border-[#1F1E22] flex flex-col items-center justify-center px-1 text-[11px] font-bold text-[#1F1E22]" style="width: 25%;" title="Lab PPSI (64 IP, /26)">
+                <span class="truncate leading-none">PPSI</span>
+                <span class="text-[9px] font-mono leading-none mt-0.5">/26</span>
+              </div>
+
+              <!-- Segment 3: Ruang Dosen (32 addresses = 12.5%) - #FF8F5C -->
+              <div class="h-full bg-[#FF8F5C] border-r-2 border-[#1F1E22] flex flex-col items-center justify-center px-1 text-[11px] font-bold text-[#1F1E22]" style="width: 12.5%;" title="Ruang Dosen (32 IP, /27)">
+                <span class="truncate leading-none">Dosen</span>
+                <span class="text-[9px] font-mono leading-none mt-0.5">/27</span>
+              </div>
+
+              <!-- Segment 4: Ruang Seminar (16 addresses = 6.25%) - #C9D0E4 -->
+              <div class="h-full bg-[#C9D0E4] border-r-2 border-[#1F1E22] flex flex-col items-center justify-center px-1 text-[11px] font-bold text-[#1F1E22]" style="width: 6.25%;" title="Ruang Seminar (16 IP, /28)">
+                <span class="truncate leading-none">Sem.</span>
+                <span class="text-[9px] font-mono leading-none mt-0.5">/28</span>
+              </div>
+
+              <!-- Segment 5: Server (4 addresses = 1.56%) - #8BD0FC -->
+              <div class="h-full bg-[#8BD0FC] border-r-2 border-[#1F1E22] flex flex-col items-center justify-center px-0.5 text-[10px] font-bold text-[#1F1E22]" style="width: 1.56%;" title="Server (4 IP, /30)">
+                <span class="text-[9px] font-mono">/30</span>
+              </div>
+
+              <!-- Remainder Segment: Light Grey (29.69%) -->
+              <div class="h-full bg-[#F5F6F8] flex items-center justify-center px-2 text-[11px] font-bold text-[#5B5F6B]" style="width: 29.69%;" title="Sisa Alamat Bebas: 76 IP">
+                <span class="truncate">Sisa (76 IP)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. WARNING BANNER (warning soft #FFF4D6 with warning #8A5A00) -->
+        <div class="bg-[#FFF4D6] border-2 border-[#8A5A00] rounded-[16px] p-4 flex items-start space-x-3.5">
+          <div class="w-8 h-8 rounded-full bg-[#8A5A00] text-white flex items-center justify-center font-bold text-base flex-shrink-0 mt-0.5">
+            !
+          </div>
+          <div class="flex-1">
+            <h4 class="font-extrabold text-sm text-[#1F1E22]">Peringatan Alokasi Gateway</h4>
+            <p class="text-xs text-[#1F1E22] mt-0.5 font-medium leading-relaxed">
+              Jika gateway dihitung (+1 router host), <span class="font-bold underline">Ruang Dosen (30 device)</span> membutuhkan 31 host yang mengharuskan penggunaan prefix <strong class="font-mono">/26</strong> (kapasitas 62 host), bukan <strong class="font-mono">/27</strong> (kapasitas 30 host).
+            </p>
+            <a href="#" class="inline-flex items-center text-xs font-bold text-[#8A5A00] hover:text-[#1F1E22] underline mt-1.5 space-x-1">
+              <span>Lihat hasil dengan gateway</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3. COMPARISON TABS (Tanpa gateway | Dengan gateway & VLSM | FLSM) -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <!-- Gateway comparison tabs -->
+          <div class="inline-flex bg-white border-2 border-[#1F1E22] rounded-[12px] p-1">
+            <button type="button" class="px-3.5 py-1.5 rounded-[8px] bg-[#1F1E22] text-white font-bold text-xs">
+              Tanpa gateway
+            </button>
+            <button type="button" class="px-3.5 py-1.5 rounded-[8px] text-[#5B5F6B] hover:text-[#1F1E22] font-bold text-xs">
+              Dengan gateway
+            </button>
+          </div>
+
+          <!-- Method tabs -->
+          <div class="inline-flex bg-white border-2 border-[#1F1E22] rounded-[12px] p-1">
+            <button type="button" class="px-3.5 py-1.5 rounded-[8px] bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22] font-bold text-xs shadow-sm">
+              VLSM (Efisien)
+            </button>
+            <button type="button" class="px-3.5 py-1.5 rounded-[8px] text-[#5B5F6B] hover:text-[#1F1E22] font-bold text-xs">
+              FLSM (Sama Rata)
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. RESULT TABLE ON WHITE CARD (ink header #1F1E22, right-aligned mono numbers) -->
+        <div class="bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-extrabold text-lg text-[#1F1E22]">Tabel Alokasi Subnet (VLSM)</h3>
+              <p class="text-xs text-[#5B5F6B] font-medium">Hasil akhir peruangan diurutkan dari alokasi terbesar.</p>
+            </div>
+            <!-- Action buttons: Salin tabel & Cetak -->
+            <div class="flex items-center space-x-2">
+              <button type="button" class="btn-ink-border px-3 py-1.5 bg-white hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[8px] flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                <span>Salin tabel</span>
+              </button>
+              <button type="button" class="btn-ink-border px-3 py-1.5 bg-white hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[8px] flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <span>Cetak</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container border-2 border-[#1F1E22] rounded-[12px] overflow-hidden">
+            <table class="w-full border-collapse text-left text-xs">
+              <!-- Ink header with white text -->
+              <thead>
+                <tr class="bg-[#1F1E22] text-white font-bold">
+                  <th class="py-3 px-3 text-left">Ruangan</th>
+                  <th class="py-3 px-3 text-right">Device</th>
+                  <th class="py-3 px-3 text-center">Prefix</th>
+                  <th class="py-3 px-3 text-right">Subnet (NA)</th>
+                  <th class="py-3 px-3 text-right">Host Pertama</th>
+                  <th class="py-3 px-3 text-right">Host Terakhir</th>
+                  <th class="py-3 px-3 text-right">BA (Broadcast)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#E3E5EA] font-mono">
+                <!-- Row 1: Lab Basis Data (Secondary Soft background tint) -->
+                <tr class="bg-[#E3F4FE] hover:bg-[#d5eeff] transition-colors">
+                  <td class="py-2.5 px-3 font-sans font-bold text-[#1F1E22] flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#8BD0FC] border border-[#1F1E22] inline-block"></span>
+                    <span>Lab Basis Data</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">60</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-[#1F1E22] bg-[#8BD0FC]/30 rounded">/26</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.0</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.1</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.62</td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">192.168.50.63</td>
+                </tr>
+
+                <!-- Row 2: Lab PPSI (Primary Soft background tint) -->
+                <tr class="bg-[#FFF8D1] hover:bg-[#fff3b8] transition-colors">
+                  <td class="py-2.5 px-3 font-sans font-bold text-[#1F1E22] flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#FCE76C] border border-[#1F1E22] inline-block"></span>
+                    <span>Lab PPSI</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">34</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-[#1F1E22] bg-[#FCE76C]/40 rounded">/26</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.64</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.65</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.126</td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">192.168.50.127</td>
+                </tr>
+
+                <!-- Row 3: Ruang Dosen (Tertiary Soft background tint) -->
+                <tr class="bg-[#FFE6DA] hover:bg-[#ffd7c4] transition-colors">
+                  <td class="py-2.5 px-3 font-sans font-bold text-[#1F1E22] flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF8F5C] border border-[#1F1E22] inline-block"></span>
+                    <span>Ruang Dosen</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">30</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-[#1F1E22] bg-[#FF8F5C]/30 rounded">/27</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.128</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.129</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.158</td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">192.168.50.159</td>
+                </tr>
+
+                <!-- Row 4: Ruang Seminar (Subnet 4 soft neutral tint) -->
+                <tr class="bg-[#EEF1F8] hover:bg-[#e1e6f3] transition-colors">
+                  <td class="py-2.5 px-3 font-sans font-bold text-[#1F1E22] flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#C9D0E4] border border-[#1F1E22] inline-block"></span>
+                    <span>Ruang Seminar</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">8</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-[#1F1E22] bg-[#C9D0E4]/50 rounded">/28</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.160</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.161</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.174</td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">192.168.50.175</td>
+                </tr>
+
+                <!-- Row 5: Server (Secondary Soft background tint - repeated) -->
+                <tr class="bg-[#E3F4FE] hover:bg-[#d5eeff] transition-colors">
+                  <td class="py-2.5 px-3 font-sans font-bold text-[#1F1E22] flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#8BD0FC] border border-[#1F1E22] inline-block"></span>
+                    <span>Server</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">1</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-[#1F1E22] bg-[#8BD0FC]/30 rounded">/30</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.176</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.177</td>
+                  <td class="py-2.5 px-3 text-right text-[#1F1E22]">192.168.50.178</td>
+                  <td class="py-2.5 px-3 text-right font-bold text-[#1F1E22]">192.168.50.179</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5. THREE STEP CARDS ON OFFSET COLOUR LAYERS -->
+        <div class="space-y-6 pt-2">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 bg-[#1F1E22] rounded-full"></span>
+            <h3 class="font-extrabold text-lg text-[#1F1E22]">Langkah Pengerjaan Soal</h3>
+            <span class="text-xs text-[#5B5F6B] font-medium">(Sesuai Lembar Jawaban Ujian Praktikum)</span>
+          </div>
+
+          <!-- STEP 1: Urutkan Kebutuhan (Offset Color: Secondary Blue #8BD0FC) -->
+          <div class="offset-container">
+            <div class="offset-layer bg-[#8BD0FC] border-2 border-[#1F1E22]"></div>
+            <div class="offset-content p-6 relative overflow-hidden">
+              <!-- Big Faded Numeral Decorative (/26) -->
+              <span class="absolute right-4 bottom-0 text-[80px] font-extrabold text-[#D6D9E2]/70 font-mono select-none pointer-events-none leading-none" aria-hidden="true">
+                /26
+              </span>
+
+              <div class="relative z-10 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full bg-[#1F1E22] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-base text-[#1F1E22]">Langkah 1: Urutkan dari kebutuhan terbesar</h4>
+                    <p class="text-xs text-[#5B5F6B] font-medium">Metode VLSM mewajibkan alokasi dari ruang yang paling banyak membutuhkan host.</p>
+                  </div>
+                </div>
+
+                <!-- Step Body / Ordered list pill display -->
+                <div class="bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] p-3">
+                  <div class="flex flex-wrap gap-2 text-xs font-mono">
+                    <span class="bg-[#8BD0FC] text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]">1. Basis Data: 60 device</span>
+                    <span class="bg-[#FCE76C] text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]">2. PPSI: 34 device</span>
+                    <span class="bg-[#FF8F5C] text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]">3. Dosen: 30 device</span>
+                    <span class="bg-[#C9D0E4] text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]">4. Seminar: 8 device</span>
+                    <span class="bg-[#8BD0FC] text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]">5. Server: 1 device</span>
+                  </div>
+                </div>
+                <p class="text-xs text-[#1F1E22] font-semibold">
+                  Hasil: Urutan alokasi blok dimulai dari Lab Basis Data (60) hingga Server (1).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Tentukan Prefix (Offset Color: Primary Yellow #FCE76C) -->
+          <div class="offset-container">
+            <div class="offset-layer bg-[#FCE76C] border-2 border-[#1F1E22]"></div>
+            <div class="offset-content p-6 relative overflow-hidden">
+              <!-- Big Faded Numeral Decorative (/27) -->
+              <span class="absolute right-4 bottom-0 text-[80px] font-extrabold text-[#D6D9E2]/70 font-mono select-none pointer-events-none leading-none" aria-hidden="true">
+                /27
+              </span>
+
+              <div class="relative z-10 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full bg-[#1F1E22] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-base text-[#1F1E22]">Langkah 2: Tentukan prefix tiap ruangan</h4>
+                    <p class="text-xs text-[#5B5F6B] font-medium">Hitung bit host minimum menggunakan formula standar modul.</p>
+                  </div>
+                </div>
+
+                <!-- Formula Monospace Block -->
+                <div class="bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] p-3 space-y-1.5">
+                  <div class="font-mono text-xs font-bold text-[#1F1E22] text-center bg-white py-1.5 px-3 rounded border border-[#1F1E22]">
+                    prefix = 32 − ceil(log2(host + 2))
+                  </div>
+                  <div class="text-[12px] text-[#5B5F6B] font-medium space-y-1 pt-1 font-mono">
+                    <p>• <strong>Lab Basis Data (60):</strong> 60 + 2 = 62 ≤ 2⁶ (64) → 32 - 6 = <strong>/26</strong> (kapasitas 62 host)</p>
+                    <p>• <strong>Lab PPSI (34):</strong> 34 + 2 = 36 ≤ 2⁶ (64) → 32 - 6 = <strong>/26</strong> (kapasitas 62 host)</p>
+                    <p>• <strong>Ruang Dosen (30):</strong> 30 + 2 = 32 ≤ 2⁵ (32) → 32 - 5 = <strong>/27</strong> (kapasitas 30 host)</p>
+                    <p>• <strong>Ruang Seminar (8):</strong> 8 + 2 = 10 ≤ 2⁴ (16) → 32 - 4 = <strong>/28</strong> (kapasitas 14 host)</p>
+                    <p>• <strong>Server (1):</strong> 1 + 2 = 3 ≤ 2² (4) → 32 - 2 = <strong>/30</strong> (kapasitas 2 host)</p>
+                  </div>
+                </div>
+                <p class="text-xs text-[#1F1E22] font-semibold">
+                  Hasil: Dihasilkan 2 blok prefix /26, 1 blok /27, 1 blok /28, dan 1 blok /30.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Alokasikan Blok Berurutan (Offset Color: Tertiary Orange #FF8F5C) -->
+          <div class="offset-container">
+            <div class="offset-layer bg-[#FF8F5C] border-2 border-[#1F1E22]"></div>
+            <div class="offset-content p-6 relative overflow-hidden">
+              <!-- Big Faded Numeral Decorative (/30) -->
+              <span class="absolute right-4 bottom-0 text-[80px] font-extrabold text-[#D6D9E2]/70 font-mono select-none pointer-events-none leading-none" aria-hidden="true">
+                /30
+              </span>
+
+              <div class="relative z-10 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full bg-[#1F1E22] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-base text-[#1F1E22]">Langkah 3: Alokasikan blok berurutan</h4>
+                    <p class="text-xs text-[#5B5F6B] font-medium">Subnet berikutnya selalu berlanjut tepat 1 angka setelah Broadcast Address (BA) sebelumnya.</p>
+                  </div>
+                </div>
+
+                <!-- Calculation Step Detail -->
+                <div class="bg-[#1F1E22] text-white rounded-[12px] p-3 text-xs font-mono space-y-1">
+                  <p class="text-[#8BD0FC]"># Subnet 1: Mulai 192.168.50.0/26 (Kelipatan 64) -> BA: 192.168.50.63</p>
+                  <p class="text-[#FCE76C]"># Subnet 2: Mulai 192.168.50.64/26 (Kelipatan 64) -> BA: 192.168.50.127</p>
+                  <p class="text-[#FF8F5C]"># Subnet 3: Mulai 192.168.50.128/27 (Kelipatan 32) -> BA: 192.168.50.159</p>
+                  <p class="text-[#C9D0E4]"># Subnet 4: Mulai 192.168.50.160/28 (Kelipatan 16) -> BA: 192.168.50.175</p>
+                  <p class="text-[#8BD0FC]"># Subnet 5: Mulai 192.168.50.176/30 (Kelipatan 4) -> BA: 192.168.50.179</p>
+                </div>
+                <p class="text-xs text-[#1F1E22] font-semibold">
+                  Hasil: Seluruh subnet tersusun rapi tanpa overlap; alamat bebas tersisa dari 192.168.50.180 hingga 192.168.50.255.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. YELLOW CONCLUSION BLOCK (#FCE76C, rounded-lg 20px, border ink 2px) -->
+        <div class="bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-[#1F1E22] bg-white px-2 py-0.5 rounded border border-[#1F1E22]">
+                Kesimpulan Rencana IP
+              </span>
+              <h4 class="font-extrabold text-base text-[#1F1E22] mt-1">
+                Alokasi VLSM untuk 5 ruangan dengan IP dasar 192.168.50.0/24 telah berhasil disusun dengan efisiensi tinggi, menghabiskan 180 alamat IP dan menyisakan 76 alamat IP (/256) untuk ekspansi jaringan masa depan.
+              </h4>
+              <p class="text-xs text-[#1F1E22] font-medium">
+                Catatan: Pastikan interface router diatur manual jika opsi gateway diaktifkan pada topologi Cisco Packet Tracer.
+              </p>
+            </div>
+            <button type="button" class="btn-ink-border px-3.5 py-2 bg-white hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[8px] flex-shrink-0 flex items-center space-x-1.5 shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              <span>Salin Jawaban</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

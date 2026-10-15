@@ -123,14 +123,16 @@ _DEFAULT_FEATURES = [
 def init_default_registry() -> None:
     """Menginisialisasi registry dengan fitur default."""
     try:
-        from app.modules.jaringan.solver import hitung_flsm, hitung_subnet, hitung_vlsm
+        from app.modules.jaringan.solver import hitung_flsm, hitung_rencana, hitung_subnet, hitung_vlsm
         subnet_solver = hitung_subnet
         flsm_solver = hitung_flsm
         vlsm_solver = hitung_vlsm
+        rencana_solver = hitung_rencana
     except ImportError:
         subnet_solver = None
         flsm_solver = None
         vlsm_solver = None
+        rencana_solver = None
 
     for feat in _DEFAULT_FEATURES:
         if feat.id == "subnet":
@@ -139,6 +141,8 @@ def init_default_registry() -> None:
             solver_fn = vlsm_solver
         elif feat.id == "flsm":
             solver_fn = flsm_solver
+        elif feat.id == "rencana":
+            solver_fn = rencana_solver
         else:
             solver_fn = None
         register_feature(feat, solver=solver_fn)

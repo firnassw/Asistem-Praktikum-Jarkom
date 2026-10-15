@@ -15,7 +15,10 @@ export const ConclusionBlock: React.FC<ConclusionBlockProps> = ({ kesimpulan }) 
   };
 
   return (
-    <section className="w-full bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm flex flex-col gap-3.5">
+    <section
+      data-testid="conclusion-block"
+      className="conclusion-block w-full bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-sm flex flex-col gap-3.5"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-[#1F1E22]">
           <CheckSquare size={20} className="shrink-0 text-[#1F1E22]" />

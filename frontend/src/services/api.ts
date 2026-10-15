@@ -6,6 +6,7 @@ import type {
   ApiError,
   FlsmPayload,
   ModulMetadata,
+  RencanaPayload,
   StrukturJawaban,
   VlsmPayload,
 } from '../types/api';
@@ -110,6 +111,16 @@ export const api = {
    */
   async hitungFlsm(payload: FlsmPayload): Promise<StrukturJawaban> {
     return request<StrukturJawaban>('/jaringan/flsm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Alokasi Rencana Ruangan dan Device
+   */
+  async hitungRencana(payload: RencanaPayload): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/rencana', {
       method: 'POST',
       body: JSON.stringify(payload),
     });

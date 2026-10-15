@@ -3,15 +3,18 @@ Solver logika hitungan deterministik subnetting satu IP menggunakan Python murni
 Tanpa float dan tanpa math.log2.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from app.core.errors import (
     AppError,
     ALAMAT_BUKAN_BATAS_JARINGAN,
+    CADANGAN_TIDAK_VALID,
     DEVICE_TIDAK_VALID,
     FLSM_TIDAK_MUNGKIN,
+    GATEWAY_MEMBEDAKAN_HASIL,
     IP_TIDAK_VALID,
     MELEWATI_INDUK,
     NAMA_DUPLIKAT,
+    NIM_TIDAK_VALID,
     PERMINTAAN_TIDAK_VALID,
     PREFIX_31_32,
     PREFIX_TIDAK_VALID,
@@ -550,5 +553,464 @@ def hitung_flsm(
         "kebutuhan_input": clean_kebutuhan,
         "tabel": tabel,
         "peringatan": peringatan,
+    }
+
+
+def validate_nim_dua_digit(nim_dua_digit: Any) -> Tuple[str, int]:
+    """
+    Validasi dua digit terakhir NIM:
+    - Harus 2 digit angka '00' sampai '99'
+    - String atau integer 2 digit (misal '50', '05', '00')
+    - Jika diisi bukan 2 digit angka '00'..'99' (mis. '5', '123', 'ab'), tolak dengan NIM_TIDAK_VALID
+    - Mengembalikan tuple (nim_str, xx_int).
+    """
+    if nim_dua_digit is None:
+        raise AppError(NIM_TIDAK_VALID, field="nim_dua_digit", pesan="Isi dua digit terakhir NIM, misalnya 50")
+
+    s = str(nim_dua_digit).strip()
+    if len(s) != 2 or not s.isdigit():
+        raise AppError(NIM_TIDAK_VALID, field="nim_dua_digit", pesan="Isi dua digit terakhir NIM, misalnya 50")
+
+    xx = int(s)
+    return s, xx
+
+
+def validate_ruangan_rencana(
+    ruangan: List[Any],
+    cadangan_persen: int,
+) -> List[Dict[str, Any]]:
+    """
+    Validasi daftar ruangan untuk fitur rencana:
+    - 1 sampai 20 ruangan (di luar itu: RUANGAN_TIDAK_VALID).
+    - nama: 1..30 karakter setelah di-trim, unik (case-insensitive) (kembar: NAMA_DUPLIKAT).
+    - device: bilangan bulat >= 1 (< 1: DEVICE_TIDAK_VALID).
+    - Hitung cadangan integer ceiling: (device * cadangan_persen + 99) // 100
+    """
+    if not ruangan or len(ruangan) == 0 or len(ruangan) > 20:
+        raise AppError(RUANGAN_TIDAK_VALID, field="ruangan", pesan="Jumlah ruangan harus 1 sampai 20")
+
+    cleaned: List[Dict[str, Any]] = []
+    seen_names = set()
+
+    for item in ruangan:
+        if isinstance(item, dict):
+            raw_nama = item.get("nama")
+            raw_device = item.get("device")
+        else:
+            raw_nama = getattr(item, "nama", None)
+            raw_device = getattr(item, "device", None)
+
+        if raw_nama is None:
+            raise AppError(RUANGAN_TIDAK_VALID, field="ruangan", pesan="Nama ruangan harus 1 sampai 30 karakter")
+        nama = str(raw_nama).strip()
+        if len(nama) < 1 or len(nama) > 30:
+            raise AppError(RUANGAN_TIDAK_VALID, field="ruangan", pesan="Nama ruangan harus 1 sampai 30 karakter")
+
+        name_key = nama.lower()
+        if name_key in seen_names:
+            raise AppError(NAMA_DUPLIKAT, field="ruangan", nama=nama, pesan=f"Nama {nama} dipakai dua kali. Beri nama yang berbeda")
+        seen_names.add(name_key)
+
+        if raw_device is None or not isinstance(raw_device, int) or raw_device < 1:
+            raise AppError(DEVICE_TIDAK_VALID, field="ruangan", ruangan=nama, pesan=f"Jumlah device {nama} harus bilangan bulat 1 atau lebih")
+
+        cadangan_host = (raw_device * cadangan_persen + 99) // 100
+
+        cleaned.append({
+            "nama": nama,
+            "device": raw_device,
+            "cadangan_host": cadangan_host,
+        })
+
+    return cleaned
+
+
+def _alokasikan_rencana_skenario(
+    ip_int: int,
+    prefix_induk: int,
+    clean_ruangan: List[Dict[str, Any]],
+    gateway: bool,
+    mode: str,
+    gaya_modul: bool = False,
+) -> Dict[str, Any]:
+    """
+    Menghitung alokasi rencana untuk satu skenario konfigurasi (gateway dan mode tertentu).
+    Menggunakan operasi bilangan bulat dan bitwise murni.
+    """
+    kapasitas_induk = 1 << (32 - prefix_induk)
+    batas_induk = ip_int + kapasitas_induk
+    cursor = ip_int
+    total_dialokasikan = 0
+    tabel: List[Dict[str, Any]] = []
+    peringatan: List[str] = []
+    colors = ["#8BD0FC", "#FCE76C", "#FF8F5C", "#C9D0E4"]
+
+    ruangan_skenario: List[Dict[str, Any]] = []
+    for r in clean_ruangan:
+        gw_add = 1 if gateway else 0
+        h_req = r["device"] + r["cadangan_host"] + gw_add
+        ruangan_skenario.append({
+            **r,
+            "gateway_aktif": gateway,
+            "tambahan_gateway": gw_add,
+            "host_dibutuhkan": h_req,
+        })
+
+    if mode == "vlsm":
+        # Pengurutan stabil descending berdasarkan host_dibutuhkan
+        sorted_ruangan = sorted(ruangan_skenario, key=lambda x: x["host_dibutuhkan"], reverse=True)
+
+        for idx, r in enumerate(sorted_ruangan):
+            bit_h = (r["host_dibutuhkan"] + 1).bit_length()
+            prefix = 32 - bit_h
+            if prefix > 30:
+                prefix = 30
+                bit_h = 2
+
+            ukuran_blok = 1 << (32 - prefix)
+            host_tersedia = ukuran_blok - 2
+            _, mask_str = prefix_to_mask(prefix)
+            color = colors[idx % len(colors)]
+
+            if cursor + ukuran_blok <= batas_induk:
+                na_int = cursor
+                ba_int = cursor + ukuran_blok - 1
+                host_pertama_int = na_int + 1
+                host_terakhir_int = ba_int - 1
+                usulan_gw = int_to_ip(host_pertama_int) if gateway else None
+
+                tabel.append({
+                    "no": idx + 1,
+                    "nama": r["nama"],
+                    "device": r["device"],
+                    "cadangan_host": r["cadangan_host"],
+                    "host_dibutuhkan": r["host_dibutuhkan"],
+                    "host_tersedia": host_tersedia,
+                    "prefix": prefix,
+                    "subnet_mask": mask_str,
+                    "subnet": int_to_ip(na_int),
+                    "host_pertama": int_to_ip(host_pertama_int),
+                    "host_terakhir": int_to_ip(host_terakhir_int),
+                    "usulan_gateway": usulan_gw,
+                    "broadcast": int_to_ip(ba_int),
+                    "status": "Terpakai",
+                    "ukuran_blok": ukuran_blok,
+                    "warna": color,
+                    "bit_host": bit_h,
+                })
+                cursor += ukuran_blok
+                total_dialokasikan += ukuran_blok
+            else:
+                tabel.append({
+                    "no": idx + 1,
+                    "nama": r["nama"],
+                    "device": r["device"],
+                    "cadangan_host": r["cadangan_host"],
+                    "host_dibutuhkan": r["host_dibutuhkan"],
+                    "host_tersedia": host_tersedia,
+                    "prefix": prefix,
+                    "subnet_mask": mask_str,
+                    "subnet": "-",
+                    "host_pertama": "-",
+                    "host_terakhir": "-",
+                    "usulan_gateway": None,
+                    "broadcast": "-",
+                    "status": "Tidak muat",
+                    "ukuran_blok": 0,
+                    "warna": color,
+                    "bit_host": bit_h,
+                })
+                if VLSM_RUANG_KURANG not in peringatan:
+                    peringatan.append(VLSM_RUANG_KURANG)
+
+    elif mode == "flsm":
+        host_terbesar = max(r["host_dibutuhkan"] for r in ruangan_skenario)
+        bit_h = (host_terbesar + 1).bit_length()
+        p = 32 - bit_h
+        if p > 30:
+            p = 30
+            bit_h = 2
+
+        ukuran_blok = 1 << (32 - p)
+        host_tersedia = ukuran_blok - 2
+        _, mask_str = prefix_to_mask(p)
+        m = len(ruangan_skenario)
+        bit_butuh = (m - 1).bit_length() if m > 1 else 0
+        r_saran = p - bit_butuh
+        n = 0 if p < prefix_induk else 1 << (p - prefix_induk)
+
+        if n < m:
+            if not gaya_modul:
+                raise AppError(
+                    FLSM_TIDAK_MUNGKIN,
+                    field="prefix_induk",
+                    p=prefix_induk,
+                    n=n,
+                    q=p,
+                    m=m,
+                    r=r_saran,
+                )
+            else:
+                peringatan.append(MELEWATI_INDUK)
+                total_subnets = m
+        else:
+            total_subnets = n
+
+        for i in range(total_subnets):
+            na_int = cursor
+            ba_int = cursor + ukuran_blok - 1
+            host_pertama_int = na_int + 1
+            host_terakhir_int = ba_int - 1
+
+            if i < m:
+                r = ruangan_skenario[i]
+                usulan_gw = int_to_ip(host_pertama_int) if gateway else None
+                tabel.append({
+                    "no": i + 1,
+                    "nama": r["nama"],
+                    "device": r["device"],
+                    "cadangan_host": r["cadangan_host"],
+                    "host_dibutuhkan": r["host_dibutuhkan"],
+                    "host_tersedia": host_tersedia,
+                    "prefix": p,
+                    "subnet_mask": mask_str,
+                    "subnet": int_to_ip(na_int),
+                    "host_pertama": int_to_ip(host_pertama_int),
+                    "host_terakhir": int_to_ip(host_terakhir_int),
+                    "usulan_gateway": usulan_gw,
+                    "broadcast": int_to_ip(ba_int),
+                    "status": "Terpakai",
+                    "ukuran_blok": ukuran_blok,
+                    "warna": colors[i % len(colors)],
+                    "bit_host": bit_h,
+                })
+            else:
+                tabel.append({
+                    "no": i + 1,
+                    "nama": "Cadangan",
+                    "device": 0,
+                    "cadangan_host": 0,
+                    "host_dibutuhkan": 0,
+                    "host_tersedia": host_tersedia,
+                    "prefix": p,
+                    "subnet_mask": mask_str,
+                    "subnet": int_to_ip(na_int),
+                    "host_pertama": int_to_ip(host_pertama_int),
+                    "host_terakhir": int_to_ip(host_terakhir_int),
+                    "usulan_gateway": None,
+                    "broadcast": int_to_ip(ba_int),
+                    "status": "Cadangan",
+                    "ukuran_blok": ukuran_blok,
+                    "warna": "#D6D9E2",
+                    "bit_host": bit_h,
+                })
+            cursor += ukuran_blok
+            total_dialokasikan += ukuran_blok
+
+    sisa_alamat = kapasitas_induk - total_dialokasikan
+    if sisa_alamat < 0:
+        sisa_alamat = 0
+
+    sisa_rentang = None
+    if sisa_alamat > 0:
+        sisa_rentang = {
+            "mulai": int_to_ip(cursor),
+            "akhir": int_to_ip(ip_int + kapasitas_induk - 1),
+            "jumlah": sisa_alamat,
+        }
+
+    ruangan_terakomodasi = sum(1 for row in tabel if row["status"] == "Terpakai")
+    persen_terpakai = (total_dialokasikan * 100) // kapasitas_induk if kapasitas_induk else 0
+
+    return {
+        "mode": mode,
+        "gateway": gateway,
+        "total_ruangan": len(clean_ruangan),
+        "ruangan_terakomodasi": ruangan_terakomodasi,
+        "kapasitas_induk": kapasitas_induk,
+        "total_alamat_dialokasikan": total_dialokasikan,
+        "sisa_alamat": sisa_alamat,
+        "persen_terpakai": persen_terpakai,
+        "sisa_rentang": sisa_rentang,
+        "ruangan_skenario": ruangan_skenario,
+        "tabel": tabel,
+        "peringatan": peringatan,
+    }
+
+
+def hitung_rencana(
+    nim_dua_digit: Optional[Union[str, int]] = None,
+    alamat_induk: Optional[str] = None,
+    prefix_induk: Optional[int] = None,
+    ruangan: List[Any] = None,
+    gateway: bool = False,
+    cadangan_persen: int = 0,
+    mode: str = "vlsm",
+    gaya_modul: bool = False,
+) -> Dict[str, Any]:
+    """
+    Menghitung rencana alokasi subnet dari ruangan dan jumlah device:
+    - Mendukung sumber jaringan induk dari dua digit NIM (192.168.XX.0/24) atau alamat_induk manual.
+    - Menghitung cadangan integer ceiling: (device * cadangan_persen + 99) // 100.
+    - Menghitung gateway (+1 host per ruangan, usulan host pertama) jika aktif.
+    - Mendeteksi perbedaan prefix jika gateway dihitung (GATEWAY_MEMBEDAKAN_HASIL).
+    - Menyediakan perbandingan tab 'Tanpa gateway' | 'Dengan gateway' dan 'VLSM' | 'FLSM'.
+    """
+    nim_str = None
+    if nim_dua_digit is not None and str(nim_dua_digit).strip() != "":
+        nim_str, xx = validate_nim_dua_digit(nim_dua_digit)
+        alamat_induk = f"192.168.{xx}.0"
+        if prefix_induk is None:
+            prefix_induk = 24
+        sumber = "nim"
+    elif alamat_induk and str(alamat_induk).strip() != "":
+        sumber = "manual"
+        if prefix_induk is None:
+            prefix_induk = 24
+    else:
+        raise AppError(NIM_TIDAK_VALID, field="nim_dua_digit", pesan="Isi dua digit terakhir NIM, misalnya 50")
+
+    ip_int, mask_induk, mask_induk_str = validate_parent_network(alamat_induk, prefix_induk)
+
+    if cadangan_persen is None or not isinstance(cadangan_persen, int) or cadangan_persen < 0 or cadangan_persen > 100:
+        raise AppError(CADANGAN_TIDAK_VALID, field="cadangan_persen", pesan="Cadangan harus angka 0 sampai 100 (persen)")
+
+    clean_ruangan = validate_ruangan_rencana(ruangan, cadangan_persen)
+
+    mode_norm = (mode or "vlsm").lower()
+    if mode_norm not in ("vlsm", "flsm"):
+        mode_norm = "vlsm"
+
+    # Simulasi perhitungan tanpa gateway dan dengan gateway untuk deteksi GATEWAY_MEMBEDAKAN_HASIL
+    res_tanpa = _alokasikan_rencana_skenario(
+        ip_int=ip_int,
+        prefix_induk=prefix_induk,
+        clean_ruangan=clean_ruangan,
+        gateway=False,
+        mode=mode_norm,
+        gaya_modul=gaya_modul,
+    )
+
+    res_dengan = _alokasikan_rencana_skenario(
+        ip_int=ip_int,
+        prefix_induk=prefix_induk,
+        clean_ruangan=clean_ruangan,
+        gateway=True,
+        mode=mode_norm,
+        gaya_modul=gaya_modul,
+    )
+
+    dict_tanpa = {r["nama"]: r for r in res_tanpa["tabel"] if r["status"] != "Cadangan"}
+    dict_dengan = {r["nama"]: r for r in res_dengan["tabel"] if r["status"] != "Cadangan"}
+
+    ruangan_berubah = []
+    for r in clean_ruangan:
+        nama = r["nama"]
+        row_t = dict_tanpa.get(nama)
+        row_d = dict_dengan.get(nama)
+        if row_t and row_d and row_t["prefix"] != row_d["prefix"]:
+            ruangan_berubah.append({
+                "nama": nama,
+                "device": r["device"],
+                "cadangan_host": r["cadangan_host"],
+                "host_tanpa": row_t["host_dibutuhkan"],
+                "prefix_tanpa": row_t["prefix"],
+                "host_tersedia_tanpa": row_t["host_tersedia"],
+                "host_dengan": row_d["host_dibutuhkan"],
+                "prefix_dengan": row_d["prefix"],
+                "host_tersedia_dengan": row_d["host_tersedia"],
+            })
+
+    # Hasil utama sesuai pilihan gateway pengguna
+    primary = res_dengan if gateway else res_tanpa
+    peringatan_list = list(primary["peringatan"])
+
+    if len(ruangan_berubah) > 0:
+        if GATEWAY_MEMBEDAKAN_HASIL not in peringatan_list:
+            peringatan_list.append(GATEWAY_MEMBEDAKAN_HASIL)
+        if GATEWAY_MEMBEDAKAN_HASIL not in res_tanpa["peringatan"]:
+            res_tanpa["peringatan"].append(GATEWAY_MEMBEDAKAN_HASIL)
+        if GATEWAY_MEMBEDAKAN_HASIL not in res_dengan["peringatan"]:
+            res_dengan["peringatan"].append(GATEWAY_MEMBEDAKAN_HASIL)
+
+    # Perbandingan VLSM dan FLSM
+    res_vlsm = _alokasikan_rencana_skenario(
+        ip_int=ip_int,
+        prefix_induk=prefix_induk,
+        clean_ruangan=clean_ruangan,
+        gateway=gateway,
+        mode="vlsm",
+        gaya_modul=gaya_modul,
+    )
+
+    try:
+        res_flsm = _alokasikan_rencana_skenario(
+            ip_int=ip_int,
+            prefix_induk=prefix_induk,
+            clean_ruangan=clean_ruangan,
+            gateway=gateway,
+            mode="flsm",
+            gaya_modul=False,
+        )
+    except AppError as err:
+        if err.kode == FLSM_TIDAK_MUNGKIN:
+            res_flsm = {
+                "status": FLSM_TIDAK_MUNGKIN,
+                "pesan": err.pesan,
+                "prefix_saran": err.extra.get("prefix_saran"),
+                "tabel": [],
+                "peringatan": [FLSM_TIDAK_MUNGKIN],
+            }
+        else:
+            raise
+
+    # Jika mode yang diminta adalah FLSM dan gagal (gaya_modul False), raise error utamanya
+    if mode_norm == "flsm" and isinstance(res_flsm, dict) and res_flsm.get("status") == FLSM_TIDAK_MUNGKIN and not gaya_modul:
+        _alokasikan_rencana_skenario(
+            ip_int=ip_int,
+            prefix_induk=prefix_induk,
+            clean_ruangan=clean_ruangan,
+            gateway=gateway,
+            mode="flsm",
+            gaya_modul=False,
+        )
+
+    return {
+        "fitur": "rencana",
+        "sumber": sumber,
+        "nim_str": nim_str,
+        "alamat_induk": alamat_induk,
+        "prefix_induk": prefix_induk,
+        "mask_induk": mask_induk_str,
+        "kapasitas_induk": primary["kapasitas_induk"],
+        "gateway": gateway,
+        "cadangan_persen": cadangan_persen,
+        "mode": mode_norm,
+        "gaya_modul": gaya_modul,
+        "clean_ruangan": clean_ruangan,
+        "ruangan_skenario": primary["ruangan_skenario"],
+        "tabel": primary["tabel"],
+        "ringkasan": {
+            "metode": mode_norm.upper(),
+            "total_ruangan": len(clean_ruangan),
+            "ruangan_terakomodasi": primary["ruangan_terakomodasi"],
+            "kapasitas_induk": primary["kapasitas_induk"],
+            "total_alamat_dialokasikan": primary["total_alamat_dialokasikan"],
+            "sisa_alamat": primary["sisa_alamat"],
+            "persen_terpakai": primary["persen_terpakai"],
+            "sisa_rentang": primary["sisa_rentang"],
+            "gateway_aktif": gateway,
+            "cadangan_persen": cadangan_persen,
+        },
+        "perbandingan_gateway": {
+            "tanpa_gateway": res_tanpa,
+            "dengan_gateway": res_dengan,
+            "ruangan_berubah": ruangan_berubah,
+        },
+        "perbandingan_mode": {
+            "vlsm": res_vlsm,
+            "flsm": res_flsm,
+        },
+        "peringatan": peringatan_list,
     }
 

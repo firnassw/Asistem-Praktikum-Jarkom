@@ -144,3 +144,43 @@ export interface ModulMetadata {
   warna_aksen: 'secondary' | 'primary' | 'tertiary';
   urutan: number;
 }
+
+export interface RuanganPayloadItem {
+  nama: string;
+  device: number;
+}
+
+export interface RencanaPayload {
+  nim_dua_digit?: string | number | null;
+  alamat_induk?: string | null;
+  prefix_induk?: number | null;
+  ruangan: RuanganPayloadItem[];
+  gateway?: boolean;
+  cadangan_persen?: number;
+  mode?: 'vlsm' | 'flsm';
+  gaya_modul?: boolean;
+}
+
+export interface RencanaTableRow extends VlsmTableRow {
+  device?: number;
+  cadangan_host?: number;
+  host_dibutuhkan?: number;
+  usulan_gateway?: string | null;
+}
+
+export interface RencanaRingkasan {
+  metode: string;
+  total_ruangan: number;
+  ruangan_terakomodasi: number;
+  kapasitas_induk: number;
+  total_alamat_dialokasikan: number;
+  sisa_alamat: number;
+  persen_terpakai: number;
+  sisa_rentang?: {
+    mulai: string;
+    akhir: string;
+    jumlah: number;
+  } | null;
+  gateway_aktif?: boolean;
+  cadangan_persen?: number;
+}

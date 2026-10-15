@@ -118,7 +118,55 @@ export const StepCard: React.FC<StepCardProps> = ({
       );
     }
 
-    if (tabelData?.tipe === 'alokasi_blok_vlsm' || tabelData?.tipe === 'alokasi_blok_flsm') {
+    if (tabelData?.tipe === 'urutan_kebutuhan' || tabelData?.tipe === 'urutan_kebutuhan_rencana') {
+      const daftar = (tabelData.daftar || []) as string[];
+      return (
+        <div className="bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] p-3">
+          <div className="flex flex-wrap gap-2 text-xs font-mono">
+            {daftar.map((item, i) => {
+              const colors = ['#8BD0FC', '#FCE76C', '#FF8F5C', '#C9D0E4'];
+              const bgCol = colors[i % colors.length];
+              return (
+                <span
+                  key={i}
+                  style={{ backgroundColor: bgCol }}
+                  className="text-[#1F1E22] px-2.5 py-1 rounded-[6px] font-bold border border-[#1F1E22]"
+                >
+                  {item}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    if (tabelData?.tipe === 'perhitungan_prefix' || tabelData?.tipe === 'perhitungan_prefix_rencana') {
+      const baris = (tabelData.baris || []) as any[];
+      return (
+        <div className="bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] p-3 space-y-2">
+          {langkah.rumus && (
+            <div className="font-mono text-xs font-bold text-[#1F1E22] text-center bg-white py-1.5 px-3 rounded border border-[#1F1E22]">
+              {langkah.rumus}
+            </div>
+          )}
+          <div className="text-[12px] text-[#5B5F6B] font-medium space-y-1.5 pt-1 font-mono">
+            {baris.map((b, i) => (
+              <p key={i}>
+                • <strong>{b.nama} ({b.device !== undefined ? `${b.device} device → ${b.host_dibutuhkan} host` : `${b.host_diminta} host`}):</strong>{' '}
+                {b.rumus} → <strong className="text-[#1F1E22]">{b.prefix}</strong> (kapasitas {b.host_tersedia ?? (b.blok - 2)} host)
+              </p>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (
+      tabelData?.tipe === 'alokasi_blok_vlsm' ||
+      tabelData?.tipe === 'alokasi_blok_flsm' ||
+      tabelData?.tipe === 'alokasi_blok_rencana'
+    ) {
       const baris = (tabelData.baris || []) as any[];
       return (
         <div className="flex flex-col gap-2.5">
@@ -146,7 +194,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                     </strong>
                     {b.status === 'Terpakai' && (
                       <span className="text-[11px] text-[#5B5F6B]">
-                        ({b.nama} • {b.host_diminta} host • blok {b.ukuran_blok})
+                        ({b.nama} • {b.device !== undefined ? `${b.device} dev (${b.host_dibutuhkan} host)` : `${b.host_diminta} host`} • blok {b.ukuran_blok})
                       </span>
                     )}
                     {b.status === 'Cadangan' && (
@@ -158,6 +206,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                   {b.status !== 'Tidak muat' && (
                     <span className="text-[11px] text-[#5B5F6B] block mt-0.5 truncate">
                       NA: {b.subnet} | BA: {b.broadcast} | Host: {b.host_pertama} s.d. {b.host_terakhir}
+                      {b.usulan_gateway && ` | Gateway: ${b.usulan_gateway}`}
                     </span>
                   )}
                 </div>
@@ -188,7 +237,10 @@ export const StepCard: React.FC<StepCardProps> = ({
       />
 
       {/* Kartu Utama: Surface putih, border 2px ink, rounded 20px, padding 24px */}
-      <article className="relative bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 flex flex-col gap-4">
+      <article
+        data-testid="step-card"
+        className="relative bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 flex flex-col gap-4"
+      >
         {/* Header Langkah */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">

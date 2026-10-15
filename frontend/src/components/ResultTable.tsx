@@ -4,13 +4,14 @@ import { getSubnetColor } from './AddressBar';
 import { Copy, Check, Printer } from 'lucide-react';
 
 interface ResultTableProps {
-  tabel: (SubnetTableRow | VlsmTableRow)[] | any[];
+  tabel: (SubnetTableRow | VlsmTableRow | any)[] | any[];
   targetIp?: string;
   prefix?: number;
   totalSubnets?: number;
   ringkasanTabel?: boolean;
   judul?: string;
-  mode?: 'subnet' | 'vlsm_flsm';
+  mode?: 'subnet' | 'vlsm_flsm' | 'rencana';
+  showGateway?: boolean;
 }
 
 export const ResultTable: React.FC<ResultTableProps> = ({
@@ -21,18 +22,65 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   ringkasanTabel = false,
   judul,
   mode,
+  showGateway,
 }) => {
   const [copied, setCopied] = useState(false);
 
-  // Deteksi otomatis apakah tabel VLSM/FLSM
+  // Deteksi otomatis apakah tabel rencana atau VLSM/FLSM
+  const isRencana =
+    mode === 'rencana' ||
+    (tabel.length > 0 && ('device' in tabel[0] || 'host_dibutuhkan' in tabel[0]));
   const isVlsmFlsm =
+    isRencana ||
     mode === 'vlsm_flsm' ||
     (tabel.length > 0 && ('host_diminta' in tabel[0] || 'nama' in tabel[0]));
+  const hasGateway =
+    showGateway ??
+    tabel.some((r) => r.usulan_gateway != null && r.usulan_gateway !== '' && r.usulan_gateway !== '-');
 
   const handleCopyTable = () => {
     let textToCopy = '';
 
-    if (isVlsmFlsm) {
+    if (isRencana) {
+      const headerCols = [
+        'No',
+        'Ruangan',
+        'Device',
+        'Host Dibutuhkan',
+        'Host Tersedia',
+        'Prefix',
+        'Subnet Mask',
+        'Subnet (NA)',
+        'Host Pertama',
+        'Host Terakhir',
+      ];
+      if (hasGateway) {
+        headerCols.push('Usulan Gateway');
+      }
+      headerCols.push('Broadcast (BA)', 'Status');
+      const header = headerCols.join('\t');
+
+      const rows = tabel.map((r: any) => {
+        const rowCols = [
+          r.no,
+          r.nama,
+          r.device ?? '-',
+          r.host_dibutuhkan ?? r.host_diminta ?? '-',
+          r.host_tersedia ?? '-',
+          `/${r.prefix}`,
+          r.subnet_mask,
+          r.subnet,
+          r.host_pertama,
+          r.host_terakhir,
+        ];
+        if (hasGateway) {
+          rowCols.push(r.usulan_gateway || '-');
+        }
+        rowCols.push(r.broadcast, r.status);
+        return rowCols.join('\t');
+      });
+      textToCopy = [header, ...rows].join('\n');
+    } else if (isVlsmFlsm) {
       const header = [
         'No',
         'Ruangan',
@@ -125,18 +173,26 @@ export const ResultTable: React.FC<ResultTableProps> = ({
             <thead>
               <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">
                 <th className="py-3 px-3.5">Ruangan</th>
-                <th className="py-3 px-3 text-right">Host Diminta</th>
-                <th className="py-3 px-3 text-right">Host Tersedia</th>
+                {isRencana && <th className="py-3 px-3 text-right">Device</th>}
+                <th className="py-3 px-3 text-right">
+                  {isRencana ? 'Host Butuh' : 'Host Diminta'}
+                </th>
+                <th className="py-3 px-3 text-right">
+                  {isRencana ? 'Host Ada' : 'Host Tersedia'}
+                </th>
                 <th className="py-3 px-3.5">Prefix / Mask</th>
                 <th className="py-3 px-3.5">Subnet (NA)</th>
                 <th className="py-3 px-3.5">Host Pertama</th>
                 <th className="py-3 px-3.5">Host Terakhir</th>
+                {isRencana && hasGateway && (
+                  <th className="py-3 px-3.5 text-[#FCE76C]">Usulan Gateway</th>
+                )}
                 <th className="py-3 px-3.5">Broadcast (BA)</th>
                 <th className="py-3 px-3.5 text-center">Status</th>
               </tr>
             </thead>
             <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
-              {(tabel as VlsmTableRow[]).map((row, idx) => {
+              {tabel.map((row: any, idx: number) => {
                 const color = row.warna || getSubnetColor(idx);
                 const isTidakMuat = row.status === 'Tidak muat';
                 const isCadangan = row.status === 'Cadangan';
@@ -161,8 +217,13 @@ export const ResultTable: React.FC<ResultTableProps> = ({
                         <span className="font-bold text-[#1F1E22]">{row.nama}</span>
                       </div>
                     </td>
+                    {isRencana && (
+                      <td className="py-2.5 px-3 text-right font-medium">
+                        {isCadangan ? '-' : (row.device ?? '-')}
+                      </td>
+                    )}
                     <td className="py-2.5 px-3 text-right">
-                      {isCadangan ? '-' : row.host_diminta}
+                      {isCadangan ? '-' : (row.host_dibutuhkan ?? row.host_diminta ?? '-')}
                     </td>
                     <td className="py-2.5 px-3 text-right font-medium">
                       {isTidakMuat ? '-' : row.host_tersedia}
@@ -178,6 +239,11 @@ export const ResultTable: React.FC<ResultTableProps> = ({
                     </td>
                     <td className="py-2.5 px-3.5">{row.host_pertama}</td>
                     <td className="py-2.5 px-3.5">{row.host_terakhir}</td>
+                    {isRencana && hasGateway && (
+                      <td className="py-2.5 px-3.5 font-bold text-[#1F1E22] bg-[#FFF8D1]/50">
+                        {row.usulan_gateway || '-'}
+                      </td>
+                    )}
                     <td className="py-2.5 px-3.5 font-bold text-[#B3261E]">
                       {row.broadcast}
                     </td>

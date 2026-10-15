@@ -2,7 +2,7 @@
 Skema input dan validasi untuk modul subnetting jaringan.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from pydantic import BaseModel, Field
 
 from app.core.errors import (
@@ -133,4 +133,37 @@ class FlsmRequest(BaseModel):
     prefix_induk: int = Field(..., description="Prefix induk (0-30)")
     kebutuhan: List[KebutuhanItem] = Field(..., description="Daftar kebutuhan host (1-20 ruangan)")
     gaya_modul: bool = Field(False, description="Opsi gaya modul praktikum (lanjutkan melewati batas induk)")
+
+
+class RuanganItem(BaseModel):
+    """
+    Item ruangan untuk fitur rencana:
+    - nama: 1-30 karakter, unik.
+    - device: bilangan bulat >= 1.
+    """
+    nama: str = Field(..., description="Nama ruangan (1-30 karakter)")
+    device: int = Field(..., description="Jumlah device perangkat (>= 1)")
+
+
+class RencanaRequest(BaseModel):
+    """
+    Permintaan rencana alokasi subnet dari ruangan dan device:
+    - nim_dua_digit: 2 digit angka '00'..'99' (opsional jika alamat_induk diisi).
+    - alamat_induk: IPv4 titik-desimal (opsional jika nim_dua_digit diisi).
+    - prefix_induk: integer 0..30 (default 24 jika pakai nim).
+    - ruangan: list 1..20 ruangan.
+    - gateway: bool (default False).
+    - cadangan_persen: int 0..100 (default 0).
+    - mode: 'vlsm' | 'flsm' (default 'vlsm').
+    - gaya_modul: bool (default False).
+    """
+    nim_dua_digit: Optional[Union[str, int]] = Field(None, description="Dua digit terakhir NIM ('00'..'99')")
+    alamat_induk: Optional[str] = Field(None, description="Alamat induk IPv4 (Network Address)")
+    prefix_induk: Optional[int] = Field(None, description="Prefix induk (0-30)")
+    ruangan: List[RuanganItem] = Field(..., description="Daftar ruangan dan jumlah device (1-20 ruangan)")
+    gateway: bool = Field(False, description="Opsi hitung gateway (+1 host per ruangan)")
+    cadangan_persen: int = Field(0, description="Persentase cadangan pertumbuhan device (0-100%)")
+    mode: str = Field("vlsm", description="Metode alokasi ('vlsm' atau 'flsm')")
+    gaya_modul: bool = Field(False, description="Opsi gaya modul praktikum untuk FLSM")
+
 

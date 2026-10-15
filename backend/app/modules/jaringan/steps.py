@@ -3,7 +3,7 @@ Penyusun langkah-langkah penyelesaian subnetting sesuai urutan Modul 2 praktikum
 Menghasilkan struktur jawaban seragam (StrukturJawaban).
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 from app.core.schemas import DiketahuiItem, LangkahItem, StrukturJawaban
 from app.modules.jaringan.solver import int_to_bin
 
@@ -503,6 +503,289 @@ def susun_langkah_flsm(data: Dict[str, Any]) -> StrukturJawaban:
 
     return StrukturJawaban(
         fitur="flsm",
+        diketahui=diketahui,
+        langkah=langkah_list,
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=peringatan,
+    )
+
+
+def _susun_langkah_rencana_list(
+    alamat_induk: str,
+    prefix_induk: int,
+    kapasitas_induk: int,
+    nim_str: Optional[str],
+    cadangan_persen: int,
+    gateway: bool,
+    mode: str,
+    clean_ruangan: List[Dict[str, Any]],
+    ruangan_skenario: List[Dict[str, Any]],
+    tabel: List[Dict[str, Any]],
+    total_alamat_dialokasikan: int,
+    sisa_alamat: int,
+) -> List[LangkahItem]:
+    """Menyusun 3 kartu langkah untuk rencana ruangan."""
+    # 1. Langkah 1: Tentukan IP Global induk dan urutkan kebutuhan ruangan dari terbesar
+    daftar_urut = []
+    if mode == "vlsm":
+        ruangan_terurut = sorted(ruangan_skenario, key=lambda x: x["host_dibutuhkan"], reverse=True)
+        judul_langkah1 = "Tentukan IP Global induk dan urutkan kebutuhan ruangan dari terbesar"
+        penjelasan_langkah1 = (
+            (f"Alamat jaringan induk dibentuk dari dua digit NIM {nim_str} menjadi {alamat_induk}/{prefix_induk} (kapasitas {kapasitas_induk} IP). "
+             if nim_str else
+             f"Alamat jaringan induk yang digunakan adalah {alamat_induk}/{prefix_induk} (kapasitas {kapasitas_induk} IP). ") +
+            f"Kebutuhan tiap ruangan dihitung dari jumlah device" +
+            (f", cadangan pertumbuhan {cadangan_persen}%" if cadangan_persen > 0 else "") +
+            (f", serta tambahan 1 IP router (gateway)" if gateway else "") +
+            f". Dalam metode VLSM, seluruh ruangan diurutkan dari kebutuhan host terbesar ke terkecil "
+            f"agar penempatan blok subnet selalu sejajar dengan batas kelipatannya (boundary alignment)."
+        )
+    else:
+        ruangan_terurut = ruangan_skenario
+        judul_langkah1 = "Tentukan IP Global induk dan hitung kebutuhan ruangan"
+        penjelasan_langkah1 = (
+            (f"Alamat jaringan induk dibentuk dari dua digit NIM {nim_str} menjadi {alamat_induk}/{prefix_induk} (kapasitas {kapasitas_induk} IP). "
+             if nim_str else
+             f"Alamat jaringan induk yang digunakan adalah {alamat_induk}/{prefix_induk} (kapasitas {kapasitas_induk} IP). ") +
+            f"Kebutuhan tiap ruangan dihitung dari jumlah device" +
+            (f", cadangan pertumbuhan {cadangan_persen}%" if cadangan_persen > 0 else "") +
+            (f", serta tambahan 1 IP router (gateway)" if gateway else "") +
+            f". Dalam metode FLSM, subnet mask ditentukan seragam berdasarkan kebutuhan host terbesar."
+        )
+
+    for i, r in enumerate(ruangan_terurut):
+        rincian = f"{i + 1}. {r['nama']}: {r['device']} device"
+        if r['cadangan_host'] > 0:
+            rincian += f" + {r['cadangan_host']} cadangan ({cadangan_persen}%)"
+        if gateway:
+            rincian += " + 1 gateway"
+        rincian += f" = {r['host_dibutuhkan']} host"
+        daftar_urut.append(rincian)
+
+    urutan_str = " → ".join(f"{r['nama']} ({r['host_dibutuhkan']} host)" for r in ruangan_terurut)
+
+    langkah1 = LangkahItem(
+        judul=judul_langkah1,
+        penjelasan=penjelasan_langkah1,
+        rumus="host_dibutuhkan = device + cadangan" + (" + 1 (gateway)" if gateway else ""),
+        tabel={
+            "tipe": "urutan_kebutuhan_rencana",
+            "daftar": daftar_urut,
+        },
+        hasil=f"Urutan alokasi: {urutan_str}",
+    )
+
+    # 2. Langkah 2: Tentukan Prefix dan Ukuran Blok Tiap Ruangan
+    perhitungan_prefix = []
+    hasil_prefix_parts = []
+    for r in tabel:
+        if r["status"] != "Tidak muat" and r["status"] != "Cadangan":
+            perhitungan_prefix.append({
+                "nama": r["nama"],
+                "device": r["device"],
+                "host_dibutuhkan": r["host_dibutuhkan"],
+                "rumus": f"{r['host_dibutuhkan']} + 2 = {r['host_dibutuhkan'] + 2} <= 2^{r['bit_host']} ({r['ukuran_blok']})",
+                "prefix": f"/{r['prefix']}",
+                "host_tersedia": r["host_tersedia"],
+                "blok": r["ukuran_blok"],
+                "mask": r["subnet_mask"],
+            })
+            hasil_prefix_parts.append(f"{r['nama']}: /{r['prefix']} ({r['host_tersedia']} host)")
+
+    langkah2 = LangkahItem(
+        judul="Tentukan prefix dan kapasitas tiap ruangan",
+        penjelasan=(
+            "Untuk setiap ruangan, hitung jumlah bit host (y) yang memenuhi: "
+            "host_dibutuhkan + 2 (Network + Broadcast) <= 2^y. Prefix dihitung dengan rumus "
+            "prefix = 32 - y (dengan batas minimal /30 untuk alokasi host). "
+            "Kapasitas host tersedia pada tiap subnet adalah 2^y - 2 host."
+        ),
+        rumus="host_dibutuhkan + 2 <= 2^y, prefix = 32 - y, host tersedia = 2^y - 2",
+        tabel={
+            "tipe": "perhitungan_prefix_rencana",
+            "baris": perhitungan_prefix,
+        },
+        hasil="; ".join(hasil_prefix_parts),
+    )
+
+    # 3. Langkah 3: Alokasikan Blok Subnet Secara Berurutan
+    alokasi_parts = []
+    for r in tabel:
+        if r["status"] == "Terpakai":
+            gw_info = f", Gateway: {r['usulan_gateway']}" if r.get("usulan_gateway") else ""
+            alokasi_parts.append(
+                f"{r['nama']} ({r['subnet']}/{r['prefix']}): host {r['host_pertama']} - {r['host_terakhir']}{gw_info}, BA {r['broadcast']}"
+            )
+        elif r["status"] == "Cadangan":
+            alokasi_parts.append(f"Cadangan ({r['subnet']}/{r['prefix']}): {r['host_tersedia']} host bebas")
+        else:
+            alokasi_parts.append(f"{r['nama']}: Tidak muat di jaringan induk")
+
+    langkah3 = LangkahItem(
+        judul="Alokasikan blok subnet secara berurutan",
+        penjelasan=(
+            f"Tempatkan blok subnet secara kontigu mulai dari alamat induk {alamat_induk}/{prefix_induk}. "
+            f"Setiap subnet memiliki Network Address (NA) di awal blok, Broadcast Address (BA) di akhir blok, "
+            f"serta rentang host valid di antaranya." +
+            (" Alamat host pertama diusulkan sebagai default gateway interface router." if gateway else "")
+        ),
+        rumus="NA = cursor, BA = cursor + ukuran blok - 1, host = (NA + 1) s.d. (BA - 1)" + (", gateway = host pertama" if gateway else ""),
+        tabel={
+            "tipe": "alokasi_blok_rencana",
+            "baris": tabel,
+        },
+        hasil=f"Total terpakai: {total_alamat_dialokasikan}/{kapasitas_induk} IP | Sisa bebas: {sisa_alamat} IP",
+    )
+
+    return [langkah1, langkah2, langkah3]
+
+
+def susun_langkah_rencana(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah-langkah rencana ruangan dan device sesuai PRD Bagian 11 dan Lampiran A:
+    - Menghasilkan diketahui, langkah 1..3, hasil_akhir (tabel, ringkasan, perbandingan),
+      kesimpulan kalimat utuh Bahasa Indonesia, dan peringatan.
+    """
+    alamat_induk = data["alamat_induk"]
+    prefix_induk = data["prefix_induk"]
+    mask_induk = data["mask_induk"]
+    kapasitas_induk = data["kapasitas_induk"]
+    nim_str = data["nim_str"]
+    cadangan_persen = data["cadangan_persen"]
+    gateway = data["gateway"]
+    mode = data["mode"]
+    clean_ruangan = data["clean_ruangan"]
+    ruangan_skenario = data["ruangan_skenario"]
+    tabel = data["tabel"]
+    ringkasan = data["ringkasan"]
+    perbandingan_gateway = data["perbandingan_gateway"]
+    perbandingan_mode = data["perbandingan_mode"]
+    peringatan = data["peringatan"]
+
+    # 1. Diketahui
+    diketahui = [
+        DiketahuiItem(
+            label="Induk Jaringan",
+            nilai=f"{alamat_induk}/{prefix_induk} (Mask: {mask_induk}, Kapasitas: {kapasitas_induk} IP)",
+        ),
+    ]
+    if nim_str:
+        diketahui.append(DiketahuiItem(label="Dua Digit NIM", nilai=nim_str))
+    diketahui.append(DiketahuiItem(label="Jumlah Ruangan", nilai=f"{len(clean_ruangan)} ruangan"))
+    diketahui.append(
+        DiketahuiItem(
+            label="Cadangan Pertumbuhan",
+            nilai=f"{cadangan_persen}%" if cadangan_persen > 0 else "0% (tanpa cadangan)",
+        )
+    )
+    diketahui.append(
+        DiketahuiItem(
+            label="Opsi Gateway",
+            nilai="Aktif (+1 host, host pertama)" if gateway else "Tidak dihitung",
+        )
+    )
+    diketahui.append(
+        DiketahuiItem(
+            label="Metode Alokasi",
+            nilai=f"{mode.upper()} ({'Variable' if mode == 'vlsm' else 'Fixed'} Length Subnet Mask)",
+        )
+    )
+
+    # 2. Susun 3 Kartu Langkah
+    langkah_list = _susun_langkah_rencana_list(
+        alamat_induk=alamat_induk,
+        prefix_induk=prefix_induk,
+        kapasitas_induk=kapasitas_induk,
+        nim_str=nim_str,
+        cadangan_persen=cadangan_persen,
+        gateway=gateway,
+        mode=mode,
+        clean_ruangan=clean_ruangan,
+        ruangan_skenario=ruangan_skenario,
+        tabel=tabel,
+        total_alamat_dialokasikan=ringkasan["total_alamat_dialokasikan"],
+        sisa_alamat=ringkasan["sisa_alamat"],
+    )
+
+    # Susun juga langkah untuk perbandingan gateway jika tersedia
+    if "tanpa_gateway" in perbandingan_gateway:
+        tg = perbandingan_gateway["tanpa_gateway"]
+        tg["langkah"] = _susun_langkah_rencana_list(
+            alamat_induk=alamat_induk,
+            prefix_induk=prefix_induk,
+            kapasitas_induk=kapasitas_induk,
+            nim_str=nim_str,
+            cadangan_persen=cadangan_persen,
+            gateway=False,
+            mode=mode,
+            clean_ruangan=clean_ruangan,
+            ruangan_skenario=tg["ruangan_skenario"],
+            tabel=tg["tabel"],
+            total_alamat_dialokasikan=tg["total_alamat_dialokasikan"],
+            sisa_alamat=tg["sisa_alamat"],
+        )
+    if "dengan_gateway" in perbandingan_gateway:
+        dg = perbandingan_gateway["dengan_gateway"]
+        dg["langkah"] = _susun_langkah_rencana_list(
+            alamat_induk=alamat_induk,
+            prefix_induk=prefix_induk,
+            kapasitas_induk=kapasitas_induk,
+            nim_str=nim_str,
+            cadangan_persen=cadangan_persen,
+            gateway=True,
+            mode=mode,
+            clean_ruangan=clean_ruangan,
+            ruangan_skenario=dg["ruangan_skenario"],
+            tabel=dg["tabel"],
+            total_alamat_dialokasikan=dg["total_alamat_dialokasikan"],
+            sisa_alamat=dg["sisa_alamat"],
+        )
+
+    # 3. Kesimpulan Kalimat Utuh Bahasa Indonesia
+    total_dialokasikan = ringkasan["total_alamat_dialokasikan"]
+    sisa_alamat = ringkasan["sisa_alamat"]
+    persen_terpakai = ringkasan["persen_terpakai"]
+    ruangan_terakomodasi = ringkasan["ruangan_terakomodasi"]
+
+    if ruangan_terakomodasi == len(clean_ruangan):
+        kesimpulan = (
+            f"Alokasi {mode.upper()} untuk {len(clean_ruangan)} ruangan dengan IP dasar "
+            f"{alamat_induk}/{prefix_induk} berhasil disusun dengan efisiensi tinggi, "
+            f"menghabiskan {total_dialokasikan} dari {kapasitas_induk} alamat IP ({persen_terpakai}%) "
+            f"dan menyisakan {sisa_alamat} alamat IP bebas untuk ekspansi jaringan mendatang."
+        )
+        if gateway:
+            kesimpulan += " Usulan IP gateway router dikonfigurasi pada alamat host pertama setiap subnet."
+    else:
+        kesimpulan = (
+            f"Alokasi {mode.upper()} untuk jaringan induk {alamat_induk}/{prefix_induk} hanya dapat "
+            f"mengakomodasi {ruangan_terakomodasi} dari {len(clean_ruangan)} ruangan. "
+            f"Diperlukan jaringan induk dengan prefix lebih besar untuk menampung seluruh kebutuhan."
+        )
+
+    # Tambahkan kesimpulan ke sub-skenario perbandingan
+    if "tanpa_gateway" in perbandingan_gateway:
+        perbandingan_gateway["tanpa_gateway"]["kesimpulan"] = (
+            f"Alokasi {mode.upper()} tanpa gateway menghabiskan {perbandingan_gateway['tanpa_gateway']['total_alamat_dialokasikan']} "
+            f"dari {kapasitas_induk} alamat IP, menyisakan {perbandingan_gateway['tanpa_gateway']['sisa_alamat']} IP bebas."
+        )
+    if "dengan_gateway" in perbandingan_gateway:
+        perbandingan_gateway["dengan_gateway"]["kesimpulan"] = (
+            f"Alokasi {mode.upper()} dengan gateway (+1 router host) menghabiskan {perbandingan_gateway['dengan_gateway']['total_alamat_dialokasikan']} "
+            f"dari {kapasitas_induk} alamat IP, menyisakan {perbandingan_gateway['dengan_gateway']['sisa_alamat']} IP bebas. "
+            f"Usulan gateway ditempatkan pada host pertama tiap subnet."
+        )
+
+    hasil_akhir = {
+        "ringkasan": ringkasan,
+        "tabel": tabel,
+        "perbandingan_gateway": perbandingan_gateway,
+        "perbandingan_mode": perbandingan_mode,
+    }
+
+    return StrukturJawaban(
+        fitur="rencana",
         diketahui=diketahui,
         langkah=langkah_list,
         hasil_akhir=hasil_akhir,
