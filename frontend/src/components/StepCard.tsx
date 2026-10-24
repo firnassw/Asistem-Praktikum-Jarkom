@@ -217,6 +217,93 @@ export const StepCard: React.FC<StepCardProps> = ({
       );
     }
 
+    if (tabelData?.tipe === 'pembagian_berulang') {
+      const baris = (tabelData.baris || []) as any[];
+      return (
+        <div className="flex flex-col gap-2.5">
+          {langkah.rumus && (
+            <div className="p-3 bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] font-mono text-[13px] text-[#1F1E22]">
+              {langkah.rumus}
+            </div>
+          )}
+          <div className="overflow-x-auto rounded-[12px] border border-[#1F1E22]/20">
+            <table className="w-full text-left border-collapse min-w-[340px] font-mono text-xs">
+              <thead>
+                <tr className="bg-[#1F1E22] text-white text-[11px] uppercase tracking-wider">
+                  <th className="py-2 px-3">Nilai Awal</th>
+                  <th className="py-2 px-3 text-center">Bagi</th>
+                  <th className="py-2 px-3 text-center">Hasil Bagi</th>
+                  <th className="py-2 px-3 text-right">Sisa</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E3E5EA] bg-white">
+                {baris.map((b: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-[#F5F6F8]">
+                    <td className="py-2 px-3 font-bold">{b.nilai_awal}</td>
+                    <td className="py-2 px-3 text-center text-[#5B5F6B]">÷ {b.pembagi}</td>
+                    <td className="py-2 px-3 text-center font-bold">{b.hasil_bagi}</td>
+                    <td className="py-2 px-3 text-right">
+                      <span className="px-2 py-0.5 bg-[#FFF8D1] border border-[#FCE76C] rounded font-bold text-[#1F1E22]">
+                        {b.sisa}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <span className="text-[11px] text-[#5B5F6B] font-mono">
+            * Baca nilai sisa dari baris terbawah ke teratas untuk mendapatkan hasil akhir.
+          </span>
+        </div>
+      );
+    }
+
+    if (tabelData?.tipe === 'tabel_bit_8') {
+      const bitList = (tabelData.tabel_bit || []) as any[];
+      return (
+        <div className="flex flex-col gap-2.5">
+          {langkah.rumus && (
+            <div className="p-3 bg-[#FFF8D1] border border-[#FCE76C] rounded-[12px] font-mono text-[13px] font-bold text-[#1F1E22]">
+              {langkah.rumus}
+            </div>
+          )}
+          <div className="overflow-x-auto pb-1">
+            <div className="min-w-[480px] grid grid-cols-8 gap-1.5 font-mono text-xs">
+              {bitList.map((item: any) => (
+                <div
+                  key={item.bobot}
+                  className={`flex flex-col rounded-lg border-2 overflow-hidden text-center transition-all ${
+                    item.aktif
+                      ? 'border-[#1F1E22] bg-[#FCE76C] shadow-2xs'
+                      : 'border-[#1F1E22]/30 bg-[#F5F6F8]'
+                  }`}
+                >
+                  <div
+                    className={`py-0.5 text-[10px] font-bold ${
+                      item.aktif ? 'bg-[#1F1E22] text-[#FCE76C]' : 'bg-[#1F1E22]/15 text-[#5B5F6B]'
+                    }`}
+                  >
+                    {item.pangkat}
+                  </div>
+                  <div className="py-1 font-bold text-[11px] border-b border-[#1F1E22]/20">
+                    {item.bobot}
+                  </div>
+                  <div
+                    className={`py-1 text-[15px] font-black ${
+                      item.aktif ? 'text-[#1F1E22]' : 'text-[#8A8F9C]'
+                    }`}
+                  >
+                    {item.bit}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (langkah.rumus) {
       return (
         <div className="p-3 bg-[#F5F6F8] border border-[#E3E5EA] rounded-[12px] font-mono text-[13px] text-[#1F1E22]">

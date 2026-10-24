@@ -4,6 +4,7 @@
 
 import type {
   ApiError,
+  DhcpPayload,
   FlsmPayload,
   ModulMetadata,
   RencanaPayload,
@@ -125,4 +126,29 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+
+  /**
+   * Generator DHCP Server Cisco Packet Tracer
+   */
+  async hitungDhcp(payload: DhcpPayload): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/dhcp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Konversi Basis Bilangan (2, 8, 10, 16)
+   */
+  async hitungKonversi(payload: {
+    nilai: string;
+    basis_asal: number;
+    mode_ipv4?: boolean;
+  }): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/konversi', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
+

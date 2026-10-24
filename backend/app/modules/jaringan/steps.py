@@ -793,3 +793,505 @@ def susun_langkah_rencana(data: Dict[str, Any]) -> StrukturJawaban:
         peringatan=peringatan,
     )
 
+
+def susun_langkah_dhcp(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah penyelesaian konfigurasi DHCP router Cisco Packet Tracer:
+    1. Tentukan alamat jaringan (NA) dan subnet mask dari IP router & prefix.
+    2. Periksa rentang excluded address dan prediksi IP klien pertama.
+    3. Susun urutan perintah CLI konfigurasi interface dan DHCP server.
+    """
+    alamat_router = data["alamat_router"]
+    prefix = data["prefix"]
+    subnet_mask = data["subnet_mask"]
+    network_address = data["network_address"]
+    broadcast_address = data["broadcast_address"]
+    host_pertama = data["host_pertama"]
+    host_terakhir = data["host_terakhir"]
+    interface = data["interface"]
+    nama_pool = data["nama_pool"]
+    excluded_awal = data["excluded_awal"]
+    excluded_akhir = data["excluded_akhir"]
+    klien_pertama = data["klien_pertama"]
+    rentang_dinamis = data["rentang_dinamis"]
+    jumlah_klien_dinamis = data["jumlah_klien_dinamis"]
+    cli_baris = data["cli_baris"]
+    cli_script = data["cli_script"]
+    peringatan = data.get("peringatan", [])
+
+    # 1. Diketahui
+    diketahui = [
+        DiketahuiItem(label="IP Router (Default Gateway)", nilai=alamat_router),
+        DiketahuiItem(label="Prefix & Subnet Mask", nilai=f"/{prefix} ({subnet_mask})"),
+        DiketahuiItem(label="Interface Router", nilai=interface),
+        DiketahuiItem(label="Nama DHCP Pool", nilai=nama_pool),
+        DiketahuiItem(label="Rentang Excluded", nilai=f"{excluded_awal} s.d. {excluded_akhir}"),
+    ]
+
+    # 2. Langkah 1: Tentukan alamat jaringan (NA) dan subnet mask
+    langkah1 = LangkahItem(
+        judul="Tentukan alamat jaringan (NA) dan subnet mask dari IP router",
+        penjelasan=(
+            f"Tentukan Network Address (NA) dan subnet mask dari alamat IP router {alamat_router}/{prefix}. "
+            f"Nilai Network Address dan subnet mask ini akan digunakan sebagai parameter pada perintah 'network' di konfigurasi DHCP pool."
+        ),
+        rumus="NA = IP Router AND Subnet Mask",
+        tabel={
+            "tipe": "dhcp_step1",
+            "alamat_router": alamat_router,
+            "prefix": prefix,
+            "network_address": network_address,
+            "subnet_mask": subnet_mask,
+            "broadcast_address": broadcast_address,
+            "host_pertama": host_pertama,
+            "host_terakhir": host_terakhir,
+        },
+        hasil=f"Network Address (NA) = {network_address} | Subnet Mask = {subnet_mask}",
+    )
+
+    # 3. Langkah 2: Periksa rentang excluded address dan prediksi IP klien pertama
+    langkah2 = LangkahItem(
+        judul="Periksa rentang excluded address dan prediksi IP klien pertama",
+        penjelasan=(
+            f"Alamat IP {excluded_awal} sampai {excluded_akhir} dikecualikan (excluded) agar tidak dibagikan secara otomatis ke klien dinamis. "
+            f"Router DHCP akan mengalokasikan alamat IP pertama yang tersedia tepat setelah batas akhir excluded address: {excluded_akhir} + 1."
+        ),
+        rumus=f"IP Klien Pertama = {excluded_akhir} + 1 = {klien_pertama}",
+        tabel={
+            "tipe": "dhcp_step2",
+            "excluded_awal": excluded_awal,
+            "excluded_akhir": excluded_akhir,
+            "klien_pertama": klien_pertama,
+            "rentang_dinamis": rentang_dinamis,
+            "jumlah_klien_dinamis": jumlah_klien_dinamis,
+        },
+        hasil=f"Klien pertama mendapat IP {klien_pertama} (Rentang dinamis: {rentang_dinamis})",
+    )
+
+    # 4. Langkah 3: Susun urutan perintah CLI konfigurasi interface dan DHCP server
+    langkah3 = LangkahItem(
+        judul="Susun urutan perintah CLI konfigurasi interface dan DHCP server",
+        penjelasan=(
+            f"Susun perintah CLI Cisco IOS secara berurutan: masuk ke mode privileged dan konfigurasi global, aktifkan interface {interface} "
+            f"dengan IP {alamat_router}, buat DHCP pool '{nama_pool}', tentukan default gateway dan network subnet, lalu kecualikan rentang IP {excluded_awal}–{excluded_akhir}."
+        ),
+        rumus=None,
+        tabel={
+            "tipe": "dhcp_step3",
+            "total_baris": len(cli_baris),
+            "interface": interface,
+            "nama_pool": nama_pool,
+        },
+        hasil="10 baris perintah CLI Cisco IOS siap dieksekusi pada tab CLI router",
+    )
+
+    langkah_list = [langkah1, langkah2, langkah3]
+
+    # 5. Kesimpulan
+    kesimpulan = (
+        f"Konfigurasi DHCP pool '{nama_pool}' pada interface {interface} berhasil disusun. "
+        f"Klien pertama yang meminta alamat secara dinamis akan memperoleh IP {klien_pertama} "
+        f"dengan subnet mask {subnet_mask} dan default gateway {alamat_router}."
+    )
+
+    hasil_akhir = {
+        "klien_pertama": klien_pertama,
+        "network_address": network_address,
+        "subnet_mask": subnet_mask,
+        "broadcast_address": broadcast_address,
+        "host_pertama": host_pertama,
+        "host_terakhir": host_terakhir,
+        "interface": interface,
+        "nama_pool": nama_pool,
+        "excluded_awal": excluded_awal,
+        "excluded_akhir": excluded_akhir,
+        "rentang_dinamis": rentang_dinamis,
+        "jumlah_klien_dinamis": jumlah_klien_dinamis,
+        "cli_baris": cli_baris,
+        "cli_script": cli_script,
+    }
+
+    return StrukturJawaban(
+        fitur="dhcp",
+        diketahui=diketahui,
+        langkah=langkah_list,
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=peringatan,
+    )
+
+
+def susun_langkah_konversi(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah penyelesaian konversi basis sesuai lembar praktikum Modul 2:
+    - Biner <-> Desimal dengan tabel bobot bit 128..1
+    - Heksadesimal dengan pemisahan 4-bit nibble
+    - Oktal dengan pemisahan 3-bit / pembagian berulang
+    - Hasil akhir tabel 4 basis dan kesimpulan utuh
+    """
+    basis_map = {
+        2: "Basis 2 (Biner)",
+        8: "Basis 8 (Oktal)",
+        10: "Basis 10 (Desimal)",
+        16: "Basis 16 (Heksadesimal)",
+    }
+    basis_label = basis_map.get(data["basis_asal"], f"Basis {data['basis_asal']}")
+
+    diketahui = [
+        DiketahuiItem(label="Nilai Masukan", nilai=str(data["nilai_input"])),
+        DiketahuiItem(label="Basis Asal", nilai=basis_label),
+        DiketahuiItem(
+            label="Mode Konversi",
+            nilai="IPv4 (4 Oktet)" if data["mode_ipv4"] else "Tunggal (1 Oktet / Bilangan)",
+        ),
+    ]
+
+    langkah_list: List[LangkahItem] = []
+
+    if data["mode_ipv4"]:
+        oktet_list = data["oktet_list"]
+        # Langkah 1: Pemisahan dan Evaluasi 4 Oktet
+        langkah_list.append(
+            LangkahItem(
+                judul="Pemisahan 4 Oktet IPv4 dan Evaluasi Rentang (0–255)",
+                penjelasan=(
+                    f"Alamat IPv4 '{data['nilai_input']}' dipisahkan menjadi 4 oktet: "
+                    + ", ".join(f"Oktet {o['oktet_ke']} = {o['nilai_asli']} (desimal {o['desimal']})" for o in oktet_list)
+                    + ". Setiap oktet dievaluasi berada dalam batas praktikum 0–255 (8-bit)."
+                ),
+                rumus="IPv4 = Oktet 1 . Oktet 2 . Oktet 3 . Oktet 4",
+                tabel={
+                    "tipe": "ipv4_oktet_summary",
+                    "oktet_list": oktet_list,
+                },
+                hasil=f"Desimal lengkap: {data['desimal']}",
+            )
+        )
+
+        # Langkah 2: Konversi Tiap Oktet ke Format 8-Bit Biner
+        langkah_list.append(
+            LangkahItem(
+                judul="Konversi Setiap Oktet ke 8-Bit Biner dan Heksadesimal",
+                penjelasan=(
+                    "Setiap oktet diubah menjadi representasi biner 8-bit (padding nol di depan jika < 128) "
+                    "dan heksadesimal 2 digit."
+                ),
+                rumus=" . ".join(f"Oktet {o['oktet_ke']}: {o['biner']} ({o['heksadesimal']})" for o in oktet_list),
+                tabel={
+                    "tipe": "tabel_bit_oktet",
+                    "oktet_list": oktet_list,
+                },
+                hasil=f"Biner lengkap: {data['biner']}",
+            )
+        )
+    else:
+        basis_asal = data["basis_asal"]
+        desimal = data["desimal"]
+        biner = data["biner"]
+        heksa = data["heksadesimal"]
+        oktal = data["oktal"]
+        rumus_penjumlahan = data["rumus_penjumlahan"]
+        tabel_bit = data["tabel_bit"]
+        bobot_aktif = data["bobot_aktif"]
+
+        if basis_asal == 2:
+            # Langkah 1: Pemetaan Bit ke Bobot Posisi 128..1
+            langkah_list.append(
+                LangkahItem(
+                    judul="Petakan Digit Biner ke Bobot Posisi (128 sampai 1) dan Jumlahkan Bit 1",
+                    penjelasan=(
+                        f"Petakan bit biner '{data['clean_input']}' ke tabel bobot posisi pangkat dua "
+                        f"(2^7 sampai 2^0). Bit yang bernilai 1 dijumlahkan untuk memperoleh nilai desimal: "
+                        f"{rumus_penjumlahan}."
+                    ),
+                    rumus=rumus_penjumlahan,
+                    tabel={
+                        "tipe": "tabel_bit_8",
+                        "tabel_bit": tabel_bit,
+                        "bobot_aktif": bobot_aktif,
+                        "rumus": rumus_penjumlahan,
+                        "desimal": desimal,
+                    },
+                    hasil=f"Nilai desimal = {desimal}",
+                )
+            )
+
+            # Langkah 2: Konversi ke Heksadesimal (Pemisahan 4-Bit Nibble)
+            # Jika 8-bit (1 oktet), tampilkan rincian 2 nibble
+            high_nibble = biner[:4] if len(biner) >= 8 else biner
+            low_nibble = biner[4:8] if len(biner) >= 8 else ""
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Heksadesimal (Pengelompokan 4-Bit / Nibble)",
+                    penjelasan=(
+                        "Kelompokkan digit biner menjadi kelompok 4-bit (nibble) dari kanan ke kiri. "
+                        "Masing-masing kelompok bernilai 0–15 yang dipetakan ke simbol heksadesimal 0–9, A–F."
+                        + (f" High nibble '{high_nibble}' dan Low nibble '{low_nibble}'." if low_nibble else "")
+                    ),
+                    rumus=f"Biner {biner} → Heksadesimal {heksa}",
+                    tabel={
+                        "tipe": "nibble_split",
+                        "high_nibble": high_nibble,
+                        "low_nibble": low_nibble,
+                        "heksa": heksa,
+                    },
+                    hasil=f"Nilai heksadesimal = {heksa} (0x{heksa})",
+                )
+            )
+
+            # Langkah 3: Konversi ke Oktal (Pengelompokan 3-Bit / Pembagian 8)
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Oktal (Basis 8)",
+                    penjelasan=(
+                        f"Konversikan nilai desimal {desimal} ke oktal melalui pembagian berulang dengan 8 "
+                        "atau pengelompokan bit biner tiap 3-bit dari kanan ke kiri."
+                    ),
+                    rumus=f"{desimal} (desimal) = {oktal} (oktal)",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_oktal"],
+                        "basis": 8,
+                    },
+                    hasil=f"Nilai oktal = {oktal}",
+                )
+            )
+
+        elif basis_asal == 10:
+            # Langkah 1: Pembagian Berulang dengan 2 & Pembuktian Bobot Posisi
+            langkah_list.append(
+                LangkahItem(
+                    judul="Pembagian Berulang dengan 2 untuk Mendapatkan Nilai Biner",
+                    penjelasan=(
+                        f"Bagi bilangan desimal {desimal} secara berulang dengan 2. Sisa pembagian (0 atau 1) "
+                        "dicatat dan dibaca dari hasil terakhir ke paling awal (bawah ke atas). "
+                        f"Hasil pembagian diverifikasi menggunakan tabel bobot bit 128 sampai 1: {rumus_penjumlahan}."
+                    ),
+                    rumus=f"Sisa pembagian berulang dibaca dari bawah ke atas = {biner}",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_biner"],
+                        "basis": 2,
+                    },
+                    hasil=f"Nilai biner = {biner}",
+                )
+            )
+
+            # Langkah 2: Konversi ke Heksadesimal (Pembagian Berulang dengan 16)
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Heksadesimal lewat Pembagian Berulang dengan 16",
+                    penjelasan=(
+                        f"Bagi desimal {desimal} dengan 16. Sisa bagi 10–15 dipetakan ke simbol huruf A–F "
+                        "(10=A, 11=B, 12=C, 13=D, 14=E, 15=F). Hasil dibaca dari bawah ke atas."
+                    ),
+                    rumus=f"{desimal} // 16 = ... sisa → {heksa}",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_heksa"],
+                        "basis": 16,
+                    },
+                    hasil=f"Nilai heksadesimal = {heksa} (0x{heksa})",
+                )
+            )
+
+            # Langkah 3: Konversi ke Oktal (Pembagian Berulang dengan 8)
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Oktal lewat Pembagian Berulang dengan 8",
+                    penjelasan=(
+                        f"Bagi desimal {desimal} secara berulang dengan 8. Sisa pembagian dibaca dari bawah ke atas."
+                    ),
+                    rumus=f"{desimal} // 8 = ... sisa → {oktal}",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_oktal"],
+                        "basis": 8,
+                    },
+                    hasil=f"Nilai oktal = {oktal}",
+                )
+            )
+
+        elif basis_asal == 16:
+            # Langkah 1: Pemetaan Digit Heksadesimal ke 4-Bit Biner (Nibble)
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi Tiap Digit Heksadesimal ke 4-Bit Biner (Nibble)",
+                    penjelasan=(
+                        f"Ubah masing-masing digit heksadesimal '{data['clean_input']}' ke bentuk 4 digit biner. "
+                        "Gabungkan kelompok-kelompok nibble tersebut untuk menghasilkan bilangan biner utuh."
+                    ),
+                    rumus=f"Heksadesimal {heksa} → Biner {biner}",
+                    tabel={
+                        "tipe": "heksa_to_nibble",
+                        "input": data["clean_input"],
+                        "biner": biner,
+                    },
+                    hasil=f"Nilai biner = {biner}",
+                )
+            )
+
+            # Langkah 2: Hitung Nilai Desimal lewat Tabel Posisi Bit (128 sampai 1)
+            langkah_list.append(
+                LangkahItem(
+                    judul="Hitung Nilai Desimal lewat Tabel Posisi Bit (128 sampai 1)",
+                    penjelasan=(
+                        f"Petakan digit biner ke tabel bobot posisi 2^7 sampai 2^0, lalu jumlahkan seluruh bobot aktif: "
+                        f"{rumus_penjumlahan}."
+                    ),
+                    rumus=rumus_penjumlahan,
+                    tabel={
+                        "tipe": "tabel_bit_8",
+                        "tabel_bit": tabel_bit,
+                        "bobot_aktif": bobot_aktif,
+                        "rumus": rumus_penjumlahan,
+                        "desimal": desimal,
+                    },
+                    hasil=f"Nilai desimal = {desimal}",
+                )
+            )
+
+            # Langkah 3: Konversi ke Oktal
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Oktal (Basis 8)",
+                    penjelasan=(
+                        f"Konversikan nilai desimal {desimal} ke basis 8 lewat pembagian berulang atau pengelompokan "
+                        "bit biner per 3-bit dari kanan ke kiri."
+                    ),
+                    rumus=f"{desimal} (desimal) = {oktal} (oktal)",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_oktal"],
+                        "basis": 8,
+                    },
+                    hasil=f"Nilai oktal = {oktal}",
+                )
+            )
+
+        else:  # basis_asal == 8
+            # Langkah 1: Konversi Tiap Digit Oktal ke 3-Bit Biner
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi Tiap Digit Oktal ke Kelompok 3-Bit Biner",
+                    penjelasan=(
+                        f"Petakan setiap digit bilangan oktal '{data['clean_input']}' menjadi 3-bit biner "
+                        "(bobot 4, 2, 1), lalu gabungkan."
+                    ),
+                    rumus=f"Oktal {oktal} → Biner {biner}",
+                    tabel=None,
+                    hasil=f"Nilai biner = {biner}",
+                )
+            )
+
+            # Langkah 2: Hitung Nilai Desimal lewat Tabel Bobot Bit
+            langkah_list.append(
+                LangkahItem(
+                    judul="Hitung Nilai Desimal lewat Akumulasi Bobot Bit",
+                    penjelasan=(
+                        f"Jumlahkan nilai bobot posisi biner yang bernilai 1: {rumus_penjumlahan}."
+                    ),
+                    rumus=rumus_penjumlahan,
+                    tabel={
+                        "tipe": "tabel_bit_8",
+                        "tabel_bit": tabel_bit,
+                        "bobot_aktif": bobot_aktif,
+                        "rumus": rumus_penjumlahan,
+                        "desimal": desimal,
+                    },
+                    hasil=f"Nilai desimal = {desimal}",
+                )
+            )
+
+            # Langkah 3: Konversi ke Heksadesimal
+            langkah_list.append(
+                LangkahItem(
+                    judul="Konversi ke Heksadesimal lewat Pengelompokan 4-Bit (Nibble)",
+                    penjelasan=(
+                        "Kelompokkan digit biner setiap 4-bit dari kanan ke kiri dan konversikan ke simbol heksadesimal."
+                    ),
+                    rumus=f"Biner {biner} → Heksadesimal {heksa}",
+                    tabel={
+                        "tipe": "pembagian_berulang",
+                        "baris": data["pembagian_heksa"],
+                        "basis": 16,
+                    },
+                    hasil=f"Nilai heksadesimal = {heksa} (0x{heksa})",
+                )
+            )
+
+    # 4. Tabel Hasil Akhir Rangkuman 4 Basis
+    tabel_ringkasan = [
+        {
+            "no": 1,
+            "basis": "Basis 2 (Biner)",
+            "notasi": "2",
+            "nilai": data["biner"],
+            "keterangan": f"{len(data['biner'])} bit" if not data["mode_ipv4"] else "4 oktet x 8-bit",
+        },
+        {
+            "no": 2,
+            "basis": "Basis 8 (Oktal)",
+            "notasi": "8",
+            "nilai": data["oktal"],
+            "keterangan": "Kelompok 3 bit",
+        },
+        {
+            "no": 3,
+            "basis": "Basis 10 (Desimal)",
+            "notasi": "10",
+            "nilai": data["desimal"],
+            "keterangan": "Rentang 0–255 (1 oktet)" if (not data["mode_ipv4"] and data.get("desimal_int", 0) <= 255) else "Format desimal",
+        },
+        {
+            "no": 4,
+            "basis": "Basis 16 (Heksadesimal)",
+            "notasi": "16",
+            "nilai": f"{data['heksadesimal']} ({data['heksadesimal_prefixed']})",
+            "keterangan": "Kelompok 4 bit (nibble)",
+        },
+    ]
+
+    hasil_akhir = {
+        "biner": data["biner"],
+        "oktal": data["oktal"],
+        "desimal": data["desimal"],
+        "heksadesimal": data["heksadesimal"],
+        "heksadesimal_prefixed": data["heksadesimal_prefixed"],
+        "tabel_bit": data["tabel_bit"],
+        "bobot_aktif": data["bobot_aktif"],
+        "rumus_penjumlahan": data["rumus_penjumlahan"],
+        "pembagian_biner": data["pembagian_biner"],
+        "pembagian_oktal": data["pembagian_oktal"],
+        "pembagian_heksa": data["pembagian_heksa"],
+        "mode_ipv4": data["mode_ipv4"],
+        "oktet_list": data.get("oktet_list", []),
+        "tabel": tabel_ringkasan,
+    }
+
+    # 5. Kesimpulan
+    if data["mode_ipv4"]:
+        kesimpulan = (
+            f"Alamat IPv4 '{data['nilai_input']}' berhasil dikonversi ke semua basis: "
+            f"Desimal {data['desimal']}, Biner {data['biner']}, "
+            f"Heksadesimal {data['heksadesimal']} ({data['heksadesimal_prefixed']}), dan Oktal {data['oktal']}."
+        )
+    else:
+        bobot_teks = ", ".join(str(w) for w in data["bobot_aktif"]) if data["bobot_aktif"] else "tidak ada"
+        kesimpulan = (
+            f"Bilangan {data['nilai_input']} ({basis_label}) setara dengan desimal {data['desimal']}, "
+            f"heksadesimal {data['heksadesimal']} (0x{data['heksadesimal']}), dan oktal {data['oktal']}. "
+            f"Bit aktif pada tabel posisi 8-bit adalah {bobot_teks} dengan total akumulasi {data['desimal']}."
+        )
+
+    return StrukturJawaban(
+        fitur="konversi",
+        diketahui=diketahui,
+        langkah=langkah_list,
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=data["peringatan"],
+    )
+
+
+

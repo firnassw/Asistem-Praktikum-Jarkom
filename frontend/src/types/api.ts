@@ -184,3 +184,82 @@ export interface RencanaRingkasan {
   gateway_aktif?: boolean;
   cadangan_persen?: number;
 }
+
+export interface DhcpPayload {
+  alamat_router: string;
+  prefix: number;
+  interface?: string;
+  nama_pool?: string;
+  excluded_awal: string;
+  excluded_akhir: string;
+}
+
+export interface CliBaris {
+  perintah: string;
+  penjelasan: string;
+}
+
+export interface DhcpHasilAkhir {
+  klien_pertama: string;
+  network_address: string;
+  subnet_mask: string;
+  broadcast_address: string;
+  host_pertama: string;
+  host_terakhir: string;
+  interface: string;
+  nama_pool: string;
+  excluded_awal: string;
+  excluded_akhir: string;
+  rentang_dinamis: string;
+  jumlah_klien_dinamis: number;
+  cli_baris: CliBaris[];
+  cli_script: string;
+}
+
+export interface KonversiPayload {
+  nilai: string;
+  basis_asal: number;
+  mode_ipv4?: boolean;
+}
+
+export interface BitPositionItem {
+  pangkat: string;
+  bobot: number;
+  bit: number;
+  aktif: boolean;
+  nilai: number;
+}
+
+export interface PembagianRow {
+  nilai_awal: number;
+  pembagi: number;
+  hasil_bagi: number;
+  sisa: string;
+}
+
+export interface KonversiTableRow {
+  no: number;
+  basis: string;
+  notasi: string;
+  nilai: string;
+  keterangan: string;
+}
+
+export interface KonversiHasilAkhir {
+  biner: string;
+  oktal: string;
+  desimal: string;
+  heksadesimal: string;
+  heksadesimal_prefixed: string;
+  tabel_bit: BitPositionItem[];
+  bobot_aktif: number[];
+  rumus_penjumlahan: string;
+  pembagian_biner: PembagianRow[];
+  pembagian_oktal: PembagianRow[];
+  pembagian_heksa: PembagianRow[];
+  mode_ipv4: boolean;
+  oktet_list?: any[];
+  tabel: KonversiTableRow[];
+}
+
+

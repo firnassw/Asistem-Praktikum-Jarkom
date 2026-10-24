@@ -4,15 +4,26 @@ Router API untuk modul jaringan.
 
 from fastapi import APIRouter
 from app.core.schemas import StrukturJawaban
-from app.modules.jaringan.schemas import FlsmRequest, RencanaRequest, SubnetRequest, VlsmRequest
+from app.modules.jaringan.schemas import (
+    DhcpRequest,
+    FlsmRequest,
+    KonversiRequest,
+    RencanaRequest,
+    SubnetRequest,
+    VlsmRequest,
+)
 from app.modules.jaringan.solver import (
+    hitung_dhcp,
     hitung_flsm,
+    hitung_konversi,
     hitung_rencana,
     hitung_subnet,
     hitung_vlsm,
 )
 from app.modules.jaringan.steps import (
+    susun_langkah_dhcp,
     susun_langkah_flsm,
+    susun_langkah_konversi,
     susun_langkah_rencana,
     susun_langkah_subnet,
     susun_langkah_vlsm,
@@ -82,4 +93,38 @@ async def endpoint_rencana(payload: RencanaRequest) -> StrukturJawaban:
         gaya_modul=payload.gaya_modul,
     )
     return susun_langkah_rencana(calc_data)
+
+
+@router.post("/dhcp", response_model=StrukturJawaban, summary="Generator DHCP Router")
+async def endpoint_dhcp(payload: DhcpRequest) -> StrukturJawaban:
+    """
+    Menghasilkan konfigurasi DHCP server router Cisco Packet Tracer
+    dan memprediksi alamat IP yang akan diperoleh oleh klien pertama.
+    """
+    calc_data = hitung_dhcp(
+        alamat_router=payload.alamat_router,
+        prefix=payload.prefix,
+        interface=payload.interface,
+        nama_pool=payload.nama_pool,
+        excluded_awal=payload.excluded_awal,
+        excluded_akhir=payload.excluded_akhir,
+    )
+    return susun_langkah_dhcp(calc_data)
+
+
+@router.post("/konversi", response_model=StrukturJawaban, summary="Konversi Basis Bilangan")
+async def endpoint_konversi(payload: KonversiRequest) -> StrukturJawaban:
+    """
+    Mengonversi bilangan antar basis (2, 8, 10, 16) secara deterministik:
+    menghasilkan representasi di seluruh basis, tabel posisi bit 128..1,
+    dan langkah pembagian/pengelompokan bit sesuai Modul 2.
+    """
+    calc_data = hitung_konversi(
+        nilai=payload.nilai,
+        basis_asal=payload.basis_asal,
+        mode_ipv4=payload.mode_ipv4,
+    )
+    return susun_langkah_konversi(calc_data)
+
+
 

@@ -10,7 +10,7 @@ interface ResultTableProps {
   totalSubnets?: number;
   ringkasanTabel?: boolean;
   judul?: string;
-  mode?: 'subnet' | 'vlsm_flsm' | 'rencana';
+  mode?: 'subnet' | 'vlsm_flsm' | 'rencana' | 'konversi';
   showGateway?: boolean;
 }
 
@@ -26,22 +26,34 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  // Deteksi otomatis apakah tabel rencana atau VLSM/FLSM
+  // Deteksi otomatis tipe tabel
+  const isKonversi =
+    mode === 'konversi' ||
+    (tabel.length > 0 && ('basis' in tabel[0] || 'notasi' in tabel[0]));
   const isRencana =
-    mode === 'rencana' ||
-    (tabel.length > 0 && ('device' in tabel[0] || 'host_dibutuhkan' in tabel[0]));
+    !isKonversi &&
+    (mode === 'rencana' ||
+      (tabel.length > 0 && ('device' in tabel[0] || 'host_dibutuhkan' in tabel[0])));
   const isVlsmFlsm =
-    isRencana ||
-    mode === 'vlsm_flsm' ||
-    (tabel.length > 0 && ('host_diminta' in tabel[0] || 'nama' in tabel[0]));
+    !isKonversi &&
+    (isRencana ||
+      mode === 'vlsm_flsm' ||
+      (tabel.length > 0 && ('host_diminta' in tabel[0] || 'nama' in tabel[0])));
   const hasGateway =
     showGateway ??
     tabel.some((r) => r.usulan_gateway != null && r.usulan_gateway !== '' && r.usulan_gateway !== '-');
 
+
   const handleCopyTable = () => {
     let textToCopy = '';
 
-    if (isRencana) {
+    if (isKonversi) {
+      const header = ['No', 'Basis Bilangan', 'Notasi Basis', 'Nilai Representasi', 'Keterangan'].join('\t');
+      const rows = tabel.map((r: any) =>
+        [r.no, r.basis, r.notasi, r.nilai, r.keterangan].join('\t')
+      );
+      textToCopy = [header, ...rows].join('\n');
+    } else if (isRencana) {
       const headerCols = [
         'No',
         'Ruangan',
@@ -129,7 +141,9 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 
   const displayJudul =
     judul ||
-    (isVlsmFlsm
+    (isKonversi
+      ? 'Tabel Ringkasan Hasil Konversi'
+      : isVlsmFlsm
       ? `Tabel Alokasi Subnet`
       : `Tabel Alokasi Seluruh Subnet ${prefix ? `(CIDR /${prefix})` : ''}`);
 
@@ -139,7 +153,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-[#E3E5EA]">
         <div>
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#5B5F6B]">
-            {isVlsmFlsm ? 'Alokasi Subnet' : 'Distribusi Lengkap'}
+            {isKonversi ? 'Representasi Basis' : isVlsmFlsm ? 'Alokasi Subnet' : 'Distribusi Lengkap'}
           </span>
           <h3 className="font-title text-[18px] font-bold text-[#1F1E22]">
             {displayJudul}
@@ -168,7 +182,35 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 
       {/* Wadah Tabel yang Menggulir di Wadahnya Sendiri (overflow-x-auto) */}
       <div className="w-full overflow-x-auto rounded-[12px] border border-[#1F1E22]/15">
-        {isVlsmFlsm ? (
+        {isKonversi ? (
+          <table className="w-full text-left border-collapse min-w-[540px]">
+            <thead>
+              <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">
+                <th className="py-3 px-3.5 text-center w-14">No</th>
+                <th className="py-3 px-3.5">Basis Bilangan</th>
+                <th className="py-3 px-3 text-center">Notasi</th>
+                <th className="py-3 px-3.5">Nilai Representasi</th>
+                <th className="py-3 px-3.5">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
+              {tabel.map((row: any, idx: number) => (
+                <tr key={idx} className="hover:bg-[#F5F6F8] transition-colors">
+                  <td className="py-3 px-3.5 text-center text-[#5B5F6B] font-bold">#{row.no}</td>
+                  <td className="py-3 px-3.5 font-bold font-sans text-[#1F1E22]">{row.basis}</td>
+                  <td className="py-3 px-3 text-center">
+                    <span className="px-2 py-0.5 bg-[#FFF8D1] border border-[#FCE76C] text-[#1F1E22] rounded font-bold text-xs">
+                      Base {row.notasi}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3.5 font-black text-[14px] text-[#1F1E22]">{row.nilai}</td>
+                  <td className="py-3 px-3.5 text-[12px] text-[#5B5F6B] font-sans">{row.keterangan}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : isVlsmFlsm ? (
+
           <table className="w-full text-left border-collapse min-w-[760px]">
             <thead>
               <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">

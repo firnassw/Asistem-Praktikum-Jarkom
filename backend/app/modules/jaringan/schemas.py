@@ -167,3 +167,35 @@ class RencanaRequest(BaseModel):
     gaya_modul: bool = Field(False, description="Opsi gaya modul praktikum untuk FLSM")
 
 
+class DhcpRequest(BaseModel):
+    """
+    Permintaan konfigurasi DHCP server router Cisco Packet Tracer:
+    - alamat_router: IPv4 titik-desimal (wajib).
+    - prefix: integer 0-30 (wajib).
+    - interface: nama interface router, default 'fastEthernet0/0'.
+    - nama_pool: nama DHCP pool, default 'dhcp_server'.
+    - excluded_awal: IPv4 titik-desimal (wajib).
+    - excluded_akhir: IPv4 titik-desimal (wajib).
+    """
+    alamat_router: str = Field(..., description="Alamat IP router/default gateway (IPv4)")
+    prefix: int = Field(..., description="Panjang prefix (0-30)")
+    interface: Optional[str] = Field("fastEthernet0/0", description="Nama interface router LAN")
+    nama_pool: Optional[str] = Field("dhcp_server", description="Nama DHCP pool")
+    excluded_awal: str = Field(..., description="Alamat IP awal rentang excluded")
+    excluded_akhir: str = Field(..., description="Alamat IP akhir rentang excluded")
+
+
+class KonversiRequest(BaseModel):
+    """
+    Permintaan konversi basis bilangan:
+    - nilai (wajib): string representasi bilangan.
+    - basis_asal (wajib): integer (2, 8, 10, atau 16).
+    - mode_ipv4 (opsional): bool (default False), konversi 4 oktet IPv4 dipisahkan titik.
+    """
+    nilai: str = Field(..., description="Nilai bilangan yang akan dikonversi")
+    basis_asal: int = Field(..., description="Basis asal bilangan: 2, 8, 10, atau 16")
+    mode_ipv4: bool = Field(False, description="Mode konversi 4 oktet IPv4")
+
+
+
+

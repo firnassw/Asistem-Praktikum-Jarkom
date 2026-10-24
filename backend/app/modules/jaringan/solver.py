@@ -7,8 +7,12 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from app.core.errors import (
     AppError,
     ALAMAT_BUKAN_BATAS_JARINGAN,
+    BASIS_TIDAK_VALID,
+    BATAS_UKURAN_LEWAT,
     CADANGAN_TIDAK_VALID,
     DEVICE_TIDAK_VALID,
+    DHCP_EXCLUDED_TIDAK_VALID,
+    DIGIT_TIDAK_VALID,
     FLSM_TIDAK_MUNGKIN,
     GATEWAY_MEMBEDAKAN_HASIL,
     IP_TIDAK_VALID,
@@ -1013,4 +1017,451 @@ def hitung_rencana(
         },
         "peringatan": peringatan_list,
     }
+
+
+def hitung_dhcp(
+    alamat_router: str,
+    prefix: int,
+    interface: Optional[str] = "fastEthernet0/0",
+    nama_pool: Optional[str] = "dhcp_server",
+    excluded_awal: str = "",
+    excluded_akhir: str = "",
+) -> Dict[str, Any]:
+    """
+    Menghitung parameter DHCP Server Cisco Packet Tracer:
+    - Menentukan NA, BA, Subnet Mask dari IP Router & Prefix
+    - Memvalidasi IP Router adalah alamat host valid (bukan NA / BA)
+    - Memvalidasi rentang excluded address berada dalam subnet dan menyisakan host
+    - Menghitung prediksi IP klien pertama: excluded_akhir + 1
+    - Menyusun 10 baris perintah CLI Cisco IOS beserta penjelasannya
+    """
+    # 1. Validasi IP Router
+    router_octets = validate_ipv4_format(alamat_router, field_name="alamat_router")
+    router_int = (router_octets[0] << 24) | (router_octets[1] << 16) | (router_octets[2] << 8) | router_octets[3]
+    router_str = int_to_ip(router_int)
+
+    # 2. Validasi Prefix (0..30)
+    if prefix is None or not isinstance(prefix, int) or prefix < 0 or prefix > 30:
+        raise AppError(PREFIX_TIDAK_VALID, field="prefix")
+
+    mask_int, subnet_mask = prefix_to_mask(prefix)
+    na_int = router_int & mask_int
+    invers_mask_int = (~mask_int) & 0xFFFFFFFF
+    ba_int = na_int | invers_mask_int
+
+    network_address = int_to_ip(na_int)
+    broadcast_address = int_to_ip(ba_int)
+    net_str = f"{network_address}/{prefix}"
+
+    # Pastikan alamat_router adalah host valid dalam jaringan (bukan NA atau BA)
+    if router_int <= na_int or router_int >= ba_int:
+        raise AppError(
+            IP_TIDAK_VALID,
+            pesan="Alamat IP router tidak boleh berupa Network Address atau Broadcast Address",
+            field="alamat_router",
+        )
+
+    # 3. Default interface dan nama_pool jika kosong
+    clean_interface = (
+        interface.strip()
+        if (interface and isinstance(interface, str) and interface.strip())
+        else "fastEthernet0/0"
+    )
+    clean_nama_pool = (
+        nama_pool.strip()
+        if (nama_pool and isinstance(nama_pool, str) and nama_pool.strip())
+        else "dhcp_server"
+    )
+
+    # 4. Validasi Format Excluded Awal & Akhir
+    excl_awal_octets = validate_ipv4_format(excluded_awal, field_name="excluded_awal")
+    excl_awal_int = (
+        (excl_awal_octets[0] << 24)
+        | (excl_awal_octets[1] << 16)
+        | (excl_awal_octets[2] << 8)
+        | excl_awal_octets[3]
+    )
+    excl_awal_str = int_to_ip(excl_awal_int)
+
+    excl_akhir_octets = validate_ipv4_format(excluded_akhir, field_name="excluded_akhir")
+    excl_akhir_int = (
+        (excl_akhir_octets[0] << 24)
+        | (excl_akhir_octets[1] << 16)
+        | (excl_akhir_octets[2] << 8)
+        | excl_akhir_octets[3]
+    )
+    excl_akhir_str = int_to_ip(excl_akhir_int)
+
+    # 5. Validasi Rentang Excluded (DHCP_EXCLUDED_TIDAK_VALID)
+    # - excl_awal_int dan excl_akhir_int harus berada dalam rentang host valid (na_int < excl_awal_int <= excl_akhir_int < ba_int)
+    # - excl_awal_int <= excl_akhir_int
+    # - Harus menyisakan minimal satu host untuk klien: klien_pertama = excl_akhir_int + 1 <= ba_int - 1 (sehingga excl_akhir_int < ba_int - 1)
+    if excl_awal_int <= na_int or excl_awal_int >= ba_int:
+        raise AppError(DHCP_EXCLUDED_TIDAK_VALID, field="excluded_awal", n=net_str)
+    if excl_akhir_int <= na_int or excl_akhir_int >= ba_int:
+        raise AppError(DHCP_EXCLUDED_TIDAK_VALID, field="excluded_akhir", n=net_str)
+    if excl_awal_int > excl_akhir_int:
+        raise AppError(DHCP_EXCLUDED_TIDAK_VALID, field="excluded_akhir", n=net_str)
+    if excl_akhir_int >= ba_int - 1:
+        raise AppError(DHCP_EXCLUDED_TIDAK_VALID, field="excluded_akhir", n=net_str)
+
+    # 6. Perhitungan Host dan Prediksi Klien Pertama
+    host_pertama = int_to_ip(na_int + 1)
+    host_terakhir = int_to_ip(ba_int - 1)
+
+    klien_pertama_int = excl_akhir_int + 1
+    klien_pertama = int_to_ip(klien_pertama_int)
+    rentang_dinamis = f"{klien_pertama} - {host_terakhir}"
+    jumlah_klien_dinamis = (ba_int - 1) - klien_pertama_int + 1
+
+    # 7. Susun 10 Perintah CLI Cisco IOS
+    cli_baris = [
+        {"perintah": "enable", "penjelasan": "Masuk ke Privileged EXEC mode"},
+        {"perintah": "configure terminal", "penjelasan": "Masuk ke Global Configuration mode"},
+        {
+            "perintah": f"interface {clean_interface}",
+            "penjelasan": "Pilih interface router yang terhubung ke jaringan lokal",
+        },
+        {
+            "perintah": f"ip address {router_str} {subnet_mask}",
+            "penjelasan": "Pasang alamat IP router dan subnet mask pada interface",
+        },
+        {"perintah": "no shutdown", "penjelasan": "Aktifkan interface agar berstatus menyala (up)"},
+        {
+            "perintah": f"ip dhcp pool {clean_nama_pool}",
+            "penjelasan": "Buat dan beri nama DHCP pool pada router",
+        },
+        {
+            "perintah": f"default-router {router_str}",
+            "penjelasan": "Tentukan alamat default gateway untuk klien DHCP",
+        },
+        {
+            "perintah": f"network {network_address} {subnet_mask}",
+            "penjelasan": "Tentukan alamat jaringan dan subnet mask yang dibagikan",
+        },
+        {"perintah": "exit", "penjelasan": "Keluar dari mode konfigurasi DHCP pool"},
+        {
+            "perintah": f"ip dhcp excluded-address {excl_awal_str} {excl_akhir_str}",
+            "penjelasan": "Kecualikan rentang alamat IP agar tidak dibagikan ke klien",
+        },
+    ]
+    cli_script = "\n".join(b["perintah"] for b in cli_baris)
+
+    return {
+        "fitur": "dhcp",
+        "alamat_router": router_str,
+        "prefix": prefix,
+        "subnet_mask": subnet_mask,
+        "network_address": network_address,
+        "broadcast_address": broadcast_address,
+        "host_pertama": host_pertama,
+        "host_terakhir": host_terakhir,
+        "interface": clean_interface,
+        "nama_pool": clean_nama_pool,
+        "excluded_awal": excl_awal_str,
+        "excluded_akhir": excl_akhir_str,
+        "klien_pertama": klien_pertama,
+        "rentang_dinamis": rentang_dinamis,
+        "jumlah_klien_dinamis": jumlah_klien_dinamis,
+        "cli_baris": cli_baris,
+        "cli_script": cli_script,
+        "peringatan": [],
+    }
+
+
+def _buat_tabel_bit_8(val: int) -> Tuple[List[Dict[str, Any]], List[int], str]:
+    """Menghasilkan tabel posisi bit 8-bit (128 sampai 1) untuk nilai integer 0..255."""
+    target_val = val & 255 if val > 255 else val
+    tabel_bit: List[Dict[str, Any]] = []
+    bobot_aktif: List[int] = []
+    weights = [128, 64, 32, 16, 8, 4, 2, 1]
+
+    for i, w in enumerate(weights):
+        bit_val = 1 if (target_val & w) else 0
+        aktif = bool(bit_val == 1)
+        if aktif:
+            bobot_aktif.append(w)
+        tabel_bit.append({
+            "pangkat": f"2^{7 - i}",
+            "bobot": w,
+            "bit": bit_val,
+            "aktif": aktif,
+            "nilai": w if aktif else 0,
+        })
+
+    if bobot_aktif:
+        rumus_penjumlahan = " + ".join(str(w) for w in bobot_aktif) + f" = {sum(bobot_aktif)}"
+    else:
+        rumus_penjumlahan = "0 = 0"
+
+    return tabel_bit, bobot_aktif, rumus_penjumlahan
+
+
+def _hitung_pembagian_berulang(val: int, basis: int) -> List[Dict[str, Any]]:
+    """Menghasilkan baris-baris pembagian integer berulang untuk konversi basis."""
+    hex_map = "0123456789ABCDEF"
+    langkah: List[Dict[str, Any]] = []
+    temp = val
+
+    if temp == 0:
+        sisa_str = "0"
+        langkah.append({
+            "nilai_awal": 0,
+            "pembagi": basis,
+            "hasil_bagi": 0,
+            "sisa": sisa_str,
+        })
+        return langkah
+
+    while temp > 0:
+        rem = temp % basis
+        hasil_bagi = temp // basis
+        if basis == 16 and rem >= 10:
+            sisa_str = f"{rem} ({hex_map[rem]})"
+        else:
+            sisa_str = str(rem)
+
+        langkah.append({
+            "nilai_awal": temp,
+            "pembagi": basis,
+            "hasil_bagi": hasil_bagi,
+            "sisa": sisa_str,
+        })
+        temp = hasil_bagi
+
+    return langkah
+
+
+def _int_ke_biner_str(val: int) -> str:
+    """Mengubah integer ke string biner deterministik murni."""
+    if val == 0:
+        return "00000000"
+    bits = []
+    temp = val
+    while temp > 0:
+        bits.append(str(temp % 2))
+        temp //= 2
+    raw = "".join(reversed(bits))
+    if 0 <= val <= 255:
+        return raw.zfill(8)
+    return raw
+
+
+def _int_ke_oktal_str(val: int) -> str:
+    """Mengubah integer ke string basis 8 deterministik murni."""
+    if val == 0:
+        return "0"
+    octs = []
+    temp = val
+    while temp > 0:
+        octs.append(str(temp % 8))
+        temp //= 8
+    return "".join(reversed(octs))
+
+
+def _int_ke_heksa_str(val: int) -> str:
+    """Mengubah integer ke string heksadesimal huruf besar tanpa prefix."""
+    if val == 0:
+        return "0"
+    hex_chars = "0123456789ABCDEF"
+    hx = []
+    temp = val
+    while temp > 0:
+        hx.append(hex_chars[temp % 16])
+        temp //= 16
+    return "".join(reversed(hx))
+
+
+def hitung_konversi(
+    nilai: str,
+    basis_asal: int,
+    mode_ipv4: bool = False,
+) -> Dict[str, Any]:
+    """
+    Menghitung konversi bilangan antar basis (2, 8, 10, 16) secara deterministik:
+    - Tanpa float, menggunakan Python murni dan operasi integer/bitwise.
+    - Menghasilkan representasi biner, oktal, desimal, dan heksadesimal.
+    - Menghasilkan tabel posisi bit 8-bit (128 sampai 1) dan pembagian berulang.
+    - Mendukung mode 4 oktet IPv4 jika mode_ipv4 == True.
+    """
+    # 1. Validasi basis_asal (harus 2, 8, 10, atau 16)
+    if basis_asal not in (2, 8, 10, 16):
+        raise AppError(BASIS_TIDAK_VALID, field="basis_asal", pesan="Basis harus 2, 8, 10, atau 16")
+
+    # 2. Validasi nilai input tidak kosong
+    if not isinstance(nilai, str) or not nilai.strip():
+        raise AppError(DIGIT_TIDAK_VALID, field="nilai", pesan="Nilai masukan tidak boleh kosong")
+
+    raw_nilai = nilai.strip()
+
+    allowed_digits = {
+        2: set("01"),
+        8: set("01234567"),
+        10: set("0123456789"),
+        16: set("0123456789abcdefABCDEF"),
+    }
+
+    # 3. Mode IPv4 (4 Oktet)
+    if mode_ipv4:
+        parts = raw_nilai.split(".")
+        if len(parts) != 4:
+            raise AppError(
+                IP_TIDAK_VALID,
+                field="nilai",
+                pesan="Alamat IP harus empat angka 0–255 dipisah titik, misalnya 192.168.1.10",
+            )
+
+        oktet_list = []
+        for i, part in enumerate(parts):
+            p = part.strip()
+            if not p:
+                raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=" ", b=basis_asal)
+            # Cek tanda negatif atau pecahan di segmen
+            for ch in p:
+                if ch in ("-", ",", "/"):
+                    raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+
+            clean_part = p
+            if basis_asal == 16 and clean_part.startswith(("0x", "0X")):
+                clean_part = clean_part[2:]
+            if not clean_part:
+                raise AppError(DIGIT_TIDAK_VALID, field="nilai", d="x", b=16)
+
+            for ch in clean_part:
+                if ch not in allowed_digits[basis_asal]:
+                    raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+
+            # Konversi segmen ke integer
+            val = 0
+            for ch in clean_part:
+                if "0" <= ch <= "9":
+                    d = ord(ch) - ord("0")
+                elif "a" <= ch <= "f":
+                    d = ord(ch) - ord("a") + 10
+                elif "A" <= ch <= "F":
+                    d = ord(ch) - ord("A") + 10
+                else:
+                    raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+                val = val * basis_asal + d
+
+            if val < 0 or val > 255:
+                raise AppError(
+                    IP_TIDAK_VALID,
+                    field="nilai",
+                    pesan=f"Nilai segmen '{p}' ({val}) di luar rentang 0–255",
+                )
+
+            t_bit, b_aktif, r_jumlah = _buat_tabel_bit_8(val)
+            p_bin = _hitung_pembagian_berulang(val, 2)
+            p_oct = _hitung_pembagian_berulang(val, 8)
+            p_hex = _hitung_pembagian_berulang(val, 16)
+
+            oktet_list.append({
+                "oktet_ke": i + 1,
+                "nilai_asli": p,
+                "desimal": str(val),
+                "desimal_int": val,
+                "biner": f"{val:08b}",
+                "oktal": f"{val:o}",
+                "heksadesimal": f"{val:02X}",
+                "tabel_bit": t_bit,
+                "bobot_aktif": b_aktif,
+                "rumus_penjumlahan": r_jumlah,
+                "pembagian_biner": p_bin,
+                "pembagian_oktal": p_oct,
+                "pembagian_heksa": p_hex,
+            })
+
+        biner_gabung = ".".join(o["biner"] for o in oktet_list)
+        desimal_gabung = ".".join(o["desimal"] for o in oktet_list)
+        heksa_gabung = ".".join(o["heksadesimal"] for o in oktet_list)
+        oktal_gabung = ".".join(o["oktal"] for o in oktet_list)
+
+        return {
+            "fitur": "konversi",
+            "nilai_input": raw_nilai,
+            "basis_asal": basis_asal,
+            "mode_ipv4": True,
+            "desimal": desimal_gabung,
+            "biner": biner_gabung,
+            "oktal": oktal_gabung,
+            "heksadesimal": heksa_gabung,
+            "heksadesimal_prefixed": "0x" + "".join(o["heksadesimal"] for o in oktet_list),
+            "tabel_bit": oktet_list[0]["tabel_bit"],
+            "bobot_aktif": oktet_list[0]["bobot_aktif"],
+            "rumus_penjumlahan": oktet_list[0]["rumus_penjumlahan"],
+            "pembagian_biner": oktet_list[0]["pembagian_biner"],
+            "pembagian_oktal": oktet_list[0]["pembagian_oktal"],
+            "pembagian_heksa": oktet_list[0]["pembagian_heksa"],
+            "oktet_list": oktet_list,
+            "peringatan": [],
+        }
+
+    # 4. Mode Tunggal (Satu Nilai)
+    # Tolak bilangan negatif atau pecahan
+    for ch in raw_nilai:
+        if ch in ("-", ",", "."):
+            raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+
+    clean_str = raw_nilai
+    if basis_asal == 16:
+        if clean_str.startswith(("0x", "0X")):
+            clean_str = clean_str[2:]
+        if not clean_str:
+            raise AppError(DIGIT_TIDAK_VALID, field="nilai", d="x", b=16)
+
+    # Validasi karakter
+    for ch in clean_str:
+        if ch not in allowed_digits[basis_asal]:
+            raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+
+    # Konversi ke desimal_int dengan aritmetika murni
+    desimal_int = 0
+    for ch in clean_str:
+        if "0" <= ch <= "9":
+            digit = ord(ch) - ord("0")
+        elif "a" <= ch <= "f":
+            digit = ord(ch) - ord("a") + 10
+        elif "A" <= ch <= "F":
+            digit = ord(ch) - ord("A") + 10
+        else:
+            raise AppError(DIGIT_TIDAK_VALID, field="nilai", d=ch, b=basis_asal)
+        desimal_int = desimal_int * basis_asal + digit
+
+    # Batas 64-bit
+    if desimal_int >= (1 << 64):
+        raise AppError(BATAS_UKURAN_LEWAT, field="nilai", n="64 bit")
+
+    desimal_str = str(desimal_int)
+    biner_str = _int_ke_biner_str(desimal_int)
+    oktal_str = _int_ke_oktal_str(desimal_int)
+    heksa_str = _int_ke_heksa_str(desimal_int)
+
+    tabel_bit, bobot_aktif, rumus_penjumlahan = _buat_tabel_bit_8(desimal_int)
+    pembagian_biner = _hitung_pembagian_berulang(desimal_int, 2)
+    pembagian_oktal = _hitung_pembagian_berulang(desimal_int, 8)
+    pembagian_heksa = _hitung_pembagian_berulang(desimal_int, 16)
+
+    return {
+        "fitur": "konversi",
+        "nilai_input": raw_nilai,
+        "clean_input": clean_str,
+        "basis_asal": basis_asal,
+        "mode_ipv4": False,
+        "desimal_int": desimal_int,
+        "desimal": desimal_str,
+        "biner": biner_str,
+        "oktal": oktal_str,
+        "heksadesimal": heksa_str,
+        "heksadesimal_prefixed": f"0x{heksa_str}",
+        "tabel_bit": tabel_bit,
+        "bobot_aktif": bobot_aktif,
+        "rumus_penjumlahan": rumus_penjumlahan,
+        "pembagian_biner": pembagian_biner,
+        "pembagian_oktal": pembagian_oktal,
+        "pembagian_heksa": pembagian_heksa,
+        "peringatan": [],
+    }
+
+
 

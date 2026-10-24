@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Asisten Praktikum Jaringan</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-container": "#742814",
+          "on-primary-fixed-variant": "#224f39",
+          "secondary-fixed": "#ffdbd2",
+          "text-muted": "#606762",
+          "surface-bright": "#f6fbf4",
+          "secondary": "#9a442d",
+          "on-primary-fixed": "#002112",
+          "surface-container-lowest": "#ffffff",
+          "on-primary-container": "#9fcfb2",
+          "surface-variant": "#dfe4de",
+          "on-error-container": "#93000a",
+          "tertiary-fixed-dim": "#faba75",
+          "surface-container-low": "#f0f5ef",
+          "surface": "#f6fbf4",
+          "on-secondary-fixed": "#3c0800",
+          "error-container": "#ffdad6",
+          "tertiary": "#563200",
+          "error": "#ba1a1a",
+          "on-background": "#181d19",
+          "tertiary-container": "#74470a",
+          "olive-subtle": "#EDF2EE",
+          "tertiary-fixed": "#ffdcbb",
+          "surface-cream": "#F9F8F6",
+          "border-warm": "#E8E6E1",
+          "outline-variant": "#c0c9c1",
+          "terracotta-soft": "#FDF2EF",
+          "inverse-on-surface": "#eef2ec",
+          "on-error": "#ffffff",
+          "primary-fixed": "#bceecf",
+          "surface-container-highest": "#dfe4de",
+          "on-surface": "#181d19",
+          "surface-card": "#FFFFFF",
+          "secondary-fixed-dim": "#ffb4a1",
+          "on-primary": "#ffffff",
+          "surface-container": "#ebefe9",
+          "surface-dim": "#d7dbd5",
+          "primary-container": "#2d5a43",
+          "on-secondary-fixed-variant": "#7c2e19",
+          "surface-tint": "#3a674f",
+          "inverse-primary": "#a1d1b4",
+          "on-surface-variant": "#414943",
+          "outline": "#717973",
+          "on-tertiary": "#ffffff",
+          "primary": "#14422d",
+          "secondary-container": "#fc9174",
+          "inverse-surface": "#2d322e",
+          "on-tertiary-fixed": "#2b1700",
+          "on-tertiary-fixed-variant": "#673d00",
+          "text-charcoal": "#1F2421",
+          "primary-fixed-dim": "#a1d1b4",
+          "on-tertiary-container": "#f7b873",
+          "on-secondary": "#ffffff",
+          "background": "#f6fbf4",
+          "surface-container-high": "#e5e9e3"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "1rem",
+          "space-xs": "0.25rem",
+          "space-xl": "2.5rem",
+          "gutter": "1.25rem",
+          "gutter-mobile": "0.75rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem",
+          "space-lg": "1.5rem",
+          "margin": "2rem"
+        },
+        "fontFamily": {
+          "title-sm": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "display-lg": ["Newsreader"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "headline-sm": ["Newsreader"],
+          "headline-md": ["Newsreader"],
+          "title-md": ["Plus Jakarta Sans"],
+          "headline-lg": ["Newsreader"],
+          "label-md": ["Plus Jakarta Sans"],
+          "headline-lg-mobile": ["Newsreader"],
+          "display-lg-mobile": ["Newsreader"]
+        },
+        "fontSize": {
+          "title-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+          "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+          "body-lg": ["17px", { "lineHeight": "28px", "fontWeight": "400" }],
+          "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+          "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+          "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+          "display-lg-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  @layer base {
+    html {
+      overscroll-behavior: none;
+    }
+  }
+</style>
+<meta content="web_dashboard" name="shell-type"/>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen">
+<aside class="fixed top-0 left-0 bottom-0 w-[264px] bg-[#1F1E22] text-white flex flex-col justify-between p-space-md z-30 overflow-y-auto">
+<div class="space-y-space-lg">
+<div class="px-space-xs py-space-xs flex items-center space-x-space-sm">
+<div class="w-10 h-10 bg-primary-fixed rounded-lg flex items-center justify-center font-bold text-on-primary-fixed font-title-sm text-title-sm">
+        APJ
+      </div>
+<div>
+<div class="font-title-sm text-title-sm text-white tracking-tight leading-tight">Asisten Praktikum</div>
+<p class="font-body-sm text-label-sm text-surface-variant font-medium">Jaringan Komputer</p>
+</div>
+</div>
+<nav aria-label="Navigasi Utama" class="space-y-space-xs flex flex-col" data-active-classes="bg-primary-fixed text-on-primary-fixed font-semibold">
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="beranda" href="#">Beranda</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="subnetting" href="#">Subnetting</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="flsm-dan-vlsm" href="#">FLSM dan VLSM</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="rencana-ruangan" href="#">Rencana ruangan</a>
+<a aria-current="page" class="block px-space-md py-space-sm rounded-lg transition-colors bg-primary-fixed text-on-primary-fixed font-semibold" data-path="konversi-basis" href="#">Konversi basis</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="generator-dhcp" href="#">Generator DHCP</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="tabel-ip" href="#">Tabel IP</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="tentang" href="#">Tentang</a>
+</nav>
+</div>
+<div class="bg-surface-container-highest/10 rounded-lg p-space-sm text-label-sm text-surface-variant">
+<div class="flex items-center space-x-space-xs text-primary-fixed font-title-sm mb-space-xs">
+<span class="inline-block w-2 h-2 rounded-full bg-primary-fixed"></span>
+<span>Modul Jarkom v3.2</span>
+</div>
+<p class="font-body-sm text-label-sm leading-normal text-surface-variant/80">Kompatibel Packet Tracer &amp; Ujian Praktikum Jaringan Komputer.</p>
+</div>
+</aside>
+<header class="fixed top-0 left-[264px] right-0 bg-surface-container-lowest z-20 shadow-sm">
+<div class="h-16 px-space-lg flex items-center justify-between">
+<div class="flex items-center space-x-space-md">
+<span class="font-title-sm text-body-sm text-text-muted">Laboratorium Komputer Terpadu</span>
+<span class="text-border-warm">/</span>
+<span class="font-title-sm text-body-sm text-on-surface">Asisten Interaktif IP &amp; Topologi</span>
+</div>
+<div class="flex items-center space-x-space-sm">
+<span class="px-space-sm py-space-xs rounded-full bg-surface-container-low font-label-md text-label-sm text-text-muted">Status: Aktif</span>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-sm text-label-sm">LAB</div>
+</div>
+</div>
+</header>
+<main class="pl-[264px] pt-16 min-h-screen bg-background">
+<div class="max-w-[1200px] mx-auto p-space-lg">
+<div class="flex flex-col w-full font-['Montserrat',sans-serif] text-[#1F1E22] space-y-8 pb-12">
+<!-- TOP HEADER BAND -->
+<div class="relative bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[28px] p-6 lg:p-8 shadow-[4px_4px_0px_#1F1E22] overflow-hidden">
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="max-w-3xl space-y-2">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F1E22] text-[#FCE76C] text-xs font-bold tracking-wide uppercase">
+<span class="material-symbols-outlined text-sm">memory</span>
+<span>Sistem Bilangan &amp; Bit 8-Bit • Standar Modul Praktikum</span>
+</div>
+<h1 class="text-3xl lg:text-4xl font-extrabold tracking-tight text-[#1F1E22]">
+          Konversi basis
+        </h1>
+<p class="text-sm lg:text-base font-medium text-[#1F1E22]/90 leading-relaxed">
+          Ubah nilai antar basis biner, desimal, oktal, dan heksadesimal dengan dekomposisi bit 8-bit langkah demi langkah.
+        </p>
+</div>
+<div class="hidden lg:flex flex-col items-end justify-center font-mono text-xs font-semibold text-[#1F1E22]/80 bg-white/70 border-2 border-[#1F1E22] rounded-xl p-3 shadow-[2px_2px_0px_#1F1E22]">
+<span class="text-[10px] uppercase font-bold text-[#1F1E22]">Modus Operasi</span>
+<span class="font-bold text-sm text-[#1F1E22]">IPv4 1-Octet Engine</span>
+<span class="text-primary font-bold">2^0 s/d 2^7 (0 - 255)</span>
+</div>
+</div>
+</div>
+<!-- 2 COLUMNS LAYOUT (5/12 LEFT, 7/12 RIGHT) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- LEFT STICKY FORM (5/12) -->
+<div class="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
+<div class="bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-[4px_4px_0px_#1F1E22] space-y-5">
+<div>
+<label class="block text-xs uppercase font-extrabold tracking-wider text-[#1F1E22] mb-2" for="inputValue">
+            Nilai Masukan
+          </label>
+<div class="relative">
+<input class="w-full bg-[#F9F8F6] font-['JetBrains_Mono',monospace] text-xl font-bold text-[#1F1E22] px-4 py-3 border-2 border-[#1F1E22] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FCE76C] transition-all" id="inputValue" placeholder="Masukkan bit/angka..." type="text" value="10101100"/>
+<span class="absolute right-3 top-3 text-xs font-mono font-bold bg-[#1F1E22] text-white px-2 py-1 rounded">
+              8-BIT
+            </span>
+</div>
+</div>
+<div>
+<label class="block text-xs uppercase font-extrabold tracking-wider text-[#1F1E22] mb-2">
+            Basis Asal
+          </label>
+<div class="grid grid-cols-2 gap-2">
+<button class="flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-[#FCE76C] font-bold text-xs tracking-tight shadow-[2px_2px_0px_#1F1E22] transition-transform active:translate-x-0.5 active:translate-y-0.5" id="btnBase2" type="button">
+              Basis 2 (Biner)
+            </button>
+<button class="flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-white font-semibold text-xs tracking-tight text-[#1F1E22]/80 hover:bg-[#F9F8F6] transition-colors" id="btnBase8" type="button">
+              Basis 8 (Oktal)
+            </button>
+<button class="flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-white font-semibold text-xs tracking-tight text-[#1F1E22]/80 hover:bg-[#F9F8F6] transition-colors" id="btnBase10" type="button">
+              Basis 10 (Desimal)
+            </button>
+<button class="flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-white font-semibold text-xs tracking-tight text-[#1F1E22]/80 hover:bg-[#F9F8F6] transition-colors" id="btnBase16" type="button">
+              Basis 16 (Heksa)
+            </button>
+</div>
+</div>
+<div class="p-3 bg-[#F0F5EF] rounded-xl border border-[#1F1E22]/20">
+<p class="text-xs text-[#1F1E22]/85 font-medium leading-relaxed">
+            Format 8-bit umum digunakan untuk representasi 1 oktet IPv4 (rentang 0 - 255).
+          </p>
+</div>
+<label class="flex items-start gap-3 cursor-pointer select-none">
+<input checked="" class="w-5 h-5 rounded border-2 border-[#1F1E22] text-[#14422d] focus:ring-0 mt-0.5" id="checkboxTable" type="checkbox"/>
+<span class="text-xs font-bold text-[#1F1E22] leading-tight">
+            Tampilkan tabel pembagian bit 128 sampai 1
+          </span>
+</label>
+<div class="space-y-2 pt-2">
+<button class="w-full h-12 bg-[#FCE76C] border-2 border-[#1F1E22] rounded-xl font-bold text-sm tracking-wide shadow-[3px_3px_0px_#1F1E22] hover:shadow-[1px_1px_0px_#1F1E22] hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center justify-center gap-2" id="btnConvert" type="button">
+<span class="material-symbols-outlined text-lg">sync_alt</span>
+<span>Konversi Sekarang</span>
+</button>
+<button class="w-full h-11 bg-white border-2 border-[#1F1E22] rounded-xl font-bold text-xs tracking-wide text-[#1F1E22] hover:bg-[#F9F8F6] transition-colors flex items-center justify-center gap-1.5" id="btnSample" type="button">
+<span class="material-symbols-outlined text-base">mobile_share</span>
+<span>Isi Contoh Soal (10101100)</span>
+</button>
+</div>
+<div class="bg-[#F9F8F6] border border-[#1F1E22]/20 rounded-xl p-3.5 text-xs text-[#1F1E22]/85 leading-normal">
+<div class="flex items-center gap-1 font-bold text-[#1F1E22] mb-1">
+<span class="material-symbols-outlined text-sm text-[#9a442d]">info</span>
+<span>Catatan Modul Praktikum</span>
+</div>
+<p>
+            Dalam modul praktikum, oktet <strong>10101100</strong> sering muncul sebagai nilai desimal <strong>172</strong> pada IP kelas B (172.16.x.x).
+          </p>
+</div>
+</div>
+</div>
+<!-- RIGHT RESULTS (7/12) -->
+<div class="lg:col-span-7 space-y-8">
+<!-- 1. SUMMARY CARDS WITH OFFSET COLOR LAYERS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+<!-- Card 1 (Blue Layer #8BD0FC) -->
+<div class="relative group">
+<div class="absolute inset-0 translate-x-2 translate-y-2 bg-[#8BD0FC] border-2 border-[#1F1E22] rounded-[20px] transition-transform"></div>
+<div class="relative bg-white border-2 border-[#1F1E22] rounded-[20px] p-5 flex flex-col justify-between h-full">
+<div>
+<span class="text-[11px] font-extrabold uppercase tracking-wider text-[#1F1E22]/70 block mb-1">
+                Biner (Base 2)
+              </span>
+<div class="font-['JetBrains_Mono',monospace] text-2xl font-black text-[#1F1E22] tracking-wider my-1">
+                10101100
+              </div>
+</div>
+<div class="mt-3 pt-3 border-t border-[#1F1E22]/15 flex items-center gap-1 text-[11px] font-bold text-[#1F1E22]/75">
+<span class="material-symbols-outlined text-xs">lan</span>
+<span>8 bit (1 oktet)</span>
+</div>
+</div>
+</div>
+<!-- Card 2 (Yellow Layer #FCE76C) -->
+<div class="relative group">
+<div class="absolute inset-0 translate-x-2 translate-y-2 bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px] transition-transform"></div>
+<div class="relative bg-white border-2 border-[#1F1E22] rounded-[20px] p-5 flex flex-col justify-between h-full">
+<div>
+<span class="text-[11px] font-extrabold uppercase tracking-wider text-[#1F1E22]/70 block mb-1">
+                Desimal (Base 10)
+              </span>
+<div class="font-['JetBrains_Mono',monospace] text-3xl font-black text-[#1F1E22] tracking-wider my-1">
+                172
+              </div>
+</div>
+<div class="mt-3 pt-3 border-t border-[#1F1E22]/15 flex items-center gap-1 text-[11px] font-bold text-[#1F1E22]/75">
+<span class="material-symbols-outlined text-xs">tune</span>
+<span>Rentang IPv4 0-255</span>
+</div>
+</div>
+</div>
+<!-- Card 3 (Orange Layer #FF8F5C) -->
+<div class="relative group">
+<div class="absolute inset-0 translate-x-2 translate-y-2 bg-[#FF8F5C] border-2 border-[#1F1E22] rounded-[20px] transition-transform"></div>
+<div class="relative bg-white border-2 border-[#1F1E22] rounded-[20px] p-5 flex flex-col justify-between h-full">
+<div>
+<span class="text-[11px] font-extrabold uppercase tracking-wider text-[#1F1E22]/70 block mb-1">
+                Heksadesimal (Base 16)
+              </span>
+<div class="font-['JetBrains_Mono',monospace] text-3xl font-black text-[#1F1E22] tracking-wider my-1">
+                0xAC
+              </div>
+</div>
+<div class="mt-3 pt-3 border-t border-[#1F1E22]/15 flex items-center gap-1 text-[11px] font-bold text-[#1F1E22]/75">
+<span class="material-symbols-outlined text-xs">grid_view</span>
+<span>2 nibble: A &amp; C</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. BIT DECOMPOSITION TABLE -->
+<div class="bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-[4px_4px_0px_#1F1E22] space-y-4" id="bitTableCard">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<h2 class="text-base font-extrabold text-[#1F1E22]">
+              Tabel Posisi Bit 8-Bit (Pembobotan Nilai)
+            </h2>
+<p class="text-xs text-[#1F1E22]/70 font-medium">
+              Representasi bit order MSB (Most Significant Bit) ke LSB (Least Significant Bit).
+            </p>
+</div>
+<span class="text-[11px] font-mono font-bold bg-[#F0F5EF] border border-[#1F1E22]/30 px-2.5 py-1 rounded-md text-[#1F1E22] self-start sm:self-auto">
+            Total: 172
+          </span>
+</div>
+<div class="overflow-x-auto pb-1">
+<div class="min-w-[560px] grid grid-cols-8 gap-2 font-['JetBrains_Mono',monospace]">
+<!-- Column 128 (ACTIVE - 1) -->
+<div class="flex flex-col border-2 border-[#1F1E22] rounded-xl overflow-hidden bg-[#FCE76C] shadow-[2px_2px_0px_#1F1E22]">
+<div class="bg-[#1F1E22] text-[#FCE76C] text-[11px] py-1 text-center font-bold">2⁷</div>
+<div class="py-2 text-center text-xs font-bold border-b border-[#1F1E22]">128</div>
+<div class="py-2 text-center text-xl font-black text-[#1F1E22]">1</div>
+</div>
+<!-- Column 64 (INACTIVE - 0) -->
+<div class="flex flex-col border-2 border-[#1F1E22]/40 rounded-xl overflow-hidden bg-[#F5F6F8]">
+<div class="bg-[#1F1E22]/20 text-[#1F1E22] text-[11px] py-1 text-center font-bold">2⁶</div>
+<div class="py-2 text-center text-xs font-semibold text-[#1F1E22]/60 border-b border-[#1F1E22]/20">64</div>
+<div class="py-2 text-center text-xl font-bold text-[#1F1E22]/40">0</div>
+</div>
+<!-- Column 32 (ACTIVE - 1) -->
+<div class="flex flex-col border-2 border-[#1F1E22] rounded-xl overflow-hidden bg-[#FCE76C] shadow-[2px_2px_0px_#1F1E22]">
+<div class="bg-[#1F1E22] text-[#FCE76C] text-[11px] py-1 text-center font-bold">2⁵</div>
+<div class="py-2 text-center text-xs font-bold border-b border-[#1F1E22]">32</div>
+<div class="py-2 text-center text-xl font-black text-[#1F1E22]">1</div>
+</div>
+<!-- Column 16 (INACTIVE - 0) -->
+<div class="flex flex-col border-2 border-[#1F1E22]/40 rounded-xl overflow-hidden bg-[#F5F6F8]">
+<div class="bg-[#1F1E22]/20 text-[#1F1E22] text-[11px] py-1 text-center font-bold">2⁴</div>
+<div class="py-2 text-center text-xs font-semibold text-[#1F1E22]/60 border-b border-[#1F1E22]/20">16</div>
+<div class="py-2 text-center text-xl font-bold text-[#1F1E22]/40">0</div>
+</div>
+<!-- Column 8 (ACTIVE - 1) -->
+<div class="flex flex-col border-2 border-[#1F1E22] rounded-xl overflow-hidden bg-[#FCE76C] shadow-[2px_2px_0px_#1F1E22]">
+<div class="bg-[#1F1E22] text-[#FCE76C] text-[11px] py-1 text-center font-bold">2³</div>
+<div class="py-2 text-center text-xs font-bold border-b border-[#1F1E22]">8</div>
+<div class="py-2 text-center text-xl font-black text-[#1F1E22]">1</div>
+</div>
+<!-- Column 4 (ACTIVE - 1) -->
+<div class="flex flex-col border-2 border-[#1F1E22] rounded-xl overflow-hidden bg-[#FCE76C] shadow-[2px_2px_0px_#1F1E22]">
+<div class="bg-[#1F1E22] text-[#FCE76C] text-[11px] py-1 text-center font-bold">2²</div>
+<div class="py-2 text-center text-xs font-bold border-b border-[#1F1E22]">4</div>
+<div class="py-2 text-center text-xl font-black text-[#1F1E22]">1</div>
+</div>
+<!-- Column 2 (INACTIVE - 0) -->
+<div class="flex flex-col border-2 border-[#1F1E22]/40 rounded-xl overflow-hidden bg-[#F5F6F8]">
+<div class="bg-[#1F1E22]/20 text-[#1F1E22] text-[11px] py-1 text-center font-bold">2¹</div>
+<div class="py-2 text-center text-xs font-semibold text-[#1F1E22]/60 border-b border-[#1F1E22]/20">2</div>
+<div class="py-2 text-center text-xl font-bold text-[#1F1E22]/40">0</div>
+</div>
+<!-- Column 1 (INACTIVE - 0) -->
+<div class="flex flex-col border-2 border-[#1F1E22]/40 rounded-xl overflow-hidden bg-[#F5F6F8]">
+<div class="bg-[#1F1E22]/20 text-[#1F1E22] text-[11px] py-1 text-center font-bold">2⁰</div>
+<div class="py-2 text-center text-xs font-semibold text-[#1F1E22]/60 border-b border-[#1F1E22]/20">1</div>
+<div class="py-2 text-center text-xl font-bold text-[#1F1E22]/40">0</div>
+</div>
+</div>
+</div>
+<div class="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 font-medium">
+<span class="w-3.5 h-3.5 rounded bg-[#FCE76C] border border-[#1F1E22] inline-block"></span>
+<span>Kuning: Bit aktif (1) yang dijumlahkan</span>
+</div>
+<div class="flex items-center gap-1.5 font-medium text-[#1F1E22]/70">
+<span class="w-3.5 h-3.5 rounded bg-[#F5F6F8] border border-[#1F1E22]/40 inline-block"></span>
+<span>Abu-abu: Bit tidak aktif (0)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. STEP 1 CARD (OFFSET YELLOW LAYER) -->
+<div class="relative">
+<div class="absolute inset-0 translate-x-2 translate-y-2 bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px]"></div>
+<div class="relative bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 overflow-hidden">
+<span class="absolute right-4 top-2 font-['JetBrains_Mono',monospace] text-6xl font-black text-[#1F1E22]/5 select-none pointer-events-none">
+            01
+          </span>
+<div class="relative z-10 space-y-3">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-[#1F1E22] text-white text-xs font-bold flex items-center justify-center font-mono">1</span>
+<h3 class="text-base font-extrabold text-[#1F1E22]">
+                Langkah 1: Penjumlahan Bit yang Bernilai 1
+              </h3>
+</div>
+<div class="bg-[#F9F8F6] border-2 border-[#1F1E22] rounded-xl p-4 font-['JetBrains_Mono',monospace]">
+<div class="text-xs text-[#1F1E22]/70 mb-1 font-sans font-semibold">Rumus Akumulasi Nilai Aktif:</div>
+<div class="text-lg lg:text-xl font-black text-[#1F1E22] tracking-wide">
+                128 + 32 + 8 + 4 = <span class="bg-[#FCE76C] px-2 py-0.5 rounded border border-[#1F1E22]">172</span>
+</div>
+</div>
+<p class="text-xs lg:text-sm font-medium text-[#1F1E22]/90 leading-relaxed font-['JetBrains_Mono',monospace] bg-white border border-[#1F1E22]/20 p-3 rounded-lg">
+              (1 × 128) + (0 × 64) + (1 × 32) + (0 × 16) + (1 × 8) + (1 × 4) + (0 × 2) + (0 × 1)<br/>
+              = 128 + 32 + 8 + 4<br/>
+              = <strong class="font-bold text-[#14422d]">172 (Desimal)</strong>
+</p>
+</div>
+</div>
+</div>
+<!-- 4. STEP 2 CARD (OFFSET BLUE LAYER) -->
+<div class="relative">
+<div class="absolute inset-0 translate-x-2 translate-y-2 bg-[#8BD0FC] border-2 border-[#1F1E22] rounded-[20px]"></div>
+<div class="relative bg-white border-2 border-[#1F1E22] rounded-[20px] p-6 overflow-hidden">
+<span class="absolute right-4 top-2 font-['JetBrains_Mono',monospace] text-6xl font-black text-[#1F1E22]/5 select-none pointer-events-none">
+            02
+          </span>
+<div class="relative z-10 space-y-4">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-[#1F1E22] text-white text-xs font-bold flex items-center justify-center font-mono">2</span>
+<h3 class="text-base font-extrabold text-[#1F1E22]">
+                Langkah 2: Konversi ke Heksadesimal (Pemisahan 2 Nibble)
+              </h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-['JetBrains_Mono',monospace]">
+<!-- High Nibble -->
+<div class="p-4 bg-[#F9F8F6] border-2 border-[#1F1E22] rounded-xl space-y-1">
+<span class="text-[10px] uppercase font-sans font-bold text-[#1F1E22]/70 block">
+                  Nibble 1 (High 4-bit)
+                </span>
+<div class="text-base font-bold text-[#1F1E22]">1010</div>
+<div class="text-xs text-[#1F1E22]/80">8 + 2 = 10</div>
+<div class="pt-2 text-sm font-extrabold text-[#1F1E22]">
+                  Nilai Simbol: <span class="bg-[#8BD0FC] px-2 py-0.5 rounded border border-[#1F1E22]">A</span>
+</div>
+</div>
+<!-- Low Nibble -->
+<div class="p-4 bg-[#F9F8F6] border-2 border-[#1F1E22] rounded-xl space-y-1">
+<span class="text-[10px] uppercase font-sans font-bold text-[#1F1E22]/70 block">
+                  Nibble 2 (Low 4-bit)
+                </span>
+<div class="text-base font-bold text-[#1F1E22]">1100</div>
+<div class="text-xs text-[#1F1E22]/80">8 + 4 = 12</div>
+<div class="pt-2 text-sm font-extrabold text-[#1F1E22]">
+                  Nilai Simbol: <span class="bg-[#8BD0FC] px-2 py-0.5 rounded border border-[#1F1E22]">C</span>
+</div>
+</div>
+</div>
+<div class="p-3 bg-white border border-[#1F1E22]/20 rounded-xl font-['JetBrains_Mono',monospace] text-xs font-bold text-[#1F1E22] flex items-center justify-between">
+<span>Hasil Penggabungan Heksa:</span>
+<span class="text-sm bg-[#1F1E22] text-[#8BD0FC] px-3 py-1 rounded">AC (atau 0xAC)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. CONCLUSION BLOCK -->
+<div class="bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-[4px_4px_0px_#1F1E22] space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-2xl text-[#1F1E22] mt-0.5">verified</span>
+<div class="space-y-1">
+<h4 class="text-base font-extrabold text-[#1F1E22]">Kesimpulan Konversi 8-Bit</h4>
+<p class="text-xs lg:text-sm font-semibold text-[#1F1E22] leading-relaxed">
+              Nilai biner <strong>10101100</strong> setara dengan desimal <strong>172</strong> dan heksadesimal <strong>AC (0xAC)</strong> dengan akumulasi bit bernilai 1 pada bobot 128, 32, 8, dan 4.
+            </p>
+</div>
+</div>
+<div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t-2 border-[#1F1E22]/20">
+<span class="text-xs font-medium text-[#1F1E22]/80 font-mono">
+            Status: Verifikasi Bit Modul Jarkom Valid
+          </span>
+<button class="w-full sm:w-auto px-5 py-2.5 bg-white border-2 border-[#1F1E22] rounded-xl font-bold text-xs tracking-wide text-[#1F1E22] shadow-[2px_2px_0px_#1F1E22] hover:bg-[#F9F8F6] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-2" id="btnCopy" type="button">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+<span id="copyBtnText">Salin Hasil Konversi</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      const inputVal = document.getElementById('inputValue');
+      const btnSample = document.getElementById('btnSample');
+      const btnConvert = document.getElementById('btnConvert');
+      const btnCopy = document.getElementById('btnCopy');
+      const copyBtnText = document.getElementById('copyBtnText');
+      const checkboxTable = document.getElementById('checkboxTable');
+      const bitTableCard = document.getElementById('bitTableCard');
+      
+      const baseButtons = [
+        { id: 'btnBase2', base: 2 },
+        { id: 'btnBase8', base: 8 },
+        { id: 'btnBase10', base: 10 },
+        { id: 'btnBase16', base: 16 }
+      ];
+
+      // Base Selector Toggle
+      baseButtons.forEach(item => {
+        const btn = document.getElementById(item.id);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          baseButtons.forEach(b => {
+            const el = document.getElementById(b.id);
+            if (!el) return;
+            el.className = 'flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-white font-semibold text-xs tracking-tight text-[#1F1E22]/80 hover:bg-[#F9F8F6] transition-colors';
+          });
+          btn.className = 'flex items-center justify-center py-2.5 px-3 rounded-xl border-2 border-[#1F1E22] bg-[#FCE76C] font-bold text-xs tracking-tight shadow-[2px_2px_0px_#1F1E22] transition-transform';
+        });
+      });
+
+      // Sample Button
+      if (btnSample && inputVal) {
+        btnSample.addEventListener('click', () => {
+          inputVal.value = '10101100';
+          inputVal.focus();
+        });
+      }
+
+      // Convert Button Micro Feedback
+      if (btnConvert) {
+        btnConvert.addEventListener('click', () => {
+          btnConvert.classList.add('scale-95');
+          setTimeout(() => btnConvert.classList.remove('scale-95'), 120);
+        });
+      }
+
+      // Checkbox Toggle Table Visibility
+      if (checkboxTable && bitTableCard) {
+        checkboxTable.addEventListener('change', (e) => {
+          bitTableCard.style.display = e.target.checked ? 'block' : 'none';
+        });
+      }
+
+      // Copy Text Action
+      if (btnCopy && copyBtnText) {
+        btnCopy.addEventListener('click', () => {
+          const textToCopy = "Biner: 10101100 | Desimal: 172 | Heksa: 0xAC (128 + 32 + 8 + 4 = 172)";
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            copyBtnText.textContent = "Tersalin!";
+            setTimeout(() => {
+              copyBtnText.textContent = "Salin Hasil Konversi";
+            }, 2000);
+          }).catch(() => {
+            copyBtnText.textContent = "Berhasil Tersalin";
+            setTimeout(() => {
+              copyBtnText.textContent = "Salin Hasil Konversi";
+            }, 2000);
+          });
+        });
+      }
+    })();
+  </script>
+</div>
+</div>
+</main>
+</body></html>
