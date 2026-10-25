@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Asisten Praktikum Jaringan - Generator DHCP</title>
+<!-- Google Fonts: Montserrat & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FCE76C',
+            'primary-pressed': '#F2D640',
+            secondary: '#8BD0FC',
+            tertiary: '#FF8F5C',
+            ink: '#1F1E22',
+            'ink-raised': '#2E2D33',
+            'on-ink': '#FFFFFF',
+            background: '#F5F6F8',
+            surface: '#FFFFFF',
+            line: '#E3E5EA',
+            'line-strong': '#8A8F9C',
+            'text-muted': '#5B5F6B',
+            faded: '#D6D9E2',
+            'secondary-soft': '#E3F4FE',
+            'primary-soft': '#FFF8D1',
+            'tertiary-soft': '#FFE6DA',
+            'subnet-4': '#C9D0E4',
+            success: '#16794C',
+            'success-soft': '#E3F4EA',
+            warning: '#8A5A00',
+            'warning-soft': '#FFF4D6',
+            error: '#B3261E',
+            'error-soft': '#FCE8E6',
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          borderRadius: {
+            sm: '6px',
+            md: '12px',
+            lg: '20px',
+            xl: '28px',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #F5F6F8;
+      color: #1F1E22;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Neo-brutalist offset block styling */
+    .offset-container {
+      position: relative;
+    }
+    .offset-layer {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: -8px;
+      bottom: -8px;
+      border-radius: 20px;
+      z-index: 0;
+    }
+    .offset-content {
+      position: relative;
+      z-index: 1;
+      background-color: #FFFFFF;
+      border: 2px solid #1F1E22;
+      border-radius: 20px;
+    }
+
+    /* Table custom scroll */
+    .table-container {
+      overflow-x: auto;
+    }
+    .table-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: #8A8F9C;
+      border-radius: 9999px;
+    }
+
+    /* Buttons with 2px ink border */
+    .btn-ink-border {
+      border: 2px solid #1F1E22;
+      transition: transform 0.1s ease, background-color 0.15s ease;
+    }
+    .btn-ink-border:active {
+      transform: translateY(2px);
+    }
+  </style>
+<meta content="web_dashboard" name="shell-type"/></head>
+<body class="min-h-screen flex text-[#1F1E22]">
+<!-- SIDEBAR (264px, background ink #1F1E22) -->
+<aside class="w-[264px] min-w-[264px] bg-[#1F1E22] text-white flex flex-col justify-between p-4 min-h-screen sticky top-0 h-screen overflow-y-auto">
+<div class="space-y-6">
+<!-- App Brand Logo & Name -->
+<div class="px-3 py-2 flex items-center space-x-3">
+<div class="w-10 h-10 bg-[#FCE76C] rounded-md border-2 border-white flex items-center justify-center font-extrabold text-[#1F1E22] text-lg font-mono">
+          APJ
+        </div>
+<div>
+<h1 class="font-extrabold text-sm leading-tight text-white tracking-tight">Asisten Praktikum</h1>
+<p class="text-xs text-gray-400 font-medium">Jaringan Komputer</p>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav aria-label="Navigasi Utama" class="space-y-1.5" data-active-classes="bg-[#FCE76C] text-[#1F1E22] border-2 border-[#1F1E22] shadow-sm font-bold">
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="beranda" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Beranda
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="subnetting" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Subnetting
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="flsm-dan-vlsm" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          FLSM dan VLSM
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="rencana-ruangan" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Rencana ruangan
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="konversi-basis" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Konversi basis
+        </a>
+<!-- Active Item: Generator DHCP -->
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold bg-[#FCE76C] text-[#1F1E22] border-2 border-[#1F1E22] shadow-sm" data-path="generator-dhcp" href="#">
+<svg class="w-4 h-4 mr-3 text-[#1F1E22]" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Generator DHCP
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="tabel-ip" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Tabel IP
+        </a>
+<a class="flex items-center px-3.5 py-2.5 rounded-md text-sm font-bold text-gray-300 hover:bg-[#2E2D33] hover:text-white transition-colors" data-path="tentang" href="#">
+<svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Tentang
+        </a>
+</nav>
+</div>
+<!-- Modul Practical Reference badge -->
+<div class="bg-[#2E2D33] rounded-md p-3 border border-[#8A8F9C]/30 text-xs">
+<div class="flex items-center space-x-1.5 text-[#FCE76C] font-bold mb-1">
+<span class="inline-block w-2 h-2 rounded-full bg-[#16794C]"></span>
+<span>Modul Jarkom v3.2</span>
+</div>
+<p class="text-gray-300 text-[11px] leading-relaxed">Kompatibel Packet Tracer &amp; Ujian Praktikum Jaringan Komputer.</p>
+</div>
+</aside>
+<!-- MAIN CONTENT AREA (max-w-[1280px], padding 32px) -->
+<main class="flex-1 max-w-[1280px] p-8 overflow-y-auto"><div class="flex flex-col w-full space-y-6 pb-12">
+<!-- 1. HEADER BAND -->
+<header class="w-full bg-primary rounded-xl border-2 border-ink p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+<div class="space-y-2 max-w-3xl">
+<div class="flex items-center space-x-3">
+<span class="px-2.5 py-1 bg-ink text-primary text-label-sm font-label-sm rounded-sm uppercase tracking-wider font-mono">Modul Praktikum 03</span>
+<span class="text-ink font-body-sm text-body-sm font-semibold">Laboratorium Jaringan Komputer</span>
+</div>
+<h1 class="text-display-lg font-headline-lg font-bold text-ink tracking-tight">Generator DHCP</h1>
+<p class="text-body-lg font-body-lg text-ink font-medium">
+        Buat konfigurasi DHCP server router Cisco Packet Tracer secara otomatis dengan perintah CLI siap pakai.
+      </p>
+</div>
+<div class="self-start md:self-center shrink-0">
+<div class="flex items-center space-x-2 bg-surface px-4 py-2 rounded-full border-2 border-ink shadow-sm">
+<span class="inline-block w-2.5 h-2.5 rounded-full bg-success animate-pulse"></span>
+<span class="text-ink text-label-md font-label-md font-bold tracking-tight">Standar Cisco IOS 15.1+</span>
+</div>
+</div>
+</header>
+<!-- 2. MAIN WORKSPACE (TWO COLUMNS) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- LEFT COLUMN: FORM CARD (5/12) -->
+<div class="lg:col-span-5 sticky top-6">
+<div class="bg-surface rounded-lg border-2 border-ink p-6 shadow-sm">
+<div class="flex items-center justify-between pb-4 border-b-2 border-ink mb-6">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-ink text-xl">settings_ethernet</span>
+<h2 class="text-title-md font-title-md font-bold text-ink">Parameter Konfigurasi DHCP</h2>
+</div>
+<span class="bg-secondary-soft text-ink px-2.5 py-0.5 rounded-sm text-label-sm font-mono font-bold border border-ink">
+            IPv4 Router
+          </span>
+</div>
+<form class="space-y-5" id="dhcpForm" onsubmit="event.preventDefault(); generateDHCPConfig();">
+<!-- Field 1: IP Gateway -->
+<div class="space-y-1.5">
+<label class="block text-label-md font-label-md font-bold text-ink" for="gwIp">
+              IP Router (Default Gateway)
+            </label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-2 border-ink rounded-md px-3.5 py-2.5 font-mono text-body-md text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:border-ink transition-all" id="gwIp" placeholder="192.168.10.1" required="" type="text" value="192.168.10.1"/>
+<span class="absolute right-3 top-2.5 text-text-muted text-label-sm font-mono font-medium">Gateway</span>
+</div>
+<p class="text-body-sm font-body-sm text-text-muted">Alamat antarmuka router penghubung klien (LAN).</p>
+</div>
+<!-- Field 2: Prefix / CIDR -->
+<div class="space-y-1.5">
+<label class="block text-label-md font-label-md font-bold text-ink">
+              Panjang Prefix (/CIDR)
+            </label>
+<div class="grid grid-cols-4 gap-2">
+<button class="py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-primary text-ink shadow-sm" id="prefix-24" onclick="selectPrefix(24)" type="button">/24</button>
+<button class="py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-surface text-ink hover:bg-surface-container" id="prefix-25" onclick="selectPrefix(25)" type="button">/25</button>
+<button class="py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-surface text-ink hover:bg-surface-container" id="prefix-26" onclick="selectPrefix(26)" type="button">/26</button>
+<button class="py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-surface text-ink hover:bg-surface-container" id="prefix-27" onclick="selectPrefix(27)" type="button">/27</button>
+</div>
+<input id="cidrVal" type="hidden" value="24"/>
+<div class="p-2.5 bg-surface-container-low rounded-md border border-ink/40 flex items-center justify-between text-body-sm font-mono">
+<span class="text-text-muted">Netmask: <strong class="text-ink" id="netmaskDisplay">255.255.255.0</strong></span>
+<span class="text-text-muted">Network: <strong class="text-ink" id="networkDisplay">192.168.10.0</strong></span>
+</div>
+</div>
+<!-- Field 3: Interface Router -->
+<div class="space-y-1.5">
+<label class="block text-label-md font-label-md font-bold text-ink" for="ifaceName">
+              Antarmuka (Interface) Router
+            </label>
+<input class="w-full bg-surface-container-lowest border-2 border-ink rounded-md px-3.5 py-2.5 font-mono text-body-md text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:border-ink transition-all" id="ifaceName" required="" type="text" value="fastEthernet0/0"/>
+<div class="flex items-center space-x-2 pt-1 text-label-sm font-mono">
+<span class="text-text-muted font-sans font-medium">Bantuan cepat:</span>
+<button class="px-2 py-0.5 bg-surface-container rounded-sm border border-ink text-ink hover:bg-primary-soft" onclick="setIface('gigabitEthernet0/0')" type="button">Gig0/0</button>
+<button class="px-2 py-0.5 bg-surface-container rounded-sm border border-ink text-ink hover:bg-primary-soft" onclick="setIface('fastEthernet0/0')" type="button">Fa0/0</button>
+<button class="px-2 py-0.5 bg-surface-container rounded-sm border border-ink text-ink hover:bg-primary-soft" onclick="setIface('fastEthernet0/1')" type="button">Fa0/1</button>
+</div>
+</div>
+<!-- Field 4: DHCP Pool Name -->
+<div class="space-y-1.5">
+<label class="block text-label-md font-label-md font-bold text-ink" for="poolName">
+              Nama DHCP Pool
+            </label>
+<input class="w-full bg-surface-container-lowest border-2 border-ink rounded-md px-3.5 py-2.5 font-mono text-body-md text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:border-ink transition-all" id="poolName" required="" type="text" value="dhcp_server"/>
+</div>
+<!-- Field 5: Excluded Addresses -->
+<div class="space-y-1.5">
+<label class="block text-label-md font-label-md font-bold text-ink">
+              Rentang Excluded Address (Dikecualikan)
+            </label>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<span class="text-label-sm font-sans text-text-muted block mb-1">IP Awal</span>
+<input class="w-full bg-surface-container-lowest border-2 border-ink rounded-md px-3 py-2 font-mono text-body-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:border-ink" id="exStart" required="" type="text" value="192.168.10.1"/>
+</div>
+<div>
+<span class="text-label-sm font-sans text-text-muted block mb-1">IP Akhir</span>
+<input class="w-full bg-surface-container-lowest border-2 border-ink rounded-md px-3 py-2 font-mono text-body-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:border-ink" id="exEnd" required="" type="text" value="192.168.10.5"/>
+</div>
+</div>
+<p class="text-body-sm font-body-sm text-text-muted">IP statis untuk router, switch manajemen, dan printer lab.</p>
+</div>
+<!-- Action Buttons -->
+<div class="pt-3 space-y-3">
+<button class="w-full h-12 bg-primary text-ink border-2 border-ink rounded-md font-bold text-label-md flex items-center justify-center space-x-2 hover:bg-primary-pressed active:translate-y-0.5 transition-all shadow-sm" type="submit">
+<span class="material-symbols-outlined text-xl">bolt</span>
+<span>Buat Konfigurasi</span>
+</button>
+<button class="w-full h-12 bg-surface text-ink border-2 border-ink rounded-md font-bold text-label-md flex items-center justify-center space-x-2 hover:bg-surface-container active:translate-y-0.5 transition-all shadow-sm" onclick="loadSampleData()" type="button">
+<span class="material-symbols-outlined text-xl">menu_book</span>
+<span>Isi Contoh Soal Praktikum (Modul 3)</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- RIGHT COLUMN: RESULTS & CLI OUTPUT (7/12) -->
+<div class="lg:col-span-7 space-y-8">
+<!-- 1. HIGHLIGHT CARD -->
+<section class="bg-primary rounded-lg border-2 border-ink p-6 shadow-sm">
+<div class="flex items-start space-x-3">
+<div class="w-10 h-10 rounded-md bg-ink text-primary flex items-center justify-center shrink-0 border border-ink mt-0.5">
+<span class="material-symbols-outlined text-2xl">device_hub</span>
+</div>
+<div class="space-y-1">
+<span class="text-label-sm font-mono uppercase tracking-wider text-ink font-bold">Hasil Alokasi Pertama</span>
+<h3 class="text-headline-md font-headline-md font-bold text-ink" id="clientFirstHighlight">
+              Klien pertama akan mendapat 192.168.10.6
+            </h3>
+<p class="text-body-md font-body-md text-ink" id="clientExExplanation">
+              (alamat .1 sampai .5 dikecualikan untuk router dan perangkat statis)
+            </p>
+</div>
+</div>
+<!-- Micro Info Badges -->
+<div class="mt-6 pt-5 border-t-2 border-ink grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+<div class="bg-surface rounded-md border-2 border-ink p-2.5">
+<span class="text-label-sm font-label-sm text-text-muted block">Subnet Pool</span>
+<span class="font-mono text-body-sm font-bold text-ink" id="badgeSubnet">192.168.10.0/24</span>
+</div>
+<div class="bg-surface rounded-md border-2 border-ink p-2.5">
+<span class="text-label-sm font-label-sm text-text-muted block">Rentang Dinamis</span>
+<span class="font-mono text-label-sm font-bold text-ink truncate block" id="badgeDynamic">.6 – .254 (249 Host)</span>
+</div>
+<div class="bg-surface rounded-md border-2 border-ink p-2.5">
+<span class="text-label-sm font-label-sm text-text-muted block">Default Gateway</span>
+<span class="font-mono text-body-sm font-bold text-ink" id="badgeGw">192.168.10.1</span>
+</div>
+<div class="bg-surface rounded-md border-2 border-ink p-2.5">
+<span class="text-label-sm font-label-sm text-text-muted block">DNS Server</span>
+<span class="font-mono text-body-sm font-bold text-ink" id="badgeDns">192.168.10.1</span>
+</div>
+</div>
+</section>
+<!-- 2. CLI SCRIPT CODE BLOCK -->
+<section class="bg-ink rounded-lg border-2 border-ink p-6 text-white shadow-sm space-y-4">
+<!-- Terminal Top Bar -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/20 gap-3">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-primary text-xl">terminal</span>
+<h4 class="font-mono font-bold text-body-md text-white">Cisco IOS CLI Script (Router Config)</h4>
+</div>
+<div class="flex items-center space-x-2">
+<button class="px-3 py-1.5 bg-[#2E2D33] hover:bg-white/20 text-white rounded-md border border-white/30 text-label-sm font-label-sm font-bold flex items-center space-x-1.5 transition-colors" id="copyBtn" onclick="copyCliScript()" type="button">
+<span class="material-symbols-outlined text-base">content_copy</span>
+<span id="copyBtnText">Salin Skrip CLI</span>
+</button>
+<button class="px-3 py-1.5 bg-[#2E2D33] hover:bg-white/20 text-white rounded-md border border-white/30 text-label-sm font-label-sm font-bold flex items-center space-x-1.5 transition-colors" onclick="downloadScript()" type="button">
+<span class="material-symbols-outlined text-base">download</span>
+<span>Simpan .pkt script</span>
+</button>
+</div>
+</div>
+<!-- CLI Table Two-Columns -->
+<div class="overflow-x-auto">
+<div class="min-w-[600px] font-mono text-body-sm">
+<div class="grid grid-cols-12 py-2 px-3 bg-[#2E2D33] rounded-t-md font-sans text-label-sm font-bold text-white/70 uppercase tracking-wider">
+<span class="col-span-6">Perintah CLI Cisco IOS</span>
+<span class="col-span-6 border-l border-white/20 pl-3">Penjelasan Bahasa Indonesia</span>
+</div>
+<div class="divide-y divide-white/10 bg-black/40 rounded-b-md p-1" id="cliOutputLines">
+<!-- Rendered lines -->
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-primary font-bold">enable</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Masuk ke Privileged EXEC mode</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-primary font-bold">configure terminal</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Masuk ke Global Configuration mode</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white" id="cli-iface">interface fastEthernet0/0</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Pilih interface penghubung LAN</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white" id="cli-ip-addr">ip address 192.168.10.1 255.255.255.0</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Pasang alamat IP dan subnet mask gateway</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white">no shutdown</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Aktifkan antarmuka agar menyala (link up)</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white">exit</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Kembali ke konfigurasi global</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-primary font-bold" id="cli-pool">ip dhcp pool dhcp_server</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Buat dan beri nama pool DHCP baru</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white" id="cli-network">network 192.168.10.0 255.255.255.0</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Tentukan rentang subnet alamat IP pool</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white" id="cli-default-router">default-router 192.168.10.1</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Tentukan alamat default gateway klien</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white" id="cli-dns">dns-server 192.168.10.1</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">(Opsional) Alamat DNS server lokal</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-white">exit</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Selesai konfigurasi pool</span>
+</div>
+<div class="grid grid-cols-12 py-1 px-2.5 hover:bg-white/5 transition-colors">
+<span class="col-span-6 text-secondary font-bold" id="cli-excluded">ip dhcp excluded-address 192.168.10.1 192.168.10.5</span>
+<span class="col-span-6 border-l border-white/10 pl-3 text-[#A0A4B0]">Kecualikan alamat .1 s/d .5 dari pembagian DHCP</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-2 flex items-center space-x-2 text-label-sm text-[#A0A4B0]">
+<span class="material-symbols-outlined text-sm text-primary">info</span>
+<span>Mengikuti contoh Modul 3; belum diuji di semua versi IOS.</span>
+</div>
+</section>
+<!-- 3. KARTU LANGKAH / STEP CARDS (Offset Layers per DESIGN.md) -->
+<section class="space-y-4">
+<h4 class="text-title-sm font-title-sm font-bold text-ink">Urutan Eksekusi Perangkat</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Step 1: Offset Blue -->
+<div class="offset-container">
+<div class="offset-layer bg-secondary border-2 border-ink"></div>
+<div class="offset-content p-5">
+<span class="w-7 h-7 rounded-sm bg-secondary text-ink font-bold font-mono text-label-md flex items-center justify-center border border-ink mb-3">01</span>
+<h5 class="text-title-sm font-title-sm font-bold text-ink leading-tight mb-1.5">Inisialisasi Antarmuka</h5>
+<p class="text-body-sm font-body-sm text-text-muted">
+                Konfigurasi IP gateway fisik pada interface LAN dan eksekusi perintah <code class="font-mono text-ink font-bold">no shutdown</code> untuk menyalakan port.
+              </p>
+</div>
+</div>
+<!-- Step 2: Offset Yellow -->
+<div class="offset-container">
+<div class="offset-layer bg-primary border-2 border-ink"></div>
+<div class="offset-content p-5">
+<span class="w-7 h-7 rounded-sm bg-primary text-ink font-bold font-mono text-label-md flex items-center justify-center border border-ink mb-3">02</span>
+<h5 class="text-title-sm font-title-sm font-bold text-ink leading-tight mb-1.5">Pembuatan Pool</h5>
+<p class="text-body-sm font-body-sm text-text-muted">
+                Daftarkan tabel via <code class="font-mono text-ink font-bold">ip dhcp pool</code> lalu tentukan alamat jaringan beserta subnet mask gateway klien.
+              </p>
+</div>
+</div>
+<!-- Step 3: Offset Orange -->
+<div class="offset-container">
+<div class="offset-layer bg-tertiary border-2 border-ink"></div>
+<div class="offset-content p-5">
+<span class="w-7 h-7 rounded-sm bg-tertiary text-ink font-bold font-mono text-label-md flex items-center justify-center border border-ink mb-3">03</span>
+<h5 class="text-title-sm font-title-sm font-bold text-ink leading-tight mb-1.5">Eksklusi &amp; Verifikasi</h5>
+<p class="text-body-sm font-body-sm text-text-muted">
+                Amankan IP router dengan <code class="font-mono text-ink font-bold">excluded-address</code>, kemudian verifikasi via tab Desktop DHCP pada PC klien.
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. KESIMPULAN / LEMBAR JAWABAN CARD -->
+<section class="bg-primary rounded-lg border-2 border-ink p-6 shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-ink text-2xl">fact_check</span>
+<h4 class="text-title-md font-title-md font-bold text-ink">Rangkuman Konfigurasi DHCP Server</h4>
+</div>
+<span class="text-label-sm font-mono font-bold px-2 py-0.5 bg-surface rounded-sm border border-ink text-ink">Siap Salin</span>
+</div>
+<p class="text-body-md font-body-md text-ink leading-relaxed font-medium bg-surface/80 p-4 rounded-md border border-ink/40" id="summaryText">
+          Konfigurasi DHCP pool 'dhcp_server' pada interface fastEthernet0/0 siap di-paste langsung ke tab CLI router Cisco Packet Tracer. PC/Laptop klien pertama yang diatur ke mode DHCP otomatis memperoleh alamat IP 192.168.10.6 dengan subnet mask 255.255.255.0 dan default gateway 192.168.10.1 tanpa bentrok dengan perangkat statis.
+        </p>
+<div class="flex justify-end pt-2">
+<button class="px-5 py-2.5 bg-surface hover:bg-surface-container active:translate-y-0.5 text-ink border-2 border-ink rounded-md font-bold text-label-md flex items-center space-x-2 transition-all shadow-sm" id="summaryCopyBtn" onclick="copySummaryReport()" type="button">
+<span class="material-symbols-outlined text-lg">description</span>
+<span id="summaryCopyBtnText">Salin Ringkasan Laporan</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  function selectPrefix(cidr) {
+    document.getElementById('cidrVal').value = cidr;
+    [24, 25, 26, 27].forEach(c => {
+      const btn = document.getElementById('prefix-' + c);
+      if (btn) {
+        if (c === cidr) {
+          btn.className = 'py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-primary text-ink shadow-sm';
+        } else {
+          btn.className = 'py-1.5 border-2 border-ink rounded-md font-mono text-label-md font-bold bg-surface text-ink hover:bg-surface-container';
+        }
+      }
+    });
+
+    const netmaskMap = {
+      24: '255.255.255.0',
+      25: '255.255.255.128',
+      26: '255.255.255.192',
+      27: '255.255.255.224'
+    };
+
+    document.getElementById('netmaskDisplay').textContent = netmaskMap[cidr] || '255.255.255.0';
+    generateDHCPConfig();
+  }
+
+  function setIface(name) {
+    document.getElementById('ifaceName').value = name;
+    generateDHCPConfig();
+  }
+
+  function loadSampleData() {
+    document.getElementById('gwIp').value = '192.168.10.1';
+    document.getElementById('ifaceName').value = 'fastEthernet0/0';
+    document.getElementById('poolName').value = 'dhcp_server';
+    document.getElementById('exStart').value = '192.168.10.1';
+    document.getElementById('exEnd').value = '192.168.10.5';
+    selectPrefix(24);
+  }
+
+  function parseIpv4(ipStr) {
+    return ipStr.trim().split('.').map(n => parseInt(n, 10));
+  }
+
+  function formatIpv4(arr) {
+    return arr.join('.');
+  }
+
+  function generateDHCPConfig() {
+    const gw = document.getElementById('gwIp').value.trim() || '192.168.10.1';
+    const cidr = parseInt(document.getElementById('cidrVal').value || '24', 10);
+    const iface = document.getElementById('ifaceName').value.trim() || 'fastEthernet0/0';
+    const pool = document.getElementById('poolName').value.trim() || 'dhcp_server';
+    const exS = document.getElementById('exStart').value.trim() || '192.168.10.1';
+    const exE = document.getElementById('exEnd').value.trim() || '192.168.10.5';
+
+    const netmaskMap = {
+      24: '255.255.255.0',
+      25: '255.255.255.128',
+      26: '255.255.255.192',
+      27: '255.255.255.224'
+    };
+    const mask = netmaskMap[cidr] || '255.255.255.0';
+
+    const gwOct = parseIpv4(gw);
+    const netOct = [...gwOct];
+    if (cidr === 24) netOct[3] = 0;
+    else if (cidr === 25) netOct[3] = gwOct[3] < 128 ? 0 : 128;
+    else if (cidr === 26) netOct[3] = Math.floor(gwOct[3] / 64) * 64;
+    else if (cidr === 27) netOct[3] = Math.floor(gwOct[3] / 32) * 32;
+
+    const netStr = formatIpv4(netOct);
+    document.getElementById('networkDisplay').textContent = netStr;
+
+    // Calculate first available client IP
+    const endExOct = parseIpv4(exE);
+    let nextClientOct = [...endExOct];
+    nextClientOct[3] = (nextClientOct[3] || 5) + 1;
+    const firstClientIp = formatIpv4(nextClientOct);
+
+    const startExOct = parseIpv4(exS);
+    const exStartLast = startExOct[3] !== undefined ? startExOct[3] : 1;
+    const exEndLast = endExOct[3] !== undefined ? endExOct[3] : 5;
+
+    // Update Highlight
+    document.getElementById('clientFirstHighlight').textContent = `Klien pertama akan mendapat ${firstClientIp}`;
+    document.getElementById('clientExExplanation').textContent = `(alamat .${exStartLast} sampai .${exEndLast} dikecualikan untuk router dan perangkat statis)`;
+
+    // Update Badges
+    document.getElementById('badgeSubnet').textContent = `${netStr}/${cidr}`;
+    const maxHostLast = netOct[3] + (Math.pow(2, 32 - cidr) - 2);
+    const totalAvail = Math.max(0, maxHostLast - nextClientOct[3] + 1);
+    document.getElementById('badgeDynamic').textContent = `.${nextClientOct[3]} – .${maxHostLast} (${totalAvail} Host)`;
+    document.getElementById('badgeGw').textContent = gw;
+    document.getElementById('badgeDns').textContent = gw;
+
+    // Update CLI table lines
+    document.getElementById('cli-iface').textContent = `interface ${iface}`;
+    document.getElementById('cli-ip-addr').textContent = `ip address ${gw} ${mask}`;
+    document.getElementById('cli-pool').textContent = `ip dhcp pool ${pool}`;
+    document.getElementById('cli-network').textContent = `network ${netStr} ${mask}`;
+    document.getElementById('cli-default-router').textContent = `default-router ${gw}`;
+    document.getElementById('cli-dns').textContent = `dns-server ${gw}`;
+    document.getElementById('cli-excluded').textContent = `ip dhcp excluded-address ${exS} ${exE}`;
+
+    // Update Summary
+    document.getElementById('summaryText').textContent = 
+      `Konfigurasi DHCP pool '${pool}' pada interface ${iface} siap di-paste langsung ke tab CLI router Cisco Packet Tracer. PC/Laptop klien pertama yang diatur ke mode DHCP otomatis memperoleh alamat IP ${firstClientIp} dengan subnet mask ${mask} dan default gateway ${gw} tanpa bentrok dengan perangkat statis.`;
+  }
+
+  function getRawCliScript() {
+    const gw = document.getElementById('gwIp').value.trim() || '192.168.10.1';
+    const cidr = parseInt(document.getElementById('cidrVal').value || '24', 10);
+    const iface = document.getElementById('ifaceName').value.trim() || 'fastEthernet0/0';
+    const pool = document.getElementById('poolName').value.trim() || 'dhcp_server';
+    const exS = document.getElementById('exStart').value.trim() || '192.168.10.1';
+    const exE = document.getElementById('exEnd').value.trim() || '192.168.10.5';
+
+    const netmaskMap = {
+      24: '255.255.255.0',
+      25: '255.255.255.128',
+      26: '255.255.255.192',
+      27: '255.255.255.224'
+    };
+    const mask = netmaskMap[cidr] || '255.255.255.0';
+    const netStr = document.getElementById('networkDisplay').textContent || '192.168.10.0';
+
+    return [
+      'enable',
+      'configure terminal',
+      `interface ${iface}`,
+      `ip address ${gw} ${mask}`,
+      'no shutdown',
+      'exit',
+      `ip dhcp pool ${pool}`,
+      `network ${netStr} ${mask}`,
+      `default-router ${gw}`,
+      `dns-server ${gw}`,
+      'exit',
+      `ip dhcp excluded-address ${exS} ${exE}`,
+      'end',
+      'write memory'
+    ].join('\n');
+  }
+
+  function copyCliScript() {
+    const text = getRawCliScript();
+    navigator.clipboard.writeText(text).then(() => {
+      const btnText = document.getElementById('copyBtnText');
+      btnText.textContent = 'Tersalin!';
+      setTimeout(() => {
+        btnText.textContent = 'Salin Skrip CLI';
+      }, 2000);
+    });
+  }
+
+  function copySummaryReport() {
+    const text = document.getElementById('summaryText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btnText = document.getElementById('summaryCopyBtnText');
+      btnText.textContent = 'Tersalin ke Clipboard!';
+      setTimeout(() => {
+        btnText.textContent = 'Salin Ringkasan Laporan';
+      }, 2000);
+    });
+  }
+
+  function downloadScript() {
+    const script = getRawCliScript();
+    const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cisco_dhcp_${document.getElementById('poolName').value.trim() || 'server'}.pkt.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Initial trigger
+  document.addEventListener('DOMContentLoaded', () => {
+    generateDHCPConfig();
+  });
+</script></main>
+</body></html>
