@@ -1,1 +1,1 @@
-# Asistem-Praktikum-Jarkom
+# Asisten-Praktikum-Jarkom
