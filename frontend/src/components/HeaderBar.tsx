@@ -7,7 +7,9 @@ interface HeaderBarProps {
 }
 
 const pageTitles: Record<string, string> = {
-  '/': 'Beranda',
+  '/': 'Landing Page',
+  '/app': 'Beranda',
+  '/beranda': 'Beranda',
   '/subnetting': 'Subnetting',
   '/flsm-vlsm': 'FLSM dan VLSM',
   '/rencana': 'Rencana ruangan',

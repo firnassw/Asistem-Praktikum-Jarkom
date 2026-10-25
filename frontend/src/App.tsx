@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { LandingPage } from './pages/LandingPage';
 import { Beranda } from './pages/Beranda';
 import { Subnetting } from './pages/Subnetting';
 import { FlsmVlsm } from './pages/FlsmVlsm';
@@ -14,8 +15,13 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Beranda />} />
+        {/* Halaman Depan / Landing Page Mandiri */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Workspace Aplikasi Lab */}
+        <Route element={<Layout />}>
+          <Route path="app" element={<Beranda />} />
+          <Route path="beranda" element={<Beranda />} />
           <Route path="subnetting" element={<Subnetting />} />
           <Route path="flsm-vlsm" element={<FlsmVlsm />} />
           <Route path="rencana" element={<Rencana />} />

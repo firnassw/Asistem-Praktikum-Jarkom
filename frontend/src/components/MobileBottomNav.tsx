@@ -13,7 +13,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenDrawer }
       className="mobile-bottom-tabs md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#1F1E22] border-t border-[#2E2D33] z-40 flex items-center justify-around px-2 shadow-[0_-2px_10px_rgba(0,0,0,0.15)]"
     >
       <NavLink
-        to="/"
+        to="/app"
         end
         className={({ isActive }) =>
           `flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-bold transition-colors ${

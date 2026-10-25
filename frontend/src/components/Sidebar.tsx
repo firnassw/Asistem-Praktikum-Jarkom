@@ -18,7 +18,7 @@ interface SidebarProps {
 }
 
 export const navItems = [
-  { name: 'Beranda', path: '/', icon: Home, shortName: 'Beranda' },
+  { name: 'Beranda', path: '/app', icon: Home, shortName: 'Beranda' },
   { name: 'Subnetting', path: '/subnetting', icon: Network, shortName: 'Subnet' },
   { name: 'FLSM dan VLSM', path: '/flsm-vlsm', icon: GitFork, shortName: 'FLSM/VLSM' },
   { name: 'Rencana ruangan', path: '/rencana', icon: LayoutGrid, shortName: 'Rencana' },
@@ -38,7 +38,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
       <div className="flex flex-col gap-6">
         {/* Logo & Judul Header */}
         <div className="flex items-center justify-between px-2 pt-2">
-          <div className="flex items-center gap-3">
+          <NavLink
+            to="/"
+            title="Kembali ke Landing Page"
+            className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+          >
             <img
               src="/logo-mark.png"
               alt="Logo APJ"
@@ -53,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
               </span>
             </div>
             <span className="sr-only">APJ</span>
-          </div>
+          </NavLink>
           {isMobileDrawer && onClose && (
             <button
               onClick={onClose}
@@ -74,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                end={item.path === '/'}
+                end={item.path === '/app'}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-[12px] font-bold text-[14px] transition-all ${
                     isActive

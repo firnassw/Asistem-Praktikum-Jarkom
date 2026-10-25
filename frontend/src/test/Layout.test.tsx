@@ -1,10 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import { App } from '../App';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { Layout } from '../components/Layout';
+
+const renderLayoutApp = () => {
+  return render(
+    <MemoryRouter initialEntries={['/app']}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="app" element={<div>Konten App</div>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>
+  );
+};
 
 describe('Layout Shell UI', () => {
   it('merender layout lengkap dan navigasi bottom bar di mobile', () => {
-    render(<App />);
+    renderLayoutApp();
 
     // Bottom navigation bar ada 4 item utama
     const bottomNav = screen.getByRole('navigation', { name: /Navigasi Bawah Mobile/i });
@@ -17,7 +30,7 @@ describe('Layout Shell UI', () => {
   });
 
   it('dapat membuka drawer navigasi saat tombol Lainnya atau menu bar diklik', () => {
-    render(<App />);
+    renderLayoutApp();
 
     const lainnyaBtn = screen.getByRole('button', { name: /Lainnya/i });
     fireEvent.click(lainnyaBtn);
