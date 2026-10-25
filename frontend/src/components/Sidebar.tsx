@@ -39,9 +39,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
         {/* Logo & Judul Header */}
         <div className="flex items-center justify-between px-2 pt-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[12px] bg-[#FCE76C] text-[#1F1E22] font-extrabold flex items-center justify-center text-lg tracking-tight shadow-sm shrink-0">
-              APJ
-            </div>
+            <img
+              src="/logo-mark.png"
+              alt="Logo APJ"
+              className="w-10 h-10 object-contain shrink-0"
+            />
             <div className="flex flex-col leading-tight min-w-0">
               <span className="font-bold text-[15px] text-white truncate">
                 Asisten Praktikum
@@ -50,6 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
                 Jaringan Komputer
               </span>
             </div>
+            <span className="sr-only">APJ</span>
           </div>
           {isMobileDrawer && onClose && (
             <button

@@ -12,7 +12,15 @@ export const Tentang: React.FC = () => {
         </p>
       </div>
 
-      <div className="bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-xs flex flex-col gap-4">
+      <div className="bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 shadow-xs flex flex-col gap-5">
+        <div className="pb-4 border-b border-[#E3E5EA] flex items-center justify-center sm:justify-start">
+          <img
+            src="/logo.png"
+            alt="Logo Asisten Praktikum Jaringan"
+            className="h-12 sm:h-14 w-auto object-contain"
+          />
+        </div>
+
         <div>
           <h2 className="font-title text-[18px] font-bold text-[#1F1E22] mb-1">
             Cara Memakai

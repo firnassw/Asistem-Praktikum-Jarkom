@@ -37,7 +37,12 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({ onOpenMenu }) => {
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="px-2.5 py-1 rounded-[6px] bg-[#FCE76C] text-[#1F1E22] text-[12px] font-extrabold border border-[#1F1E22]/20">
+        <img
+          src="/logo-mark.png"
+          alt="APJ"
+          className="w-7 h-7 object-contain"
+        />
+        <span className="px-2 py-0.5 rounded-[6px] bg-[#FCE76C] text-[#1F1E22] text-[11px] font-extrabold border border-[#1F1E22]/20">
           APJ
         </span>
       </div>
