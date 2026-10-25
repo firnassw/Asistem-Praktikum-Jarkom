@@ -3,7 +3,7 @@ Main entry point FastAPI untuk Asisten Praktikum Jaringan.
 """
 
 from typing import Any, Dict, List
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -44,6 +44,14 @@ app.add_middleware(
 app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
+
+# Middleware untuk menjamin kompatibilitas path routing baik dengan maupun tanpa prefix /api
+@app.middleware("http")
+async def ensure_api_prefix(request: Request, call_next):
+    path = request.scope.get("path", "")
+    if not path.startswith("/api"):
+        request.scope["path"] = "/api" + path
+    return await call_next(request)
 
 # Daftarkan router modul
 app.include_router(jaringan_router)
