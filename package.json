@@ -1,0 +1,9 @@
+{
+  "name": "asisten-praktikum-jarkom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asisten Praktikum Jaringan Komputer - Deterministik Langkah demi Langkah",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  }
+}

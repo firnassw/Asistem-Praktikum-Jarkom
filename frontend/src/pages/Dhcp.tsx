@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api, ApiException } from '../services/api';
 import type { StrukturJawaban } from '../types/api';
 import { Banner } from '../components/Banner';

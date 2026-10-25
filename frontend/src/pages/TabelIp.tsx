@@ -446,8 +446,7 @@ export const TabelIp: React.FC = () => {
                   {hasil.peringatan.map((warn, i) => (
                     <Banner
                       key={i}
-                      tipe="warning"
-                      judul="Catatan Konsistensi Jaringan"
+                      variant="warning"
                       pesan={warn}
                     />
                   ))}

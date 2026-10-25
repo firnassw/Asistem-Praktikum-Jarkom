@@ -18,7 +18,6 @@ import {
   AlertTriangle,
   ArrowRight,
   CopyCheck,
-  CheckCircle2,
   Info,
 } from 'lucide-react';
 
@@ -680,16 +679,16 @@ export const Rencana: React.FC = () => {
 
               {hasil.peringatan.includes('VLSM_RUANG_KURANG') && (
                 <Banner
-                  tipe="warning"
-                  judul="Kapasitas Induk Tidak Mencukupi"
+                  variant="warning"
+                  kode="VLSM_RUANG_KURANG"
                   pesan="Total kebutuhan host melebihi kapasitas jaringan induk. Sebagian ruangan tidak dapat dialokasikan (status: Tidak muat)."
                 />
               )}
 
               {hasil.peringatan.includes('MELEWATI_INDUK') && (
                 <Banner
-                  tipe="warning"
-                  judul="Alokasi Melampaui Batas Induk"
+                  variant="warning"
+                  kode="MELEWATI_INDUK"
                   pesan="Alokasi subnet berlanjut melampaui kapasitas induk sesuai opsi gaya modul praktikum."
                 />
               )}
@@ -726,7 +725,7 @@ export const Rencana: React.FC = () => {
                       prefixInduk: 24,
                       totalAlamatDialokasikan: currentSummary.total_alamat_dialokasikan,
                       sisaAlamat: currentSummary.sisa_alamat,
-                      blocks: currentTable,
+                      blocks: currentTable as any,
                     }}
                   />
                 </div>

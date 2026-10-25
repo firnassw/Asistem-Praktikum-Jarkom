@@ -21,6 +21,8 @@ app = FastAPI(
     title="Asisten Praktikum Jaringan API",
     description="Backend deterministik untuk Asisten Praktikum Jaringan",
     version="1.0.0",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
 )
 
 # Konfigurasi CORS agar frontend dapat mengakses API
