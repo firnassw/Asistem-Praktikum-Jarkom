@@ -1464,4 +1464,288 @@ def hitung_konversi(
     }
 
 
+def hitung_tabel_ip(
+    perangkat: List[Any],
+) -> Dict[str, Any]:
+    """
+    Menyusun dan memvalidasi tabel rekapitulasi IP perangkat secara deterministik:
+    - Memvalidasi batas 1..50 perangkat.
+    - Memeriksa nama unik (1..30 karakter).
+    - Memproses mode Static (IP, Subnet Mask/Prefix, Gateway, DNS).
+    - Memproses mode DHCP (default string 'DHCP' untuk field dinamis).
+    - Menghitung NA dan BA per perangkat statis menggunakan bitwise integer.
+    - Mendeteksi peringatan konsistensi: konflik IP, IP memakai NA/BA, gateway di luar subnet.
+    - Mengelompokkan ringkasan perangkat dan segmen jaringan.
+    """
+    # 1. Validasi Batas Jumlah Perangkat (1..50)
+    if not perangkat or len(perangkat) == 0:
+        raise AppError(PERMINTAAN_TIDAK_VALID, field="perangkat")
+
+    if len(perangkat) > 50:
+        raise AppError(BATAS_UKURAN_LEWAT, field="perangkat", n="50")
+
+    seen_names = set()
+    parsed_devices: List[Dict[str, Any]] = []
+    peringatan: List[str] = []
+
+    for item in perangkat:
+        # Ambil field baik jika item adalah dict atau instance Pydantic
+        nama = getattr(item, "nama", None) if not isinstance(item, dict) else item.get("nama")
+        clean_nama = (nama or "").strip()
+        if not clean_nama or len(clean_nama) > 30:
+            raise AppError(PERMINTAAN_TIDAK_VALID, field="nama")
+
+        nama_lower = clean_nama.lower()
+        if nama_lower in seen_names:
+            raise AppError(NAMA_DUPLIKAT, field="perangkat", nama=clean_nama)
+        seen_names.add(nama_lower)
+
+        mode = getattr(item, "mode", "static") if not isinstance(item, dict) else item.get("mode", "static")
+        clean_mode = (mode or "static").strip().lower()
+        if clean_mode not in ("static", "dhcp"):
+            raise AppError(PERMINTAAN_TIDAK_VALID, field="mode")
+
+        if clean_mode == "static":
+            # IP wajib diisi dan valid
+            ip = getattr(item, "ip", None) if not isinstance(item, dict) else item.get("ip")
+            if not ip or not str(ip).strip():
+                raise AppError(IP_TIDAK_VALID, field="ip")
+            ip_octets = validate_ipv4_format(str(ip).strip(), field_name="ip")
+            ip_int = (ip_octets[0] << 24) | (ip_octets[1] << 16) | (ip_octets[2] << 8) | ip_octets[3]
+            ip_str = int_to_ip(ip_int)
+
+            prefix = getattr(item, "prefix", None) if not isinstance(item, dict) else item.get("prefix")
+            subnet_mask = getattr(item, "subnet_mask", None) if not isinstance(item, dict) else item.get("subnet_mask")
+
+            has_prefix = prefix is not None and str(prefix).strip() != ""
+            has_mask = subnet_mask is not None and str(subnet_mask).strip() != ""
+
+            if not has_prefix and not has_mask:
+                raise AppError(PERMINTAAN_TIDAK_VALID, field="subnet_mask")
+
+            if has_prefix:
+                try:
+                    pfx = int(prefix)
+                except (ValueError, TypeError):
+                    raise AppError(PREFIX_TIDAK_VALID, field="prefix")
+                if pfx < 0 or pfx > 32:
+                    raise AppError(PREFIX_TIDAK_VALID, field="prefix")
+                mask_int, mask_str = prefix_to_mask(pfx)
+                if has_mask:
+                    mask_pfx = mask_to_prefix(str(subnet_mask).strip())
+                    if mask_pfx != pfx:
+                        raise AppError(MASK_TIDAK_VALID, field="subnet_mask")
+            else:
+                mask_clean = str(subnet_mask).strip()
+                pfx = mask_to_prefix(mask_clean)
+                mask_int, mask_str = prefix_to_mask(pfx)
+
+            prefix_str = f"/{pfx}"
+            na_int = ip_int & mask_int
+            invers_mask = (~mask_int) & 0xFFFFFFFF
+            ba_int = na_int | invers_mask
+            na_str = int_to_ip(na_int)
+            ba_str = int_to_ip(ba_int)
+            segmen_str = f"{na_str}/{pfx}"
+
+            # Gateway
+            gw = getattr(item, "gateway", None) if not isinstance(item, dict) else item.get("gateway")
+            gw_val = str(gw).strip() if gw is not None else ""
+            if gw_val and gw_val != "-":
+                gw_oct = validate_ipv4_format(gw_val, field_name="gateway")
+                gw_int = (gw_oct[0] << 24) | (gw_oct[1] << 16) | (gw_oct[2] << 8) | gw_oct[3]
+                gw_str = int_to_ip(gw_int)
+            else:
+                gw_int = None
+                gw_str = "-"
+
+            # DNS
+            dns = getattr(item, "dns", None) if not isinstance(item, dict) else item.get("dns")
+            dns_val = str(dns).strip() if dns is not None else ""
+            if dns_val and dns_val != "-":
+                dns_oct = validate_ipv4_format(dns_val, field_name="dns")
+                dns_int = (dns_oct[0] << 24) | (dns_oct[1] << 16) | (dns_oct[2] << 8) | dns_oct[3]
+                dns_str = int_to_ip(dns_int)
+            else:
+                dns_int = None
+                dns_str = "-"
+
+            parsed_devices.append({
+                "nama": clean_nama,
+                "mode": "static",
+                "ip_int": ip_int,
+                "ip_str": ip_str,
+                "prefix": pfx,
+                "prefix_str": prefix_str,
+                "mask_int": mask_int,
+                "mask_str": mask_str,
+                "na_int": na_int,
+                "ba_int": ba_int,
+                "na_str": na_str,
+                "ba_str": ba_str,
+                "segmen_str": segmen_str,
+                "gw_int": gw_int,
+                "gw_str": gw_str,
+                "dns_int": dns_int,
+                "dns_str": dns_str,
+            })
+        else:
+            # Mode DHCP: field dinamis tampil sebagai 'DHCP' jika kosong
+            ip = getattr(item, "ip", None) if not isinstance(item, dict) else item.get("ip")
+            ip_val = str(ip).strip() if ip is not None else ""
+            if ip_val and ip_val.upper() != "DHCP" and ip_val != "-":
+                ip_octets = validate_ipv4_format(ip_val, field_name="ip")
+                ip_int = (ip_octets[0] << 24) | (ip_octets[1] << 16) | (ip_octets[2] << 8) | ip_octets[3]
+                ip_str = int_to_ip(ip_int)
+            else:
+                ip_int = None
+                ip_str = "DHCP"
+
+            prefix = getattr(item, "prefix", None) if not isinstance(item, dict) else item.get("prefix")
+            subnet_mask = getattr(item, "subnet_mask", None) if not isinstance(item, dict) else item.get("subnet_mask")
+
+            pfx = None
+            mask_int = None
+            mask_str = "DHCP"
+            prefix_str = "DHCP"
+
+            if prefix is not None and str(prefix).strip() != "":
+                try:
+                    p_num = int(prefix)
+                    if 0 <= p_num <= 32:
+                        pfx = p_num
+                        mask_int, mask_str = prefix_to_mask(pfx)
+                        prefix_str = f"/{pfx}"
+                except Exception:
+                    pass
+            elif subnet_mask and str(subnet_mask).strip() and str(subnet_mask).strip().upper() != "DHCP" and str(subnet_mask).strip() != "-":
+                try:
+                    pfx = mask_to_prefix(str(subnet_mask).strip())
+                    mask_int, mask_str = prefix_to_mask(pfx)
+                    prefix_str = f"/{pfx}"
+                except Exception:
+                    pass
+
+            gw = getattr(item, "gateway", None) if not isinstance(item, dict) else item.get("gateway")
+            gw_val = str(gw).strip() if gw is not None else ""
+            if gw_val and gw_val.upper() != "DHCP" and gw_val != "-":
+                gw_oct = validate_ipv4_format(gw_val, field_name="gateway")
+                gw_int = (gw_oct[0] << 24) | (gw_oct[1] << 16) | (gw_oct[2] << 8) | gw_oct[3]
+                gw_str = int_to_ip(gw_int)
+            else:
+                gw_int = None
+                gw_str = "DHCP"
+
+            dns = getattr(item, "dns", None) if not isinstance(item, dict) else item.get("dns")
+            dns_val = str(dns).strip() if dns is not None else ""
+            if dns_val and dns_val.upper() != "DHCP" and dns_val != "-":
+                dns_oct = validate_ipv4_format(dns_val, field_name="dns")
+                dns_int = (dns_oct[0] << 24) | (dns_oct[1] << 16) | (dns_oct[2] << 8) | dns_oct[3]
+                dns_str = int_to_ip(dns_int)
+            else:
+                dns_int = None
+                dns_str = "DHCP"
+
+            parsed_devices.append({
+                "nama": clean_nama,
+                "mode": "dhcp",
+                "ip_int": ip_int,
+                "ip_str": ip_str,
+                "prefix": pfx,
+                "prefix_str": prefix_str,
+                "mask_int": mask_int,
+                "mask_str": mask_str,
+                "na_int": None,
+                "ba_int": None,
+                "na_str": "DHCP",
+                "ba_str": "DHCP",
+                "segmen_str": "DHCP",
+                "gw_int": gw_int,
+                "gw_str": gw_str,
+                "dns_int": dns_int,
+                "dns_str": dns_str,
+            })
+
+    # 2. Pemeriksaan Konsistensi & Peringatan
+    # a. Konflik IP statis kembar
+    static_ip_map: Dict[str, List[str]] = {}
+    for d in parsed_devices:
+        if d["mode"] == "static" and d["ip_int"] is not None:
+            static_ip_map.setdefault(d["ip_str"], []).append(d["nama"])
+    for ip_addr, names in static_ip_map.items():
+        if len(names) > 1:
+            peringatan.append(
+                f"Konflik alamat IP: Alamat {ip_addr} digunakan oleh lebih dari satu perangkat ({', '.join(names)})."
+            )
+
+    # b. Penggunaan NA atau BA sebagai host
+    for d in parsed_devices:
+        if d["mode"] == "static":
+            if d["ip_int"] == d["na_int"]:
+                peringatan.append(
+                    f"Perangkat '{d['nama']}' menggunakan Network Address ({d['ip_str']}) sebagai alamat IP host."
+                )
+            elif d["ip_int"] == d["ba_int"]:
+                peringatan.append(
+                    f"Perangkat '{d['nama']}' menggunakan Broadcast Address ({d['ip_str']}) sebagai alamat IP host."
+                )
+
+    # c. Gateway di luar subnet perangkat
+    for d in parsed_devices:
+        if d["mode"] == "static" and d["gw_int"] is not None and d["mask_int"] is not None:
+            gw_na = d["gw_int"] & d["mask_int"]
+            if gw_na != d["na_int"]:
+                peringatan.append(
+                    f"Default gateway {d['gw_str']} pada perangkat '{d['nama']}' berada di luar subnet perangkat ({d['segmen_str']})."
+                )
+
+    # 3. Rangkuman & Tabel Hasil
+    total_perangkat = len(parsed_devices)
+    total_static = sum(1 for d in parsed_devices if d["mode"] == "static")
+    total_dhcp = sum(1 for d in parsed_devices if d["mode"] == "dhcp")
+
+    segmen_jaringan: List[str] = []
+    for d in parsed_devices:
+        if d["mode"] == "static" and d["segmen_str"] not in segmen_jaringan:
+            segmen_jaringan.append(d["segmen_str"])
+
+    daftar_gateway: List[str] = []
+    for d in parsed_devices:
+        if d["gw_str"] not in ("-", "DHCP") and d["gw_str"] not in daftar_gateway:
+            daftar_gateway.append(d["gw_str"])
+
+    daftar_dns: List[str] = []
+    for d in parsed_devices:
+        if d["dns_str"] not in ("-", "DHCP") and d["dns_str"] not in daftar_dns:
+            daftar_dns.append(d["dns_str"])
+
+    tabel: List[Dict[str, Any]] = [
+        {
+            "no": idx + 1,
+            "nama": d["nama"],
+            "mode": "Static" if d["mode"] == "static" else "DHCP",
+            "ip": d["ip_str"],
+            "subnet_mask": d["mask_str"],
+            "prefix": d["prefix_str"],
+            "gateway": d["gw_str"],
+            "dns": d["dns_str"],
+            "segmen": d["segmen_str"],
+        }
+        for idx, d in enumerate(parsed_devices)
+    ]
+
+    return {
+        "fitur": "tabel-ip",
+        "total_perangkat": total_perangkat,
+        "total_static": total_static,
+        "total_dhcp": total_dhcp,
+        "segmen_jaringan": segmen_jaringan,
+        "daftar_gateway": daftar_gateway,
+        "daftar_dns": daftar_dns,
+        "parsed_devices": parsed_devices,
+        "tabel": tabel,
+        "peringatan": peringatan,
+    }
+
+
 

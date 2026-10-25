@@ -197,5 +197,34 @@ class KonversiRequest(BaseModel):
     mode_ipv4: bool = Field(False, description="Mode konversi 4 oktet IPv4")
 
 
+class PerangkatItem(BaseModel):
+    """
+    Item konfigurasi IP satu perangkat (host / server / router):
+    - nama: 1-30 karakter, unik.
+    - mode: 'static' atau 'dhcp' (default 'static').
+    - ip: IPv4 titik-desimal (wajib jika mode static, opsional jika dhcp).
+    - prefix: 0-32 (opsional jika subnet_mask diisi).
+    - subnet_mask: IPv4 mask valid (opsional jika prefix diisi).
+    - gateway: default gateway IPv4 (opsional).
+    - dns: DNS server IPv4 (opsional).
+    """
+    nama: str = Field(..., description="Nama perangkat (1-30 karakter)")
+    mode: Optional[str] = Field("static", description="Mode pengalamatan ('static' atau 'dhcp')")
+    ip: Optional[str] = Field(None, description="Alamat IPv4 perangkat")
+    prefix: Optional[int] = Field(None, description="Panjang prefix (0-32)")
+    subnet_mask: Optional[str] = Field(None, description="Subnet mask IPv4")
+    gateway: Optional[str] = Field(None, description="Default gateway IPv4")
+    dns: Optional[str] = Field(None, description="DNS server IPv4")
+
+
+class TabelIpRequest(BaseModel):
+    """
+    Permintaan rekap tabel IP perangkat:
+    - perangkat: list 1 sampai 50 perangkat.
+    """
+    perangkat: List[PerangkatItem] = Field(..., description="Daftar konfigurasi IP perangkat (1-50 item)")
+
+
+
 
 

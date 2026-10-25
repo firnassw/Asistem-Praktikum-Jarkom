@@ -150,5 +150,15 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+
+  /**
+   * Rekap Tabel IP Perangkat
+   */
+  async hitungTabelIp(payload: { perangkat: any[] }): Promise<StrukturJawaban> {
+    return request<StrukturJawaban>('/jaringan/tabel-ip', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
 

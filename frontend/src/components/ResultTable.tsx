@@ -10,7 +10,7 @@ interface ResultTableProps {
   totalSubnets?: number;
   ringkasanTabel?: boolean;
   judul?: string;
-  mode?: 'subnet' | 'vlsm_flsm' | 'rencana' | 'konversi';
+  mode?: 'subnet' | 'vlsm_flsm' | 'rencana' | 'konversi' | 'tabel_ip';
   showGateway?: boolean;
 }
 
@@ -27,14 +27,20 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   const [copied, setCopied] = useState(false);
 
   // Deteksi otomatis tipe tabel
+  const isTabelIp =
+    mode === 'tabel_ip' ||
+    (tabel.length > 0 && ('subnet_mask' in tabel[0] && 'mode' in tabel[0] && 'dns' in tabel[0]));
   const isKonversi =
-    mode === 'konversi' ||
-    (tabel.length > 0 && ('basis' in tabel[0] || 'notasi' in tabel[0]));
+    !isTabelIp &&
+    (mode === 'konversi' ||
+      (tabel.length > 0 && ('basis' in tabel[0] || 'notasi' in tabel[0])));
   const isRencana =
+    !isTabelIp &&
     !isKonversi &&
     (mode === 'rencana' ||
       (tabel.length > 0 && ('device' in tabel[0] || 'host_dibutuhkan' in tabel[0])));
   const isVlsmFlsm =
+    !isTabelIp &&
     !isKonversi &&
     (isRencana ||
       mode === 'vlsm_flsm' ||
@@ -47,7 +53,13 @@ export const ResultTable: React.FC<ResultTableProps> = ({
   const handleCopyTable = () => {
     let textToCopy = '';
 
-    if (isKonversi) {
+    if (isTabelIp) {
+      const header = ['No', 'Nama Perangkat', 'Mode', 'Alamat IP', 'Subnet Mask', 'Prefix', 'Default Gateway', 'DNS Server'].join('\t');
+      const rows = tabel.map((r: any) =>
+        [r.no, r.nama, r.mode, r.ip, r.subnet_mask, r.prefix, r.gateway, r.dns].join('\t')
+      );
+      textToCopy = [header, ...rows].join('\n');
+    } else if (isKonversi) {
       const header = ['No', 'Basis Bilangan', 'Notasi Basis', 'Nilai Representasi', 'Keterangan'].join('\t');
       const rows = tabel.map((r: any) =>
         [r.no, r.basis, r.notasi, r.nilai, r.keterangan].join('\t')
@@ -141,7 +153,9 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 
   const displayJudul =
     judul ||
-    (isKonversi
+    (isTabelIp
+      ? 'Tabel Konfigurasi IP Perangkat'
+      : isKonversi
       ? 'Tabel Ringkasan Hasil Konversi'
       : isVlsmFlsm
       ? `Tabel Alokasi Subnet`
@@ -153,7 +167,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-[#E3E5EA]">
         <div>
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#5B5F6B]">
-            {isKonversi ? 'Representasi Basis' : isVlsmFlsm ? 'Alokasi Subnet' : 'Distribusi Lengkap'}
+            {isTabelIp ? 'Format Lembar Kerja' : isKonversi ? 'Representasi Basis' : isVlsmFlsm ? 'Alokasi Subnet' : 'Distribusi Lengkap'}
           </span>
           <h3 className="font-title text-[18px] font-bold text-[#1F1E22]">
             {displayJudul}
@@ -164,7 +178,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
           <button
             onClick={handleCopyTable}
             type="button"
-            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer"
+            className="px-3.5 py-2 bg-[#FFFFFF] hover:bg-[#F5F6F8] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border-2 border-[#1F1E22] flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer shadow-xs"
           >
             {copied ? <Check size={15} className="text-[#16794C]" /> : <Copy size={15} />}
             <span>{copied ? 'Tersalin' : 'Salin tabel'}</span>
@@ -172,7 +186,7 @@ export const ResultTable: React.FC<ResultTableProps> = ({
           <button
             onClick={handlePrint}
             type="button"
-            className="px-3.5 py-2 bg-[#F5F6F8] hover:bg-[#E3E5EA] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border border-[#1F1E22]/20 flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer"
+            className="px-3.5 py-2 bg-[#FFFFFF] hover:bg-[#F5F6F8] text-[#1F1E22] text-[12px] font-bold font-sans rounded-[8px] border-2 border-[#1F1E22] flex items-center gap-1.5 transition-colors active:translate-y-0.5 cursor-pointer shadow-xs"
           >
             <Printer size={15} />
             <span>Cetak</span>
@@ -182,7 +196,52 @@ export const ResultTable: React.FC<ResultTableProps> = ({
 
       {/* Wadah Tabel yang Menggulir di Wadahnya Sendiri (overflow-x-auto) */}
       <div className="w-full overflow-x-auto rounded-[12px] border border-[#1F1E22]/15">
-        {isKonversi ? (
+        {isTabelIp ? (
+          <table className="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+              <tr className="bg-[#1F1E22] text-[#FFFFFF] font-sans text-[12px] font-bold uppercase tracking-wider select-none">
+                <th className="py-3 px-3.5 text-center w-12" scope="col">No</th>
+                <th className="py-3 px-3.5" scope="col">Nama Perangkat</th>
+                <th className="py-3 px-3.5 text-center w-24" scope="col">Mode</th>
+                <th className="py-3 px-3.5" scope="col">Alamat IP</th>
+                <th className="py-3 px-3.5" scope="col">Subnet Mask</th>
+                <th className="py-3 px-3.5 text-center w-20" scope="col">Prefix</th>
+                <th className="py-3 px-3.5" scope="col">Default Gateway</th>
+                <th className="py-3 px-3.5" scope="col">DNS Server</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-[12px] sm:text-[13px] divide-y divide-[#E3E5EA]">
+              {tabel.map((row: any, idx: number) => {
+                const isStatic = row.mode?.toLowerCase() === 'static';
+                return (
+                  <tr key={idx} className="hover:bg-[#F9F8F6] transition-colors">
+                    <td className="py-3 px-3.5 text-center text-[#5B5F6B] font-bold">{row.no}</td>
+                    <td className="py-3 px-3.5 font-bold font-sans text-[#1F1E22]">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full border border-[#1F1E22]/30 ${isStatic ? 'bg-[#8BD0FC]' : 'bg-[#FCE76C]'}`} />
+                        <span>{row.nama}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3.5 text-center">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-sans font-bold border ${
+                        isStatic
+                          ? 'bg-[#E3F4FE] text-[#1F1E22] border-[#8BD0FC]'
+                          : 'bg-[#FFF8D1] text-[#1F1E22] border-[#FCE76C]'
+                      }`}>
+                        {row.mode}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3.5 font-bold text-[#1F1E22]">{row.ip}</td>
+                    <td className="py-3 px-3.5 text-[#5B5F6B]">{row.subnet_mask}</td>
+                    <td className="py-3 px-3.5 text-center font-bold text-[#1F1E22]">{row.prefix}</td>
+                    <td className="py-3 px-3.5 text-[#5B5F6B]">{row.gateway}</td>
+                    <td className="py-3 px-3.5 text-[#5B5F6B]">{row.dns}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : isKonversi ? (
           <table className="w-full text-left border-collapse min-w-[540px]">
             <thead>
               <tr className="bg-[#1F1E22] text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider select-none">

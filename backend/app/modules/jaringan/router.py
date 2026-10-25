@@ -10,6 +10,7 @@ from app.modules.jaringan.schemas import (
     KonversiRequest,
     RencanaRequest,
     SubnetRequest,
+    TabelIpRequest,
     VlsmRequest,
 )
 from app.modules.jaringan.solver import (
@@ -18,6 +19,7 @@ from app.modules.jaringan.solver import (
     hitung_konversi,
     hitung_rencana,
     hitung_subnet,
+    hitung_tabel_ip,
     hitung_vlsm,
 )
 from app.modules.jaringan.steps import (
@@ -26,6 +28,7 @@ from app.modules.jaringan.steps import (
     susun_langkah_konversi,
     susun_langkah_rencana,
     susun_langkah_subnet,
+    susun_langkah_tabel_ip,
     susun_langkah_vlsm,
 )
 
@@ -125,6 +128,19 @@ async def endpoint_konversi(payload: KonversiRequest) -> StrukturJawaban:
         mode_ipv4=payload.mode_ipv4,
     )
     return susun_langkah_konversi(calc_data)
+
+
+@router.post("/tabel-ip", response_model=StrukturJawaban, summary="Tabel IP Perangkat")
+async def endpoint_tabel_ip(payload: TabelIpRequest) -> StrukturJawaban:
+    """
+    Menyusun tabel rekapitulasi IP perangkat untuk lembar kerja praktikum Cisco Packet Tracer:
+    - Rekap alamat IP, subnet mask, prefix, default gateway, dan DNS server
+    - Dukungan konfigurasi mode Static dan DHCP
+    - Pemeriksaan konsistensi segmen jaringan dan konflik IP
+    """
+    calc_data = hitung_tabel_ip(perangkat=payload.perangkat)
+    return susun_langkah_tabel_ip(calc_data)
+
 
 
 

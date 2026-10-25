@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Asisten Praktikum Jaringan</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-container": "#742814",
+          "on-primary-fixed-variant": "#224f39",
+          "secondary-fixed": "#ffdbd2",
+          "text-muted": "#606762",
+          "surface-bright": "#f6fbf4",
+          "secondary": "#9a442d",
+          "on-primary-fixed": "#002112",
+          "surface-container-lowest": "#ffffff",
+          "on-primary-container": "#9fcfb2",
+          "surface-variant": "#dfe4de",
+          "on-error-container": "#93000a",
+          "tertiary-fixed-dim": "#faba75",
+          "surface-container-low": "#f0f5ef",
+          "surface": "#f6fbf4",
+          "on-secondary-fixed": "#3c0800",
+          "error-container": "#ffdad6",
+          "tertiary": "#563200",
+          "error": "#ba1a1a",
+          "on-background": "#181d19",
+          "tertiary-container": "#74470a",
+          "olive-subtle": "#EDF2EE",
+          "tertiary-fixed": "#ffdcbb",
+          "surface-cream": "#F9F8F6",
+          "border-warm": "#E8E6E1",
+          "outline-variant": "#c0c9c1",
+          "terracotta-soft": "#FDF2EF",
+          "inverse-on-surface": "#eef2ec",
+          "on-error": "#ffffff",
+          "primary-fixed": "#bceecf",
+          "surface-container-highest": "#dfe4de",
+          "on-surface": "#181d19",
+          "surface-card": "#FFFFFF",
+          "secondary-fixed-dim": "#ffb4a1",
+          "on-primary": "#ffffff",
+          "surface-container": "#ebefe9",
+          "surface-dim": "#d7dbd5",
+          "primary-container": "#2d5a43",
+          "on-secondary-fixed-variant": "#7c2e19",
+          "surface-tint": "#3a674f",
+          "inverse-primary": "#a1d1b4",
+          "on-surface-variant": "#414943",
+          "outline": "#717973",
+          "on-tertiary": "#ffffff",
+          "primary": "#14422d",
+          "secondary-container": "#fc9174",
+          "inverse-surface": "#2d322e",
+          "on-tertiary-fixed": "#2b1700",
+          "on-tertiary-fixed-variant": "#673d00",
+          "text-charcoal": "#1F2421",
+          "primary-fixed-dim": "#a1d1b4",
+          "on-tertiary-container": "#f7b873",
+          "on-secondary": "#ffffff",
+          "background": "#f6fbf4",
+          "surface-container-high": "#e5e9e3"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "1rem",
+          "space-xs": "0.25rem",
+          "space-xl": "2.5rem",
+          "gutter": "1.25rem",
+          "gutter-mobile": "0.75rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem",
+          "space-lg": "1.5rem",
+          "margin": "2rem"
+        },
+        "fontFamily": {
+          "title-sm": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"],
+          "display-lg": ["Newsreader"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "headline-sm": ["Newsreader"],
+          "headline-md": ["Newsreader"],
+          "title-md": ["Plus Jakarta Sans"],
+          "headline-lg": ["Newsreader"],
+          "label-md": ["Plus Jakarta Sans"],
+          "headline-lg-mobile": ["Newsreader"],
+          "display-lg-mobile": ["Newsreader"]
+        },
+        "fontSize": {
+          "title-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+          "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+          "body-lg": ["17px", { "lineHeight": "28px", "fontWeight": "400" }],
+          "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+          "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+          "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+          "display-lg-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  @layer base {
+    html {
+      overscroll-behavior: none;
+    }
+  }
+</style>
+<meta content="web_dashboard" name="shell-type"/>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen">
+<aside class="fixed top-0 left-0 bottom-0 w-[264px] bg-[#1F1E22] text-white flex flex-col justify-between p-space-md z-30 overflow-y-auto">
+<div class="space-y-space-lg">
+<div class="px-space-xs py-space-xs flex items-center space-x-space-sm">
+<div class="w-10 h-10 bg-primary-fixed rounded-lg flex items-center justify-center font-bold text-on-primary-fixed font-title-sm text-title-sm">
+        APJ
+      </div>
+<div>
+<div class="font-title-sm text-title-sm text-white tracking-tight leading-tight">Asisten Praktikum</div>
+<p class="font-body-sm text-label-sm text-surface-variant font-medium">Jaringan Komputer</p>
+</div>
+</div>
+<nav aria-label="Navigasi Utama" class="space-y-space-xs flex flex-col" data-active-classes="bg-primary-fixed text-on-primary-fixed font-semibold">
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="beranda" href="#">Beranda</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="subnetting" href="#">Subnetting</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="flsm-dan-vlsm" href="#">FLSM dan VLSM</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="rencana-ruangan" href="#">Rencana ruangan</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="konversi-basis" href="#">Konversi basis</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="generator-dhcp" href="#">Generator DHCP</a>
+<a aria-current="page" class="block px-space-md py-space-sm rounded-lg transition-colors bg-primary-fixed text-on-primary-fixed font-semibold" data-path="tabel-ip" href="#">Tabel IP</a>
+<a class="block px-space-md py-space-sm rounded-lg font-title-sm text-body-sm text-surface-variant hover:bg-surface-variant/20 hover:text-white transition-colors" data-path="tentang" href="#">Tentang</a>
+</nav>
+</div>
+<div class="bg-surface-container-highest/10 rounded-lg p-space-sm text-label-sm text-surface-variant">
+<div class="flex items-center space-x-space-xs text-primary-fixed font-title-sm mb-space-xs">
+<span class="inline-block w-2 h-2 rounded-full bg-primary-fixed"></span>
+<span>Modul Jarkom v3.2</span>
+</div>
+<p class="font-body-sm text-label-sm leading-normal text-surface-variant/80">Kompatibel Packet Tracer &amp; Ujian Praktikum Jaringan Komputer.</p>
+</div>
+</aside>
+<header class="fixed top-0 left-[264px] right-0 bg-surface-container-lowest z-20 shadow-sm">
+<div class="h-16 px-space-lg flex items-center justify-between">
+<div class="flex items-center space-x-space-md">
+<span class="font-title-sm text-body-sm text-text-muted">Laboratorium Komputer Terpadu</span>
+<span class="text-border-warm">/</span>
+<span class="font-title-sm text-body-sm text-on-surface">Asisten Interaktif IP &amp; Topologi</span>
+</div>
+<div class="flex items-center space-x-space-sm">
+<span class="px-space-sm py-space-xs rounded-full bg-surface-container-low font-label-md text-label-sm text-text-muted">Status: Aktif</span>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-sm text-label-sm">LAB</div>
+</div>
+</div>
+</header>
+<main class="pl-[264px] pt-16 min-h-screen bg-background">
+<div class="max-w-[1200px] mx-auto p-space-lg">
+<div class="flex flex-col w-full space-y-space-lg text-on-surface">
+<!-- Top Header Band -->
+<div class="relative w-full bg-[#FCE76C] rounded-[28px] border-2 border-[#1F1E22] p-space-lg shadow-[4px_4px_0px_#1F1E22] transition-all">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="space-y-space-xs max-w-3xl">
+<div class="inline-flex items-center space-x-space-xs px-space-sm py-0.5 rounded-full bg-[#1F1E22] text-[#FCE76C] font-['Montserrat'] font-bold text-label-sm tracking-wider uppercase">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Format Laporan Praktikum • Cisco Packet Tracer Ready</span>
+</div>
+<h1 class="font-['Montserrat'] text-headline-lg font-extrabold text-[#1F1E22] tracking-tight leading-tight">
+          Tabel IP Perangkat
+        </h1>
+<p class="font-['Plus_Jakarta_Sans'] text-body-md text-[#1F1E22]/90 font-medium">
+          Rekap seluruh pengalamatan interface router, server, printer, dan host PC ke dalam format lembar praktikum siap cetak.
+        </p>
+</div>
+<div class="hidden lg:flex items-center space-x-space-sm bg-white/70 backdrop-blur-sm px-space-md py-space-sm rounded-xl border-2 border-[#1F1E22] shadow-[2px_2px_0px_#1F1E22]">
+<div class="w-10 h-10 rounded-lg bg-[#8BD0FC] border-2 border-[#1F1E22] flex items-center justify-center text-[#1F1E22]">
+<span class="material-symbols-outlined text-title-md">lan</span>
+</div>
+<div>
+<div class="font-['Montserrat'] font-bold text-label-md text-[#1F1E22]">SEGMENTASI AKTIF</div>
+<div class="font-['JetBrains_Mono'] text-body-sm font-semibold text-[#1F1E22]">192.168.1.0/24</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 2 Columns Layout -->
+<div class="grid grid-cols-12 gap-gutter items-start">
+<!-- LEFT STICKY FORM (5/12) -->
+<div class="col-span-12 lg:col-span-5 space-y-space-md lg:sticky lg:top-20">
+<div class="bg-surface-card rounded-[20px] border-2 border-[#1F1E22] p-6 shadow-[4px_4px_0px_#1F1E22] space-y-space-lg">
+<!-- Form Header -->
+<div class="flex items-center justify-between pb-space-sm border-b-2 border-surface-container">
+<div class="flex items-center space-x-space-xs">
+<span class="material-symbols-outlined text-primary font-bold">tune</span>
+<h2 class="font-['Montserrat'] text-title-md font-bold text-[#1F1E22]">Kelola Baris Perangkat</h2>
+</div>
+<button class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-[#EDF2EE] hover:bg-[#dfe4de] text-[#1F1E22] border-2 border-[#1F1E22] text-label-md font-['Montserrat'] font-bold transition-transform active:scale-95 shadow-[1px_1px_0px_#1F1E22]" id="add-row-btn" type="button">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>Tambah Baris (+)</span>
+</button>
+</div>
+<!-- Rows Container -->
+<div class="space-y-space-md" id="device-rows-container">
+<!-- Row 1: Web Server -->
+<div class="device-card relative rounded-xl border-2 border-[#1F1E22] p-4 bg-surface-cream shadow-[2px_2px_0px_#1F1E22] space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-['Montserrat'] font-bold bg-[#8BD0FC] text-[#1F1E22] border border-[#1F1E22]">SERVER</span>
+<span class="font-['Montserrat'] text-body-sm font-bold text-[#1F1E22]">Node #1</span>
+</div>
+<button class="text-text-muted hover:text-error transition-colors p-1" title="Hapus Perangkat" type="button">
+<span class="material-symbols-outlined text-title-sm">delete</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Nama Perangkat</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['Plus_Jakarta_Sans'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="Web Server"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Tipe Alamat</label>
+<div class="grid grid-cols-2 p-0.5 rounded-lg border-2 border-[#1F1E22] bg-white text-label-sm font-['Montserrat'] font-bold">
+<button class="py-1 rounded bg-[#1F1E22] text-white text-center" type="button">Static</button>
+<button class="py-1 text-text-muted text-center hover:text-[#1F1E22]" type="button">DHCP</button>
+</div>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">IP Address</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Subnet Mask</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="255.255.255.0"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Default Gateway</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="-"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">DNS Server</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+</div>
+</div>
+<!-- Row 2: PC0 -->
+<div class="device-card relative rounded-xl border-2 border-[#1F1E22] p-4 bg-surface-cream shadow-[2px_2px_0px_#1F1E22] space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-['Montserrat'] font-bold bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22]">CLIENT</span>
+<span class="font-['Montserrat'] text-body-sm font-bold text-[#1F1E22]">Node #2</span>
+</div>
+<button class="text-text-muted hover:text-error transition-colors p-1" title="Hapus Perangkat" type="button">
+<span class="material-symbols-outlined text-title-sm">delete</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Nama Perangkat</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['Plus_Jakarta_Sans'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="PC0"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Tipe Alamat</label>
+<div class="grid grid-cols-2 p-0.5 rounded-lg border-2 border-[#1F1E22] bg-white text-label-sm font-['Montserrat'] font-bold">
+<button class="py-1 rounded bg-[#1F1E22] text-white text-center" type="button">Static</button>
+<button class="py-1 text-text-muted text-center hover:text-[#1F1E22]" type="button">DHCP</button>
+</div>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">IP Address</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.2"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Subnet Mask</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="255.255.255.0"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Default Gateway</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">DNS Server</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+</div>
+</div>
+<!-- Row 3: PC1 -->
+<div class="device-card relative rounded-xl border-2 border-[#1F1E22] p-4 bg-surface-cream shadow-[2px_2px_0px_#1F1E22] space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-['Montserrat'] font-bold bg-[#FCE76C] text-[#1F1E22] border border-[#1F1E22]">CLIENT</span>
+<span class="font-['Montserrat'] text-body-sm font-bold text-[#1F1E22]">Node #3</span>
+</div>
+<button class="text-text-muted hover:text-error transition-colors p-1" title="Hapus Perangkat" type="button">
+<span class="material-symbols-outlined text-title-sm">delete</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Nama Perangkat</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['Plus_Jakarta_Sans'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="PC1"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Tipe Alamat</label>
+<div class="grid grid-cols-2 p-0.5 rounded-lg border-2 border-[#1F1E22] bg-white text-label-sm font-['Montserrat'] font-bold">
+<button class="py-1 rounded bg-[#1F1E22] text-white text-center" type="button">Static</button>
+<button class="py-1 text-text-muted text-center hover:text-[#1F1E22]" type="button">DHCP</button>
+</div>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">IP Address</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.3"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Subnet Mask</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="255.255.255.0"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">Default Gateway</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+<div>
+<label class="block font-['Montserrat'] text-label-sm font-semibold text-[#1F1E22] mb-1">DNS Server</label>
+<input class="w-full px-3 py-1.5 rounded-lg border-2 border-[#1F1E22] font-['JetBrains_Mono'] text-body-sm text-[#1F1E22] bg-white focus:outline-none focus:ring-2 focus:ring-[#2D5A43]" type="text" value="192.168.1.1"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="space-y-space-sm pt-space-xs">
+<button class="w-full h-12 bg-[#FCE76C] hover:bg-[#ebd355] text-[#1F1E22] border-2 border-[#1F1E22] rounded-xl font-['Montserrat'] font-bold text-body-md flex items-center justify-center space-x-2 shadow-[3px_3px_0px_#1F1E22] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#1F1E22] transition-all" type="button">
+<span class="material-symbols-outlined font-bold">sync_alt</span>
+<span>Perbarui &amp; Buat Tabel</span>
+</button>
+<button class="w-full py-2.5 bg-white hover:bg-surface-cream text-[#1F1E22] border-2 border-[#1F1E22] rounded-xl font-['Montserrat'] font-semibold text-body-sm flex items-center justify-center space-x-2 shadow-[2px_2px_0px_#1F1E22] transition-all" type="button">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+<span>Muat Template Modul (Web Server &amp; 2 PC)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- RIGHT RESULTS AREA (7/12) -->
+<div class="col-span-12 lg:col-span-7 space-y-space-lg">
+<!-- 1. Summary Card with Offset Blue Layer -->
+<div class="relative">
+<div class="absolute inset-0 bg-[#8BD0FC] rounded-[20px] translate-x-1.5 translate-y-1.5 border-2 border-[#1F1E22]"></div>
+<div class="relative bg-white rounded-[20px] border-2 border-[#1F1E22] p-5">
+<div class="flex flex-wrap items-center gap-space-sm justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-[#FCE76C] border-2 border-[#1F1E22] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#1F1E22] text-title-sm">devices</span>
+</div>
+<div>
+<span class="block text-label-sm font-['Montserrat'] text-text-muted font-bold">PERANGKAT</span>
+<span class="font-['JetBrains_Mono'] font-bold text-title-sm text-[#1F1E22]">3 Node Terdaftar</span>
+</div>
+</div>
+<div class="h-8 w-0.5 bg-surface-container hidden sm:block"></div>
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-[#bceecf] border-2 border-[#1F1E22] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#1F1E22] text-title-sm">network_ping</span>
+</div>
+<div>
+<span class="block text-label-sm font-['Montserrat'] text-text-muted font-bold">SUBNET AKTIF</span>
+<span class="font-['JetBrains_Mono'] font-bold text-title-sm text-[#1F1E22]">1 Segmen (/24)</span>
+</div>
+</div>
+<div class="h-8 w-0.5 bg-surface-container hidden sm:block"></div>
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-[#fc9174] border-2 border-[#1F1E22] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#1F1E22] text-title-sm">router</span>
+</div>
+<div>
+<span class="block text-label-sm font-['Montserrat'] text-text-muted font-bold">GATEWAY TERPUSAT</span>
+<span class="font-['JetBrains_Mono'] font-bold text-title-sm text-[#1F1E22]">192.168.1.1</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Result Table on White Card -->
+<div class="bg-surface-card rounded-[20px] border-2 border-[#1F1E22] shadow-[4px_4px_0px_#1F1E22] overflow-hidden">
+<!-- Table Card Header -->
+<div class="p-5 bg-white flex flex-col md:flex-row md:items-center justify-between gap-space-sm border-b-2 border-[#1F1E22]">
+<div>
+<span class="text-label-sm font-['Montserrat'] font-bold text-primary tracking-wider uppercase">Tabel Konfigurasi IP</span>
+<h3 class="font-['Montserrat'] text-title-md font-bold text-[#1F1E22]">Format Lembar Kerja Praktikum</h3>
+</div>
+<div class="flex items-center space-x-2">
+<button class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#EDF2EE] hover:bg-[#dfe4de] text-[#1F1E22] border-2 border-[#1F1E22] font-['Montserrat'] text-label-md font-bold shadow-[2px_2px_0px_#1F1E22] active:translate-y-0.5 transition-all" id="copy-table-btn" type="button">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+<span>Salin Tabel</span>
+</button>
+<button class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#1F1E22] hover:bg-[#323038] text-white border-2 border-[#1F1E22] font-['Montserrat'] text-label-md font-bold shadow-[2px_2px_0px_#1F1E22] active:translate-y-0.5 transition-all" onclick="window.print()" type="button">
+<span class="material-symbols-outlined text-sm">print</span>
+<span>Cetak Laporan</span>
+</button>
+</div>
+</div>
+<!-- Responsive Table Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left text-body-sm">
+<thead class="bg-[#1F1E22] text-white font-['Montserrat'] text-label-sm font-bold uppercase tracking-wider">
+<tr>
+<th class="py-3 px-4 text-center w-12" scope="col">No</th>
+<th class="py-3 px-4" scope="col">Nama Perangkat</th>
+<th class="py-3 px-4" scope="col">Antarmuka</th>
+<th class="py-3 px-4" scope="col">Alamat IP</th>
+<th class="py-3 px-4" scope="col">Subnet Mask</th>
+<th class="py-3 px-4" scope="col">Default Gateway</th>
+<th class="py-3 px-4" scope="col">DNS Server</th>
+<th class="py-3 px-4 text-center" scope="col">Metode</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-warm font-['Plus_Jakarta_Sans']">
+<!-- Row 1 -->
+<tr class="hover:bg-[#F9F8F6] transition-colors">
+<td class="py-3 px-4 text-center font-['JetBrains_Mono'] font-bold text-text-muted">1</td>
+<td class="py-3 px-4 font-bold text-[#1F1E22] flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Web Server</span>
+</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-body-sm text-[#1F1E22]">FastEthernet0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] font-semibold text-primary">192.168.1.1</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">255.255.255.0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1 (Self)</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-['Montserrat'] font-bold bg-[#EDF2EE] text-primary border border-primary/20">Static</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-[#F9F8F6] transition-colors">
+<td class="py-3 px-4 text-center font-['JetBrains_Mono'] font-bold text-text-muted">2</td>
+<td class="py-3 px-4 font-bold text-[#1F1E22] flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-[#8BD0FC]"></span>
+<span>PC0</span>
+</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-body-sm text-[#1F1E22]">FastEthernet0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] font-semibold text-primary">192.168.1.2</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">255.255.255.0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-['Montserrat'] font-bold bg-[#EDF2EE] text-primary border border-primary/20">Static</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#F9F8F6] transition-colors">
+<td class="py-3 px-4 text-center font-['JetBrains_Mono'] font-bold text-text-muted">3</td>
+<td class="py-3 px-4 font-bold text-[#1F1E22] flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-[#8BD0FC]"></span>
+<span>PC1</span>
+</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-body-sm text-[#1F1E22]">FastEthernet0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] font-semibold text-primary">192.168.1.3</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">255.255.255.0</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1</td>
+<td class="py-3 px-4 font-['JetBrains_Mono'] text-text-muted">192.168.1.1</td>
+<td class="py-3 px-4 text-center">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-['Montserrat'] font-bold bg-[#EDF2EE] text-primary border border-primary/20">Static</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 bg-surface-cream border-t border-border-warm flex items-center justify-between text-label-sm font-['Plus_Jakarta_Sans'] text-text-muted">
+<span>* Catatan: FastEthernet0 merupakan antarmuka default pada model Cisco generic.</span>
+<span class="font-['JetBrains_Mono'] font-medium">Broadcast Domain: 192.168.1.255</span>
+</div>
+</div>
+<!-- 3. Step Card / Panduan Konfigurasi Praktikum on Offset Yellow Layer -->
+<div class="relative">
+<div class="absolute inset-0 bg-[#FCE76C] rounded-[20px] translate-x-1.5 translate-y-1.5 border-2 border-[#1F1E22]"></div>
+<div class="relative bg-white rounded-[20px] border-2 border-[#1F1E22] p-6 space-y-space-md">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[#1F1E22] font-bold">terminal</span>
+<h3 class="font-['Montserrat'] text-title-md font-bold text-[#1F1E22]">
+              Verifikasi Koneksi &amp; Panduan Uji Ping (Command Prompt)
+            </h3>
+</div>
+<!-- Code Block with Dark Ink Background -->
+<div class="rounded-xl bg-[#1F1E22] text-surface-cream p-4 font-['JetBrains_Mono'] text-body-sm space-y-2 border-2 border-[#1F1E22] shadow-[2px_2px_0px_#1F1E22]">
+<div class="flex items-center justify-between pb-2 border-b border-surface-container/20 text-label-sm text-surface-variant font-medium">
+<span>Cisco Packet Tracer Desktop &gt; Command Prompt</span>
+<span class="text-primary-fixed">Koneksi OK</span>
+</div>
+<div class="space-y-1">
+<p class="text-primary-fixed font-semibold">PC0&gt; ping 192.168.1.1</p>
+<p class="text-surface-variant/80">Pinging 192.168.1.1 with 32 bytes of data:</p>
+<p class="text-white">Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=128</p>
+<p class="text-white">Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=128</p>
+<div class="pt-2"></div>
+<p class="text-primary-fixed font-semibold">PC0&gt; ping 192.168.1.3</p>
+<p class="text-white">Reply from 192.168.1.3: bytes=32 time&lt;1ms TTL=128</p>
+</div>
+</div>
+<div class="flex items-start space-x-2 text-body-sm text-text-muted bg-[#EDF2EE] p-3 rounded-xl border border-border-warm">
+<span class="material-symbols-outlined text-primary text-title-sm shrink-0">info</span>
+<p class="font-['Plus_Jakarta_Sans']">
+<strong>Penjelasan:</strong> Pastikan seluruh perangkat dalam satu broadcast domain <code class="font-['JetBrains_Mono'] font-bold text-[#1F1E22]">/24</code> sebelum pengujian routing. Keberhasilan respon ICMP membuktikan subnet mask dan penetapan IP telah valid pada switch Layer 2.
+            </p>
+</div>
+</div>
+</div>
+<!-- 4. Yellow Conclusion Block -->
+<div class="bg-[#FCE76C] rounded-[20px] border-2 border-[#1F1E22] p-6 shadow-[4px_4px_0px_#1F1E22] space-y-space-md">
+<div class="flex items-start space-x-3">
+<span class="material-symbols-outlined text-[#1F1E22] text-headline-sm font-bold">task_alt</span>
+<div class="space-y-1">
+<h4 class="font-['Montserrat'] font-bold text-title-md text-[#1F1E22]">Status Validasi Skema IP</h4>
+<p class="font-['Plus_Jakarta_Sans'] text-body-md text-[#1F1E22] leading-relaxed">
+              Seluruh konfigurasi IP untuk 3 perangkat pada segmen <strong class="font-['JetBrains_Mono']">192.168.1.0/24</strong> telah tervalidasi tanpa duplikasi alamat IP, dengan Web Server (192.168.1.1) bertindak sebagai Gateway dan DNS primer untuk klien PC0 dan PC1.
+            </p>
+</div>
+</div>
+<div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+<button class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white hover:bg-surface-cream text-[#1F1E22] border-2 border-[#1F1E22] font-['Montserrat'] font-bold text-body-sm shadow-[2px_2px_0px_#1F1E22] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center space-x-2" id="copy-report-btn" type="button">
+<span class="material-symbols-outlined text-title-sm">inventory_2</span>
+<span>Salin Format Jawaban Laporan</span>
+</button>
+<span class="text-label-sm font-['Montserrat'] font-bold text-[#1F1E22] opacity-0 transition-opacity" id="copy-toast">
+            ✓ Tersalin ke clipboard!
+          </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interaction for copy report button
+  const copyBtn = document.getElementById('copy-report-btn');
+  const copyToast = document.getElementById('copy-toast');
+  const copyTableBtn = document.getElementById('copy-table-btn');
+
+  if (copyBtn && copyToast) {
+    copyBtn.addEventListener('click', () => {
+      const summaryText = `TABEL IP PERANGKAT PRAKTIKUM
+1. Web Server | IP: 192.168.1.1 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 192.168.1.1 (Static)
+2. PC0        | IP: 192.168.1.2 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 192.168.1.1 (Static)
+3. PC1        | IP: 192.168.1.3 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 192.168.1.1 (Static)
+Kesimpulan: Seluruh segmen 192.168.1.0/24 valid tanpa konflik IP.`;
+
+      navigator.clipboard.writeText(summaryText).then(() => {
+        copyToast.style.opacity = '1';
+        setTimeout(() => {
+          copyToast.style.opacity = '0';
+        }, 2200);
+      });
+    });
+  }
+
+  if (copyTableBtn) {
+    copyTableBtn.addEventListener('click', () => {
+      const markdownTable = `| No | Nama Perangkat | Antarmuka | Alamat IP | Subnet Mask | Default Gateway | DNS Server | Metode |
+|---|---|---|---|---|---|---|---|
+| 1 | Web Server | FastEthernet0 | 192.168.1.1 | 255.255.255.0 | 192.168.1.1 (Self) | 192.168.1.1 | Static |
+| 2 | PC0 | FastEthernet0 | 192.168.1.2 | 255.255.255.0 | 192.168.1.1 | 192.168.1.1 | Static |
+| 3 | PC1 | FastEthernet0 | 192.168.1.3 | 255.255.255.0 | 192.168.1.1 | 192.168.1.1 | Static |`;
+
+      navigator.clipboard.writeText(markdownTable).then(() => {
+        const originalText = copyTableBtn.innerHTML;
+        copyTableBtn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span><span>Tersalin!</span>';
+        setTimeout(() => {
+          copyTableBtn.innerHTML = originalText;
+        }, 2000);
+      });
+    });
+  }
+</script>
+</div>
+</main>
+</body></html>

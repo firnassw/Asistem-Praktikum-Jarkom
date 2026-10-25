@@ -262,4 +262,40 @@ export interface KonversiHasilAkhir {
   tabel: KonversiTableRow[];
 }
 
+export interface PerangkatItemPayload {
+  nama: string;
+  mode?: 'static' | 'dhcp';
+  ip?: string | null;
+  prefix?: number | null;
+  subnet_mask?: string | null;
+  gateway?: string | null;
+  dns?: string | null;
+}
+
+export interface TabelIpPayload {
+  perangkat: PerangkatItemPayload[];
+}
+
+export interface TabelIpTableRow {
+  no: number;
+  nama: string;
+  mode: 'Static' | 'DHCP';
+  ip: string;
+  subnet_mask: string;
+  prefix: string;
+  gateway: string;
+  dns: string;
+  segmen?: string;
+}
+
+export interface TabelIpRingkasan {
+  total_perangkat: number;
+  total_static: number;
+  total_dhcp: number;
+  segmen_jaringan: string[];
+  daftar_gateway: string[];
+  daftar_dns: string[];
+}
+
+
 

@@ -129,6 +129,7 @@ def init_default_registry() -> None:
             hitung_konversi,
             hitung_rencana,
             hitung_subnet,
+            hitung_tabel_ip,
             hitung_vlsm,
         )
         subnet_solver = hitung_subnet
@@ -137,6 +138,7 @@ def init_default_registry() -> None:
         rencana_solver = hitung_rencana
         dhcp_solver = hitung_dhcp
         konversi_solver = hitung_konversi
+        tabel_ip_solver = hitung_tabel_ip
     except ImportError:
         subnet_solver = None
         flsm_solver = None
@@ -144,6 +146,7 @@ def init_default_registry() -> None:
         rencana_solver = None
         dhcp_solver = None
         konversi_solver = None
+        tabel_ip_solver = None
 
     for feat in _DEFAULT_FEATURES:
         if feat.id == "subnet":
@@ -158,6 +161,8 @@ def init_default_registry() -> None:
             solver_fn = dhcp_solver
         elif feat.id == "konversi":
             solver_fn = konversi_solver
+        elif feat.id == "tabel-ip":
+            solver_fn = tabel_ip_solver
         else:
             solver_fn = None
         register_feature(feat, solver=solver_fn)

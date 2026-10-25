@@ -1294,4 +1294,137 @@ def susun_langkah_konversi(data: Dict[str, Any]) -> StrukturJawaban:
     )
 
 
+def susun_langkah_tabel_ip(data: Dict[str, Any]) -> StrukturJawaban:
+    """
+    Menyusun langkah-langkah penyelesaian Tabel IP Perangkat sesuai lembar kerja praktikum:
+    1. Identifikasi mode pengalamatan dan konversi subnet mask tiap perangkat.
+    2. Tentukan segmen jaringan (Network Address) dan periksa konsistensi alamat.
+    3. Susun tabel rekapitulasi IP perangkat standar laporan praktikum.
+    """
+    total_perangkat = data["total_perangkat"]
+    total_static = data["total_static"]
+    total_dhcp = data["total_dhcp"]
+    segmen_jaringan = data["segmen_jaringan"]
+    daftar_gateway = data["daftar_gateway"]
+    daftar_dns = data["daftar_dns"]
+    tabel = data["tabel"]
+    peringatan = data["peringatan"]
+
+    # 1. Diketahui
+    diketahui = [
+        DiketahuiItem(
+            label="Total Perangkat Terdaftar",
+            nilai=f"{total_perangkat} unit ({total_static} Static, {total_dhcp} DHCP)",
+        ),
+        DiketahuiItem(
+            label="Segmen Jaringan Terdeteksi",
+            nilai=", ".join(segmen_jaringan) if segmen_jaringan else "-",
+        ),
+        DiketahuiItem(
+            label="Default Gateway",
+            nilai=", ".join(daftar_gateway) if daftar_gateway else "-",
+        ),
+        DiketahuiItem(
+            label="DNS Server",
+            nilai=", ".join(daftar_dns) if daftar_dns else "-",
+        ),
+    ]
+
+    # 2. Langkah 1: Identifikasi mode pengalamatan dan konversi subnet mask
+    langkah1_tabel = [
+        {
+            "no": r["no"],
+            "nama": r["nama"],
+            "mode": r["mode"],
+            "ip": r["ip"],
+            "subnet_mask": r["subnet_mask"],
+            "prefix": r["prefix"],
+        }
+        for r in tabel
+    ]
+    langkah1 = LangkahItem(
+        judul="Identifikasi mode pengalamatan dan konversi subnet mask tiap perangkat",
+        penjelasan=(
+            "Setiap perangkat diidentifikasi mode pengalamatannya (Static atau DHCP). "
+            "Untuk perangkat Static, subnet mask titik-desimal dan panjang prefix saling dikonversikan "
+            "secara bitwise agar format pengalamatan standar laporan praktikum terpenuhi."
+        ),
+        rumus="Prefix /p <-> Subnet Mask 32-bit (bit 1 sebanyak p diikuti 32-p bit 0)",
+        tabel=langkah1_tabel,
+        hasil=f"{total_static} perangkat menggunakan IP statis, {total_dhcp} perangkat menggunakan konfigurasi dinamis (DHCP).",
+    )
+
+    # 3. Langkah 2: Tentukan segmen jaringan (Network Address) dan periksa konsistensi alamat
+    langkah2_tabel = [
+        {
+            "no": r["no"],
+            "nama": r["nama"],
+            "ip": r["ip"],
+            "segmen": r.get("segmen", "-"),
+            "gateway": r["gateway"],
+            "status": "Peringatan" if any(r["nama"] in w for w in peringatan) else "Konsisten",
+        }
+        for r in tabel
+    ]
+    langkah2 = LangkahItem(
+        judul="Tentukan segmen jaringan (Network Address) dan periksa konsistensi alamat",
+        penjelasan=(
+            "Alamat jaringan (NA) tiap perangkat statis dihitung melalui operasi bitwise AND antara Alamat IP "
+            "dan Subnet Mask (NA = IP AND Mask). Selanjutnya sistem memeriksa konsistensi alamat, mendeteksi "
+            "apakah ada alamat IP ganda (konflik IP), penggunaan Network/Broadcast Address sebagai host, "
+            "atau default gateway yang berada di luar subnet perangkat."
+        ),
+        rumus="NA = IP AND Subnet Mask; BA = NA OR (NOT Subnet Mask)",
+        tabel=langkah2_tabel,
+        hasil=(
+            f"Terdeteksi {len(segmen_jaringan)} segmen jaringan: {', '.join(segmen_jaringan) if segmen_jaringan else '-'}. "
+            f"{'Terdapat catatan peringatan konfigurasi yang perlu diperhatikan.' if peringatan else 'Seluruh alamat IP konsisten dan tidak ada konflik alamat.'}"
+        ),
+    )
+
+    # 4. Langkah 3: Susun tabel rekapitulasi IP perangkat
+    langkah3 = LangkahItem(
+        judul="Susun tabel rekapitulasi IP perangkat",
+        penjelasan=(
+            "Seluruh parameter pengalamatan antarmuka perangkat disusun ke dalam tabel rekapitulasi standar "
+            "laporan praktikum Cisco Packet Tracer, siap disalin ke lembar kerja praktikum atau dicetak."
+        ),
+        rumus=None,
+        tabel=tabel,
+        hasil=f"Tabel konfigurasi berhasil direkap untuk {total_perangkat} perangkat.",
+    )
+
+    # 5. Hasil Akhir
+    hasil_akhir = {
+        "ringkasan": {
+            "total_perangkat": total_perangkat,
+            "total_static": total_static,
+            "total_dhcp": total_dhcp,
+            "segmen_jaringan": segmen_jaringan,
+            "daftar_gateway": daftar_gateway,
+            "daftar_dns": daftar_dns,
+        },
+        "tabel": tabel,
+    }
+
+    # 6. Kesimpulan (1-3 kalimat Bahasa Indonesia)
+    segmen_part = f" Seluruh perangkat statis berada dalam segmen jaringan {', '.join(segmen_jaringan)}." if segmen_jaringan else ""
+    gw_part = f" Default gateway yang digunakan: {', '.join(daftar_gateway)}." if daftar_gateway else ""
+    dns_part = f" DNS server yang terpasang: {', '.join(daftar_dns)}." if daftar_dns else ""
+    kesimpulan = (
+        f"Tabel IP perangkat berhasil disusun untuk {total_perangkat} perangkat ({total_static} Static dan {total_dhcp} DHCP)."
+        f"{segmen_part}{gw_part}{dns_part}"
+    ).strip()
+
+    return StrukturJawaban(
+        fitur="tabel-ip",
+        diketahui=diketahui,
+        langkah=[langkah1, langkah2, langkah3],
+        hasil_akhir=hasil_akhir,
+        kesimpulan=kesimpulan,
+        peringatan=peringatan,
+    )
+
+
+
 
