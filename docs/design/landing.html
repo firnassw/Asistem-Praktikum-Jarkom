@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asisten Praktikum Jaringan - Landing Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FCE76C',
+            'primary-pressed': '#F2D640',
+            secondary: '#8BD0FC',
+            tertiary: '#FF8F5C',
+            'subnet-4': '#C9D0E4',
+            ink: '#1F1E22',
+            'ink-raised': '#2E2D33',
+            surface: '#FFFFFF',
+            background: '#F5F6F8',
+            line: '#E3E5EA',
+            'line-strong': '#8A8F9C',
+            'text-muted': '#5B5F6B',
+            faded: '#D6D9E2',
+            'secondary-soft': '#E3F4FE',
+            'primary-soft': '#FFF8D1',
+            'tertiary-soft': '#FFE6DA',
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          boxShadow: {
+            'offset-blue': '8px 8px 0px 0px #8BD0FC',
+            'offset-yellow': '8px 8px 0px 0px #FCE76C',
+            'offset-orange': '8px 8px 0px 0px #FF8F5C',
+            'offset-ink': '8px 8px 0px 0px #1F1E22',
+            'offset-sm-ink': '4px 4px 0px 0px #1F1E22',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F5F6F8;
+      color: #1F1E22;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .neo-border {
+      border: 2px solid #1F1E22;
+    }
+    .offset-layer-blue {
+      position: relative;
+    }
+    .offset-layer-blue::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: -8px;
+      bottom: -8px;
+      background: #8BD0FC;
+      border: 2px solid #1F1E22;
+      border-radius: 20px;
+      z-index: 0;
+    }
+    .offset-layer-yellow {
+      position: relative;
+    }
+    .offset-layer-yellow::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: -8px;
+      bottom: -8px;
+      background: #FCE76C;
+      border: 2px solid #1F1E22;
+      border-radius: 20px;
+      z-index: 0;
+    }
+    .offset-layer-orange {
+      position: relative;
+    }
+    .offset-layer-orange::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: -8px;
+      bottom: -8px;
+      background: #FF8F5C;
+      border: 2px solid #1F1E22;
+      border-radius: 20px;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-background text-ink antialiased selection:bg-primary selection:text-ink">
+
+  <!-- 1. TOP NAVBAR (Height 72px, surface #FFFFFF, bottom border 2px #1F1E22) -->
+  <header class="sticky top-0 z-50 w-full h-[72px] bg-surface border-b-2 border-ink flex items-center">
+    <div class="max-w-[1280px] w-full mx-auto px-6 sm:px-8 flex items-center justify-between">
+      
+      <!-- Brand Logo + Name -->
+      <a href="#" class="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-ink">
+        <div class="w-10 h-10 bg-primary neo-border rounded-[10px] flex items-center justify-center font-extrabold text-ink text-base tracking-tight shadow-none group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
+          APJ
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-lg tracking-tight text-ink leading-tight">Asisten Praktikum Jaringan</span>
+          <span class="text-[11px] font-semibold text-text-muted leading-none">Modul 2, 3, & 4 Cisco Packet Tracer Companion</span>
+        </div>
+      </a>
+
+      <!-- Center navigation links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-bold text-ink">
+        <a href="#fitur" class="hover:text-text-muted transition-colors py-1">Fitur Modul</a>
+        <a href="#lembar-jawaban" class="hover:text-text-muted transition-colors py-1">Contoh Lembar Jawaban</a>
+        <a href="#format-ujian" class="hover:text-text-muted transition-colors py-1">Tentang Modul</a>
+      </nav>
+
+      <!-- Right secondary CTA -->
+      <div class="flex items-center gap-3">
+        <a href="#" class="inline-flex items-center justify-center h-11 px-5 rounded-[12px] bg-surface text-ink font-bold text-sm neo-border hover:bg-background active:translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ink">
+          Buka Dashboard
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="flex-1 w-full">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-8 py-10 sm:py-12 flex flex-col gap-16 sm:gap-20">
+
+      <!-- 2. HERO SECTION (2-Column Asymmetric Split) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        
+        <!-- Left Column (6/12) -->
+        <div class="lg:col-span-6 flex flex-col items-start gap-6">
+          
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-soft neo-border text-xs font-bold text-ink">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+            Format Baku Ujian & Modul Praktikum Cisco
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-ink leading-[1.15] tracking-tight">
+            Selesaikan hitungan jaringan, langkah demi langkah.
+          </h1>
+
+          <p class="text-base sm:text-lg text-text-muted font-medium leading-relaxed max-w-xl">
+            Alat bantu praktikum Jaringan Komputer untuk menghitung subnetting, FLSM, VLSM, rencana IP dari NIM, konversi basis, dan konfigurasi DHCP sesuai urutan lembar jawaban modul.
+          </p>
+
+          <!-- Action Row -->
+          <div class="flex flex-wrap items-center gap-4 pt-2 w-full sm:w-auto">
+            <!-- Primary CTA Button (Single yellow button in main viewport) -->
+            <a href="#fitur" class="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-primary text-ink font-bold text-base neo-border hover:bg-primary-pressed active:translate-y-0.5 shadow-[4px_4px_0px_0px_#1F1E22] hover:shadow-[2px_2px_0px_0px_#1F1E22] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ink">
+              Mulai Praktikum
+            </a>
+
+            <!-- Secondary CTA Button -->
+            <a href="#lembar-jawaban" class="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-surface text-ink font-bold text-base neo-border hover:bg-background active:translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ink">
+              Coba Contoh Soal
+            </a>
+          </div>
+
+          <!-- Micro feature tags -->
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-xs font-bold text-text-muted">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              Tanpa Login / Akun
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              Sesuai Sintaks Cisco IOS
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              Ekspor Tabel & CLI Langsung
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Right Column (6/12) — Live Answer Sheet Preview Card sitting on 8px offset Blue layer -->
+        <div class="lg:col-span-6 w-full">
+          <div class="offset-layer-blue">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 sm:p-7 flex flex-col gap-5 overflow-hidden">
+              
+              <!-- Large decorative faded numeral in top-right -->
+              <div class="absolute -top-3 -right-2 font-sans font-light text-[88px] text-faded select-none pointer-events-none leading-none opacity-80" aria-hidden="true">
+                /27
+              </div>
+
+              <!-- Top Card Meta -->
+              <div class="flex items-center justify-between relative z-10">
+                <span class="inline-flex items-center px-3 py-1 rounded-[8px] bg-background neo-border font-mono text-xs font-bold text-ink">
+                  Contoh Analisis: 192.168.0.5 /27
+                </span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-secondary-soft text-ink text-[11px] font-bold border border-secondary">
+                  Subnet #1 Terverifikasi
+                </span>
+              </div>
+
+              <!-- Two-color binary breakdown row -->
+              <div class="flex flex-col gap-2 relative z-10">
+                <div class="flex items-center justify-between text-xs font-bold text-text-muted">
+                  <span>Dekomposisi Bit (IP & Netmask):</span>
+                  <span class="text-[11px] font-mono">Net (27) : Host (5)</span>
+                </div>
+                <div class="p-3 bg-ink text-surface rounded-[12px] font-mono text-xs sm:text-[13px] tracking-wider overflow-x-auto flex items-center justify-between">
+                  <div class="flex items-center flex-wrap gap-1">
+                    <span class="bg-secondary text-ink px-1.5 py-0.5 rounded font-bold">11000000.10101000.00000000.000</span>
+                    <span class="text-faded px-0.5">|</span>
+                    <span class="bg-primary text-ink px-1.5 py-0.5 rounded font-bold">00101</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-faded uppercase tracking-normal hidden sm:inline ml-2">RFC 4632</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-semibold text-text-muted">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded bg-secondary neo-border"></span>
+                    27 Bit Network (ID)
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded bg-primary neo-border"></span>
+                    5 Bit Host (32 Alamat)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Compact summary grid -->
+              <div class="grid grid-cols-2 gap-3 relative z-10 pt-1">
+                <div class="p-3 rounded-[12px] bg-background neo-border flex flex-col">
+                  <span class="text-[11px] font-bold text-text-muted uppercase">Network Address (NA)</span>
+                  <span class="font-mono text-sm sm:text-base font-bold text-ink">192.168.0.0</span>
+                </div>
+                <div class="p-3 rounded-[12px] bg-background neo-border flex flex-col">
+                  <span class="text-[11px] font-bold text-text-muted uppercase">Broadcast Address (BA)</span>
+                  <span class="font-mono text-sm sm:text-base font-bold text-ink">192.168.0.31</span>
+                </div>
+                <div class="p-3 rounded-[12px] bg-background neo-border flex flex-col">
+                  <span class="text-[11px] font-bold text-text-muted uppercase">Rentang Host Valid</span>
+                  <span class="font-mono text-sm sm:text-base font-bold text-ink">.1 – .30 (30 Host)</span>
+                </div>
+                <div class="p-3 rounded-[12px] bg-background neo-border flex flex-col">
+                  <span class="text-[11px] font-bold text-text-muted uppercase">Alokasi Blok Total</span>
+                  <span class="font-mono text-sm sm:text-base font-bold text-ink">30 Host / 8 Subnet</span>
+                </div>
+              </div>
+
+              <!-- Proportional horizontal Address Block Bar -->
+              <div class="flex flex-col gap-2 relative z-10 pt-1">
+                <div class="flex items-center justify-between text-xs font-bold text-text-muted">
+                  <span>Visualisasi Blok Subnet (/27 dalam /24):</span>
+                  <span class="font-mono text-[11px]">8 Blok x 32 IP</span>
+                </div>
+                <div class="h-6 w-full rounded-full neo-border overflow-hidden flex bg-background">
+                  <div class="h-full bg-secondary w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 0 (.0 - .31)">#1</div>
+                  <div class="h-full bg-primary w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 1 (.32 - .63)">#2</div>
+                  <div class="h-full bg-tertiary w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 2 (.64 - .95)">#3</div>
+                  <div class="h-full bg-subnet-4 w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 3 (.96 - .127)">#4</div>
+                  <div class="h-full bg-secondary-soft w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 4">#5</div>
+                  <div class="h-full bg-primary-soft w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 5">#6</div>
+                  <div class="h-full bg-tertiary-soft w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink border-r border-ink" title="Subnet 6">#7</div>
+                  <div class="h-full bg-surface w-1/8 flex items-center justify-center text-[10px] font-bold font-mono text-ink" title="Subnet 7 (.224 - .255)">#8</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 3. BENTO GRID OF 6 V1.0 FEATURES (3 columns x 2 rows, 24px gap) -->
+      <section id="fitur" class="flex flex-col gap-8 scroll-mt-24">
+        
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <span class="text-xs font-bold text-text-muted uppercase tracking-wider">Perangkat Modul Praktikum</span>
+            <h2 class="text-2xl sm:text-[28px] font-extrabold text-ink tracking-tight">
+              Enam Alat Hitung Sesuai Modul Praktikum
+            </h2>
+          </div>
+          <span class="text-sm font-semibold text-text-muted">
+            Format lembar jawaban instan tanpa kalkulasi manual yang rawan keliru.
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          <!-- Card 1: Analisis subnet (Blue offset) -->
+          <div class="offset-layer-blue">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">MODUL 01</span>
+                  <span class="w-3 h-3 rounded-full bg-secondary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">Analisis subnet</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Hitung NA, BA, subnet mask, dan tabel semua subnet dari satu IP.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span>192.168.0.5 /27</span>
+                <span class="text-xs font-bold text-text-muted">8 Subnet</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: FLSM dan VLSM (Yellow offset) -->
+          <div class="offset-layer-yellow">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">MODUL 02</span>
+                  <span class="w-3 h-3 rounded-full bg-primary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">FLSM dan VLSM</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Bagi jaringan induk ukuran tetap atau sesuai kebutuhan host.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span class="truncate">192.168.64.0/24</span>
+                <span class="text-xs font-bold text-text-muted">64, 24, 8 host</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Rencana ruangan (Orange offset) -->
+          <div class="offset-layer-orange">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">MODUL 03</span>
+                  <span class="w-3 h-3 rounded-full bg-tertiary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">Rencana ruangan</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Susun alokasi subnet otomatis dari dua digit NIM dan jumlah device.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span class="truncate">NIM 50 -&gt; 192.168.50.0/24</span>
+                <span class="text-xs font-bold text-text-muted">5 Lab</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Konversi basis (Blue offset) -->
+          <div class="offset-layer-blue">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">MODUL DASAR</span>
+                  <span class="w-3 h-3 rounded-full bg-secondary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">Konversi basis</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Ubah bilangan biner, oktal, desimal, dan heksa dengan tabel bit 128–1.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span>10101100 -&gt; 172</span>
+                <span class="text-xs font-bold text-text-muted">0xAC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Generator DHCP (Yellow offset) -->
+          <div class="offset-layer-yellow">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">MODUL 04</span>
+                  <span class="w-3 h-3 rounded-full bg-primary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">Generator DHCP</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Susun perintah CLI DHCP router dan prediksi IP klien pertama.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span class="truncate">192.168.10.1/24</span>
+                <span class="text-xs font-bold text-text-muted">klien .6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Tabel IP perangkat (Orange offset) -->
+          <div class="offset-layer-orange">
+            <div class="relative z-10 bg-surface rounded-[20px] neo-border p-6 flex flex-col justify-between h-full gap-5">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold font-mono text-text-muted">INVENTARIS</span>
+                  <span class="w-3 h-3 rounded-full bg-tertiary neo-border"></span>
+                </div>
+                <h3 class="text-lg font-bold text-ink">Tabel IP perangkat</h3>
+                <p class="text-sm text-text-muted font-medium leading-relaxed">
+                  Rekap alamat IP, mask, gateway, dan DNS perangkat siap salin & cetak.
+                </p>
+              </div>
+              <div class="p-3 bg-background rounded-[12px] neo-border font-mono text-sm text-ink font-semibold flex items-center justify-between">
+                <span>Server 192.168.1.1</span>
+                <span class="text-xs font-bold text-text-muted">/24 Ready</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- 4. HOW IT WORKS — ANSWER SHEET STRUCTURE SECTION (3 Horizontal Step Cards) -->
+      <section id="format-ujian" class="flex flex-col gap-8 scroll-mt-24">
+        
+        <div class="flex flex-col gap-1">
+          <span class="text-xs font-bold text-text-muted uppercase tracking-wider">Metodologi Lembar Kerja</span>
+          <h2 class="text-2xl sm:text-[28px] font-extrabold text-ink tracking-tight">
+            Format Seragam Seperti Lembar Jawaban Ujian
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Step 1 -->
+          <div class="bg-surface rounded-[20px] neo-border p-6 flex flex-col gap-4 relative">
+            <div class="flex items-center justify-between">
+              <div class="w-8 h-8 rounded-full bg-ink text-surface flex items-center justify-center font-bold text-sm">
+                1
+              </div>
+              <span class="text-xs font-mono font-bold text-text-muted">TAHAP 01</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink">
+              1. Isi Data Soal atau NIM
+            </h3>
+            <p class="text-sm text-text-muted font-medium leading-relaxed">
+              Masukkan alamat IP, jumlah ruangan dan device, atau dua digit terakhir NIM untuk menghasilkan IP Global otomatis.
+            </p>
+            <div class="mt-auto pt-2 border-t border-line text-xs font-mono text-ink font-semibold">
+              Input: IP, Prefix, NIM Mahasiswa
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-surface rounded-[20px] neo-border p-6 flex flex-col gap-4 relative">
+            <div class="flex items-center justify-between">
+              <div class="w-8 h-8 rounded-full bg-ink text-surface flex items-center justify-center font-bold text-sm">
+                2
+              </div>
+              <span class="text-xs font-mono font-bold text-text-muted">TAHAP 02</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink">
+              2. Pelajari Langkah Biner & Rumus
+            </h3>
+            <p class="text-sm text-text-muted font-medium leading-relaxed">
+              Urutan pengerjaan mengikuti Modul 2, 3, dan 4: Diketahui, operasi biner AND/OR, penentuan prefix, hingga tabel alokasi.
+            </p>
+            <div class="mt-auto pt-2 border-t border-line text-xs font-mono text-ink font-semibold">
+              Proses: Dekomposisi Bit & Kalkulasi
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-surface rounded-[20px] neo-border p-6 flex flex-col gap-4 relative">
+            <div class="flex items-center justify-between">
+              <div class="w-8 h-8 rounded-full bg-ink text-surface flex items-center justify-center font-bold text-sm">
+                3
+              </div>
+              <span class="text-xs font-mono font-bold text-text-muted">TAHAP 03</span>
+            </div>
+            <h3 class="text-lg font-bold text-ink">
+              3. Salin ke Packet Tracer atau Cetak
+            </h3>
+            <p class="text-sm text-text-muted font-medium leading-relaxed">
+              Salin tabel alamat IP dan skrip perintah CLI router dua kolom langsung ke Cisco Packet Tracer atau cetak untuk laporan.
+            </p>
+            <div class="mt-auto pt-2 border-t border-line text-xs font-mono text-ink font-semibold">
+              Output: Tabel Matriks & CLI Script
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- 5. BOTTOM CALL-TO-ACTION BAND -->
+      <section id="lembar-jawaban" class="w-full">
+        <div class="w-full rounded-[20px] bg-primary neo-border p-8 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-[6px_6px_0px_0px_#1F1E22]">
+          
+          <div class="flex flex-col gap-2 max-w-2xl">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight leading-tight">
+              Siap mengerjakan soal praktikum sekarang?
+            </h3>
+            <p class="text-base text-ink font-medium leading-relaxed">
+              Tanpa login dan tanpa instalasi. Langsung hitung dan salin hasilnya.
+            </p>
+          </div>
+
+          <!-- Secondary action button on yellow CTA band -->
+          <a href="#" class="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-surface text-ink font-bold text-base neo-border hover:bg-background active:translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ink whitespace-nowrap">
+            Buka Aplikasi Sekarang
+          </a>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 6. CLEAN FOOTER -->
+  <footer class="w-full bg-background border-t border-line py-8 mt-12">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-text-muted text-center sm:text-left">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded bg-primary neo-border inline-block"></span>
+        <span class="text-ink font-bold">Asisten Praktikum Jaringan</span>
+        <span>•</span>
+        <span>Mengikuti acuan Modul Praktikum Jaringan Komputer (Modul 2, 3, 4)</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <span class="font-mono">RFC 791 / RFC 4632</span>
+        <span>Kompatibel Cisco IOS 15.x</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

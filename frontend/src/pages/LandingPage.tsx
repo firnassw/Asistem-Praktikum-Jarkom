@@ -1,108 +1,56 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight,
-  Network,
-  GitFork,
-  LayoutGrid,
-  Binary,
-  Terminal,
-  Table,
-  Zap,
-  ShieldCheck,
-  Printer,
-  Copy,
-  ExternalLink,
-  ChevronRight,
-  Sparkles,
-  Code2,
-} from 'lucide-react';
 
-interface ModulCard {
-  nomor: string;
-  modulLab: string;
+interface FiturItem {
   nama: string;
   deskripsi: string;
-  contohInput: string;
-  contohOutput: string;
+  contoh: string;
   rute: string;
-  warnaAksen: string;
-  warnaBadge: string;
-  icon: React.FC<{ size?: number; className?: string }>;
+  warnaOffset: string; // #8BD0FC, #FCE76C, #FF8F5C
 }
 
-const modulCards: ModulCard[] = [
+const daftarFitur: FiturItem[] = [
   {
-    nomor: '01',
-    modulLab: 'Modul 2 Lab',
-    nama: 'Analisis Subnetting CIDR',
-    deskripsi: 'Hitung Network Address (NA), Broadcast Address (BA), Subnet Mask, rentang host valid, dan blok subnet lengkap.',
-    contohInput: '192.168.0.5 /27',
-    contohOutput: 'NA: .0 • BA: .31 • 30 Host Valid',
+    nama: 'Analisis subnet',
+    deskripsi: 'Hitung NA, BA, subnet mask, dan tabel semua subnet dari satu alamat IP.',
+    contoh: '192.168.0.5 /27',
     rute: '/subnetting',
-    warnaAksen: 'bg-[#8BD0FC]',
-    warnaBadge: 'bg-[#E3F4FE] text-[#1F1E22]',
-    icon: Network,
+    warnaOffset: 'bg-[#8BD0FC]',
   },
   {
-    nomor: '02',
-    modulLab: 'Modul 2 Lab',
-    nama: 'Alokasi FLSM & VLSM',
-    deskripsi: 'Bagi jaringan induk menjadi beberapa subnet berukuran tetap (FLSM) atau dinamis berdasarkan kebutuhan host tiap ruangan (VLSM).',
-    contohInput: '192.168.64.0/24 • 64, 24, 8 host',
-    contohOutput: 'Alokasi terurut bar visual proporsional',
+    nama: 'FLSM dan VLSM',
+    deskripsi: 'Bagi jaringan induk menjadi subnet ukuran tetap atau sesuai kebutuhan host.',
+    contoh: '192.168.64.0/24 • 64, 24, 8 host',
     rute: '/flsm-vlsm',
-    warnaAksen: 'bg-[#FCE76C]',
-    warnaBadge: 'bg-[#FFF8D1] text-[#8A5A00]',
-    icon: GitFork,
+    warnaOffset: 'bg-[#FCE76C]',
   },
   {
-    nomor: '03',
-    modulLab: 'Modul 2 Lab',
-    nama: 'Rencana Ruangan NIM',
-    deskripsi: 'Otomatisasi pengalamatan IP dari dua digit terakhir NIM (192.168.XX.0/24), cadangan host %, serta opsi +1 router gateway.',
-    contohInput: 'NIM 50 • 5 Ruangan • Cadangan 10%',
-    contohOutput: 'Peta blok subnet + Tab perbandingan',
+    nama: 'Rencana ruangan',
+    deskripsi: 'Susun alokasi subnet otomatis dari dua digit NIM serta jumlah ruangan dan device.',
+    contoh: 'NIM 50 -> 192.168.50.0/24',
     rute: '/rencana',
-    warnaAksen: 'bg-[#FF8F5C]',
-    warnaBadge: 'bg-[#FFEBE0] text-[#B83E00]',
-    icon: LayoutGrid,
+    warnaOffset: 'bg-[#FF8F5C]',
   },
   {
-    nomor: '04',
-    modulLab: 'Modul 2 Lab',
-    nama: 'Konversi Antar-Basis',
-    deskripsi: 'Konversi bilangan 4 basis (biner, oktal, desimal, heksadesimal) dan IPv4 4-oktet dilengkapi tabel posisi bobot bit 128..1.',
-    contohInput: '10101100 (Basis 2)',
-    contohOutput: '172 (Desimal) • AC (Heksa) • Tabel Bit',
+    nama: 'Konversi basis',
+    deskripsi: 'Ubah bilangan biner, oktal, desimal, dan heksadesimal dengan tabel bit 128–1.',
+    contoh: '10101100 -> 172 (0xAC)',
     rute: '/konversi',
-    warnaAksen: 'bg-[#8BD0FC]',
-    warnaBadge: 'bg-[#E3F4FE] text-[#1F1E22]',
-    icon: Binary,
+    warnaOffset: 'bg-[#8BD0FC]',
   },
   {
-    nomor: '05',
-    modulLab: 'Modul 3 Lab',
-    nama: 'Generator DHCP Router',
-    deskripsi: 'Hasilkan 10 baris skrip konfigurasi CLI Cisco IOS router lengkap (FastEthernet, IP pool, excluded) dan prediksi IP klien pertama.',
-    contohInput: '192.168.10.1/24 • Excluded .1 s.d .5',
-    contohOutput: 'CLI Cisco IOS + Prediksi Klien Pertama',
+    nama: 'Generator DHCP',
+    deskripsi: 'Susun perintah CLI DHCP router dan prediksi alamat IP klien pertama.',
+    contoh: '192.168.10.1/24 • klien .6',
     rute: '/dhcp',
-    warnaAksen: 'bg-[#FCE76C]',
-    warnaBadge: 'bg-[#FFF8D1] text-[#8A5A00]',
-    icon: Terminal,
+    warnaOffset: 'bg-[#FCE76C]',
   },
   {
-    nomor: '06',
-    modulLab: 'Modul 4 Lab',
-    nama: 'Tabel IP Antarmuka Node',
-    deskripsi: 'Rekapitulasi antarmuka perangkat seluruh jaringan (Static & DHCP), deteksi IP kembar, serta tombol Salin TSV dan Cetak Laporan.',
-    contohInput: 'Server, Router, PC0, PC1, Laptop',
-    contohOutput: 'Tabel TSV Siap Salin & Layout Cetak',
+    nama: 'Tabel IP perangkat',
+    deskripsi: 'Rekap alamat IP, subnet mask, gateway, dan DNS perangkat siap salin dan cetak.',
+    contoh: 'Server 192.168.1.1 /24',
     rute: '/tabel-ip',
-    warnaAksen: 'bg-[#FF8F5C]',
-    warnaBadge: 'bg-[#FFEBE0] text-[#B83E00]',
-    icon: Table,
+    warnaOffset: 'bg-[#FF8F5C]',
   },
 ];
 
@@ -110,513 +58,335 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F5F6F8] text-[#1F1E22] flex flex-col font-sans selection:bg-[#FCE76C] selection:text-[#1F1E22]">
       {/* =========================================================
-          1. TOP NAVIGATION BAR (Clean, Sticky Neo-Brutalism)
+          1. TOP NAVBAR (Tinggi 72px, latar surface #FFFFFF, border-b 2px ink #1F1E22)
          ========================================================= */}
-      <header className="sticky top-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md border-b-2 border-[#1F1E22] px-4 sm:px-8 py-3.5 shadow-2xs">
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
-          {/* Logo & Brand Title */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <img
-              src="/logo-mark.png"
-              alt="Logo APJ"
-              className="w-9 h-9 sm:w-10 sm:h-10 object-contain shrink-0 transition-transform group-hover:scale-105"
-            />
-            <div className="flex flex-col leading-tight">
-              <span className="font-extrabold text-base sm:text-lg text-[#1F1E22] tracking-tight">
+      <header className="sticky top-0 z-50 w-full h-[72px] bg-[#FFFFFF] border-b-2 border-[#1F1E22] flex items-center">
+        <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-8 flex items-center justify-between">
+          {/* Brand Logo & Name */}
+          <Link to="/" className="flex items-center gap-3 group focus:outline-none">
+            <div className="w-10 h-10 bg-[#FCE76C] border-2 border-[#1F1E22] rounded-[10px] flex items-center justify-center font-extrabold text-[#1F1E22] text-base tracking-tight group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform shrink-0">
+              APJ
+            </div>
+            <div className="flex flex-col">
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#1F1E22] leading-tight">
                 Asisten Praktikum Jaringan
               </span>
-              <span className="text-[11px] font-semibold text-[#5B5F6B] tracking-wide">
-                Lab Jarkom Informatika
+              <span className="text-[11px] font-semibold text-[#5B5F6B] leading-none hidden sm:inline">
+                Modul 2, 3, &amp; 4 Cisco Packet Tracer Companion
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-6 text-[14px] font-bold text-[#1F1E22]">
-            <a href="#fitur" className="hover:text-[#8A5A00] transition-colors">
-              Modul Fitur
+          {/* Center Links (Desktop) */}
+          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-[#1F1E22]">
+            <a href="#fitur" className="hover:text-[#5B5F6B] transition-colors py-1">
+              Fitur
             </a>
-            <a href="#keunggulan" className="hover:text-[#8A5A00] transition-colors">
-              Keunggulan
+            <a href="#contoh" className="hover:text-[#5B5F6B] transition-colors py-1">
+              Contoh Lembar Jawaban
             </a>
-            <a href="#cara-kerja" className="hover:text-[#8A5A00] transition-colors">
-              Alur Praktikum
-            </a>
-            <Link to="/tentang" className="hover:text-[#8A5A00] transition-colors">
+            <Link to="/tentang" className="hover:text-[#5B5F6B] transition-colors py-1">
               Tentang
             </Link>
           </nav>
 
-          {/* Action Button: Buka Aplikasi */}
+          {/* Right Button: Buka Dashboard (button-secondary, latar putih) */}
           <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/firnassw/Asisten-Praktikum-Jarkom"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-[#1F1E22] bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[10px] hover:bg-[#F5F6F8] shadow-2xs transition-all"
-            >
-              <Code2 size={15} />
-              <span>GitHub</span>
-            </a>
             <Link
-              to="/app"
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#FCE76C] text-[#1F1E22] font-extrabold text-xs sm:text-sm rounded-[12px] border-2 border-[#1F1E22] shadow-[3px_3px_0px_#1F1E22] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#1F1E22] active:translate-x-0 active:translate-y-0 transition-all cursor-pointer"
+              to="/beranda"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-[12px] bg-[#FFFFFF] text-[#1F1E22] font-bold text-sm border-2 border-[#1F1E22] hover:bg-[#F5F6F8] active:translate-y-0.5 transition-all shadow-none"
             >
-              <span>Buka Aplikasi</span>
-              <ArrowRight size={16} />
+              Buka Dashboard
             </Link>
           </div>
         </div>
       </header>
 
       {/* =========================================================
-          2. HERO SECTION (High Impact Headline, Value Badges, CTA)
+          MAIN WRAPPER (Maksimal 1280px)
          ========================================================= */}
-      <section className="relative px-4 sm:px-8 pt-12 sm:pt-16 pb-16 sm:pb-24 overflow-hidden border-b-2 border-[#1F1E22] bg-radial from-[#FFFDF0] via-[#F5F6F8] to-[#F5F6F8]">
-        <div className="max-w-[1280px] mx-auto flex flex-col items-center text-center gap-6 sm:gap-8">
-          {/* Badge Pengumuman / Modul */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFFFF] border-2 border-[#1F1E22] text-[#1F1E22] text-xs sm:text-sm font-extrabold shadow-[2px_2px_0px_#1F1E22]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#16794C] animate-pulse" />
-            <span>Alat Praktikum Mandiri Cisco Packet Tracer • v1.0 Live</span>
-          </div>
-
-          {/* Headline Utama */}
-          <h1 className="font-extrabold text-3xl sm:text-5xl lg:text-6xl text-[#1F1E22] tracking-tight max-w-4xl leading-[1.15]">
-            Kuasai Hitungan Jaringan Komputer,{' '}
-            <span className="bg-[#FCE76C] px-3 py-0.5 rounded-[12px] border-2 border-[#1F1E22] inline-block shadow-[4px_4px_0px_#1F1E22] mt-1 sm:mt-0">
-              Langkah demi Langkah.
-            </span>
-          </h1>
-
-          {/* Subheadline Deskriptif */}
-          <p className="font-medium text-base sm:text-lg lg:text-xl text-[#5B5F6B] max-w-3xl leading-relaxed">
-            Selesaikan perhitungan <strong className="text-[#1F1E22]">Subnetting CIDR</strong>,{' '}
-            <strong className="text-[#1F1E22]">FLSM & VLSM</strong>,{' '}
-            <strong className="text-[#1F1E22]">Rencana Ruangan NIM</strong>,{' '}
-            <strong className="text-[#1F1E22]">Konversi Basis</strong>,{' '}
-            <strong className="text-[#1F1E22]">DHCP Router</strong>, dan{' '}
-            <strong className="text-[#1F1E22]">Tabel IP</strong>. Presisi matematis deterministik tanpa AI, siap salin ke Packet Tracer, dan siap cetak untuk responsi lab.
-          </p>
-
-          {/* CTA Buttons Group */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
-            <Link
-              to="/app"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#FCE76C] text-[#1F1E22] font-black text-base sm:text-lg rounded-[16px] border-2 border-[#1F1E22] shadow-[5px_5px_0px_#1F1E22] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_#1F1E22] active:translate-x-0 active:translate-y-0 transition-all cursor-pointer"
-            >
-              <span>Mulai Praktikum Sekarang</span>
-              <ArrowRight size={20} />
-            </Link>
-
-            <a
-              href="#fitur"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-[#FFFFFF] text-[#1F1E22] font-bold text-base rounded-[16px] border-2 border-[#1F1E22] shadow-[3px_3px_0px_#1F1E22] hover:bg-[#F5F6F8] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all cursor-pointer"
-            >
-              <Sparkles size={18} className="text-[#8A5A00]" />
-              <span>Jelajahi 6 Modul Fitur</span>
-            </a>
-          </div>
-
-          {/* 4 Pilar Trust Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full max-w-4xl pt-6 text-left">
-            <div className="bg-[#FFFFFF] p-3.5 rounded-[14px] border-2 border-[#1F1E22] shadow-2xs flex items-center gap-2.5">
-              <Zap size={20} className="text-[#8A5A00] shrink-0" />
-              <div className="leading-tight">
-                <span className="block font-extrabold text-xs text-[#1F1E22]">100% Deterministik</span>
-                <span className="text-[11px] text-[#5B5F6B]">Tanpa AI / LLM</span>
-              </div>
-            </div>
-            <div className="bg-[#FFFFFF] p-3.5 rounded-[14px] border-2 border-[#1F1E22] shadow-2xs flex items-center gap-2.5">
-              <ShieldCheck size={20} className="text-[#16794C] shrink-0" />
-              <div className="leading-tight">
-                <span className="block font-extrabold text-xs text-[#1F1E22]">Data Uji Emas</span>
-                <span className="text-[11px] text-[#5B5F6B]">116 Test Lolos 100%</span>
-              </div>
-            </div>
-            <div className="bg-[#FFFFFF] p-3.5 rounded-[14px] border-2 border-[#1F1E22] shadow-2xs flex items-center gap-2.5">
-              <Copy size={20} className="text-[#006699] shrink-0" />
-              <div className="leading-tight">
-                <span className="block font-extrabold text-xs text-[#1F1E22]">Cisco Packet Tracer</span>
-                <span className="text-[11px] text-[#5B5F6B]">Siap Salin CLI & TSV</span>
-              </div>
-            </div>
-            <div className="bg-[#FFFFFF] p-3.5 rounded-[14px] border-2 border-[#1F1E22] shadow-2xs flex items-center gap-2.5">
-              <Printer size={20} className="text-[#B83E00] shrink-0" />
-              <div className="leading-tight">
-                <span className="block font-extrabold text-xs text-[#1F1E22]">Format Lembar Ujian</span>
-                <span className="text-[11px] text-[#5B5F6B]">Siap Cetak Responsi</span>
-              </div>
-            </div>
-          </div>
+      <main className="flex-1 w-full">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-10 sm:py-16 flex flex-col gap-16 sm:gap-20">
 
           {/* =========================================================
-              SHOWCASE MOCKUP KARTU (Visual Preview Aplikasi)
+              2. HERO SECTION (2-Column Grid di Desktop, 1 Column di Mobile)
              ========================================================= */}
-          <div className="w-full max-w-4xl mt-6 relative">
-            <div className="absolute inset-0 bg-[#8BD0FC] rounded-[24px] translate-x-2.5 translate-y-2.5 border-2 border-[#1F1E22]" />
-            <div className="relative bg-[#FFFFFF] rounded-[24px] border-2 border-[#1F1E22] p-5 sm:p-7 shadow-sm text-left space-y-4">
-              {/* Window Header */}
-              <div className="flex items-center justify-between border-b-2 border-[#1F1E22]/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-3.5 h-3.5 rounded-full bg-[#FF8F5C] border border-[#1F1E22]" />
-                  <span className="w-3.5 h-3.5 rounded-full bg-[#FCE76C] border border-[#1F1E22]" />
-                  <span className="w-3.5 h-3.5 rounded-full bg-[#8BD0FC] border border-[#1F1E22]" />
-                  <span className="ml-2 font-mono text-xs font-bold text-[#5B5F6B]">
-                    preview_jawaban_subnetting.apj
-                  </span>
-                </div>
-                <span className="font-mono text-xs font-extrabold bg-[#FFF8D1] text-[#8A5A00] px-2.5 py-0.5 rounded-md border border-[#8A5A00]">
-                  G-JAR-01 Terverifikasi
-                </span>
-              </div>
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            
+            {/* Kolom Kiri (6/12) */}
+            <div className="lg:col-span-6 flex flex-col items-start gap-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#1F1E22] leading-[1.15] tracking-tight">
+                Selesaikan hitungan jaringan, langkah demi langkah.
+              </h1>
 
-              {/* Sample Calculation Result Box */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 bg-[#F5F6F8] rounded-[12px] border border-[#1F1E22]/15">
-                  <span className="text-[11px] font-bold text-[#5B5F6B] uppercase">Parameter Masukan</span>
-                  <p className="font-mono font-bold text-sm text-[#1F1E22] mt-0.5">192.168.0.5 /27</p>
-                </div>
-                <div className="p-3 bg-[#E3F4FE] rounded-[12px] border border-[#8BD0FC]">
-                  <span className="text-[11px] font-bold text-[#006699] uppercase">Network Address (NA)</span>
-                  <p className="font-mono font-bold text-sm text-[#1F1E22] mt-0.5">192.168.0.0</p>
-                </div>
-                <div className="p-3 bg-[#FFEBE0] rounded-[12px] border border-[#FF8F5C]">
-                  <span className="text-[11px] font-bold text-[#B83E00] uppercase">Broadcast Address (BA)</span>
-                  <p className="font-mono font-bold text-sm text-[#1F1E22] mt-0.5">192.168.0.31</p>
-                </div>
-              </div>
+              <p className="text-base sm:text-lg text-[#5B5F6B] font-medium leading-relaxed max-w-xl">
+                Alat bantu praktikum Jaringan Komputer untuk menghitung subnetting, FLSM, VLSM, rencana IP dari NIM, konversi basis, dan konfigurasi DHCP sesuai urutan lembar jawaban modul.
+              </p>
 
-              {/* Step Flow Preview */}
-              <div className="p-4 bg-[#FFFDF0] rounded-[14px] border-2 border-[#1F1E22] space-y-2">
-                <div className="flex items-center gap-2 text-xs font-extrabold text-[#1F1E22]">
-                  <span className="w-5 h-5 rounded-full bg-[#FCE76C] border border-[#1F1E22] flex items-center justify-center text-[11px]">
-                    ✓
-                  </span>
-                  <span>Langkah 1: Menghitung Subnet Mask & Invers Mask</span>
-                </div>
-                <p className="font-mono text-xs text-[#1F1E22] bg-[#FFFFFF] p-2.5 rounded-lg border border-[#1F1E22]/20">
-                  Subnet Mask: 255.255.255.224 | Invers Mask: 0.0.0.31 | Host per Subnet: 2^(32-27) - 2 = 30 Host
-                </p>
-              </div>
+              {/* Baris Tombol Aksi */}
+              <div className="flex flex-wrap items-center gap-4 pt-2 w-full sm:w-auto">
+                {/* SATU-SATUNYA TOMBOL PRIMARY DI HALAMAN: Mulai Praktikum (#FCE76C) */}
+                <Link
+                  to="/beranda"
+                  className="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-[#FCE76C] text-[#1F1E22] font-bold text-base border-2 border-[#1F1E22] hover:bg-[#F2D640] active:translate-y-0.5 shadow-[4px_4px_0px_#1F1E22] hover:shadow-[2px_2px_0px_#1F1E22] transition-all cursor-pointer"
+                >
+                  Mulai Praktikum
+                </Link>
 
-              {/* Interactive Try Button */}
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-[#5B5F6B] font-medium hidden sm:inline">
-                  Tersedia untuk semua konfigurasi IPv4, FLSM, VLSM, DHCP, dan Tabel IP.
-                </span>
+                {/* Tombol Secondary: Coba Contoh Soal (#FFFFFF) */}
                 <Link
                   to="/subnetting?contoh=1"
-                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1F1E22] bg-[#FCE76C] px-3.5 py-1.5 rounded-[8px] border border-[#1F1E22] hover:bg-[#FFF4D6] transition-colors ml-auto cursor-pointer"
+                  className="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-[#FFFFFF] text-[#1F1E22] font-bold text-base border-2 border-[#1F1E22] hover:bg-[#F5F6F8] active:translate-y-0.5 transition-all cursor-pointer"
                 >
-                  <span>Buka Lembar Subnetting</span>
-                  <ArrowRight size={13} />
+                  Coba Contoh Soal
                 </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* =========================================================
-          3. KATALOG 6 MODUL PRAKTIKUM (Grid Kartu Fitur Lengkap)
-         ========================================================= */}
-      <section id="fitur" className="px-4 sm:px-8 py-16 sm:py-24 max-w-[1280px] mx-auto w-full space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#8A5A00] bg-[#FFF8D1] px-3 py-1 rounded-full border border-[#8A5A00]/40">
-            Katalog Modul Praktikum
-          </span>
-          <h2 className="font-extrabold text-3xl sm:text-4xl text-[#1F1E22] tracking-tight">
-            6 Alat Bantu Praktikum Jaringan Komputer
-          </h2>
-          <p className="font-medium text-sm sm:text-base text-[#5B5F6B]">
-            Setiap fitur dirancang mengikuti materi resmi praktikum lab Jarkom Informatika: Modul 2, Modul 3, dan Modul 4.
-          </p>
-        </div>
-
-        {/* Grid 6 Modul Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-          {modulCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div key={card.rute} className="relative group flex flex-col">
-                {/* 8px Offset Layer */}
+            {/* Kolom Kanan (6/12) — Kartu Pratinjau Lembar Jawaban (id="contoh") */}
+            <div id="contoh" className="lg:col-span-6 w-full scroll-mt-24">
+              <div className="relative">
+                {/* Lapisan Bergeser 8px Biru (#8BD0FC) */}
                 <div
-                  className={`absolute inset-0 translate-x-2 translate-y-2 ${card.warnaAksen} border-2 border-[#1F1E22] rounded-[20px] transition-transform group-hover:translate-x-2.5 group-hover:translate-y-2.5`}
+                  className="absolute inset-0 translate-x-2 translate-y-2 bg-[#8BD0FC] border-2 border-[#1F1E22] rounded-[20px]"
                   aria-hidden="true"
                 />
 
-                {/* Card Surface */}
-                <div className="relative bg-[#FFFFFF] border-2 border-[#1F1E22] rounded-[20px] p-6 flex flex-col justify-between gap-5 h-full transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 shadow-xs">
-                  <div className="space-y-4">
-                    {/* Top Row: Module Badge & Number */}
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-[#1F1E22] ${card.warnaBadge}`}>
-                        {card.modulLab}
-                      </span>
-                      <span className="font-mono text-xs font-black text-[#5B5F6B]/60">
-                        #{card.nomor}
-                      </span>
+                {/* Kartu Utama Putih (#FFFFFF) */}
+                <div className="relative bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 sm:p-7 flex flex-col gap-5 overflow-hidden">
+                  
+                  {/* Angka pudar dekoratif /27 di sudut kanan atas */}
+                  <div
+                    className="absolute -top-3 -right-2 font-sans font-light text-[88px] text-[#D6D9E2] select-none pointer-events-none leading-none opacity-80"
+                    aria-hidden="true"
+                  >
+                    /27
+                  </div>
+
+                  {/* Top Card Meta: Chip header monospace */}
+                  <div className="flex items-center justify-between relative z-10">
+                    <span className="inline-flex items-center px-3 py-1 rounded-[8px] bg-[#F5F6F8] border-2 border-[#1F1E22] font-mono text-xs font-bold text-[#1F1E22]">
+                      Contoh Analisis: 192.168.0.5 /27
+                    </span>
+                  </div>
+
+                  {/* Pratinjau Dekomposisi Biner 2 Warna */}
+                  <div className="flex flex-col gap-2 relative z-10">
+                    <div className="flex items-center justify-between text-xs font-bold text-[#5B5F6B]">
+                      <span>Dekomposisi Bit (IP &amp; Netmask):</span>
+                      <span className="text-[11px] font-mono">Net (27) : Host (5)</span>
                     </div>
 
-                    {/* Icon & Title */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-[12px] bg-[#F5F6F8] border-2 border-[#1F1E22] flex items-center justify-center shrink-0 text-[#1F1E22]">
-                        <Icon size={20} />
+                    <div className="p-3 bg-[#1F1E22] text-[#FFFFFF] rounded-[12px] font-mono text-xs sm:text-[13px] tracking-wider overflow-x-auto flex items-center justify-between">
+                      <div className="flex items-center flex-wrap gap-1">
+                        <span className="bg-[#8BD0FC] text-[#1F1E22] px-1.5 py-0.5 rounded font-bold">
+                          11000000.10101000.00000000.000
+                        </span>
+                        <span className="text-[#D6D9E2] px-0.5">|</span>
+                        <span className="bg-[#FCE76C] text-[#1F1E22] px-1.5 py-0.5 rounded font-bold">
+                          00101
+                        </span>
                       </div>
-                      <h3 className="font-extrabold text-lg text-[#1F1E22] leading-snug">
-                        {card.nama}
-                      </h3>
                     </div>
 
-                    {/* Description */}
-                    <p className="text-xs sm:text-[13px] text-[#5B5F6B] leading-relaxed">
-                      {card.deskripsi}
-                    </p>
-
-                    {/* Example Snippet */}
-                    <div className="p-3 bg-[#F5F6F8] rounded-[12px] border border-[#1F1E22]/15 space-y-1">
-                      <div className="flex items-center justify-between text-[10px] font-bold text-[#5B5F6B] uppercase">
-                        <span>Contoh Input:</span>
-                        <span className="font-mono text-[#1F1E22]">{card.contohInput}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-bold text-[#5B5F6B] uppercase">
-                        <span>Hasil:</span>
-                        <span className="font-mono text-[#16794C] font-extrabold">{card.contohOutput}</span>
-                      </div>
+                    {/* Legenda Bit Singkat */}
+                    <div className="flex items-center gap-4 text-[11px] font-semibold text-[#5B5F6B]">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded bg-[#8BD0FC] border border-[#1F1E22]" />
+                        27 Bit Jaringan
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded bg-[#FCE76C] border border-[#1F1E22]" />
+                        5 Bit Host
+                      </span>
                     </div>
                   </div>
 
-                  {/* Open Feature Link */}
-                  <Link
-                    to={card.rute}
-                    className="inline-flex items-center justify-between w-full h-11 px-4 bg-[#FFFFFF] hover:bg-[#F5F6F8] text-[#1F1E22] font-bold text-xs rounded-[12px] border-2 border-[#1F1E22] shadow-2xs group-hover:bg-[#FCE76C] transition-all cursor-pointer"
-                  >
-                    <span>Buka Modul {card.nama.split(' ')[0]}</span>
-                    <ChevronRight size={16} />
-                  </Link>
+                  {/* Grid 2x2 Kotak Ringkasan Monospace */}
+                  <div className="grid grid-cols-2 gap-3 relative z-10 pt-1">
+                    <div className="p-3 rounded-[12px] bg-[#F5F6F8] border-2 border-[#1F1E22] flex flex-col">
+                      <span className="text-[11px] font-bold text-[#5B5F6B] uppercase">Network Address (NA)</span>
+                      <span className="font-mono text-sm sm:text-base font-bold text-[#1F1E22]">192.168.0.0</span>
+                    </div>
+                    <div className="p-3 rounded-[12px] bg-[#F5F6F8] border-2 border-[#1F1E22] flex flex-col">
+                      <span className="text-[11px] font-bold text-[#5B5F6B] uppercase">Broadcast Address (BA)</span>
+                      <span className="font-mono text-sm sm:text-base font-bold text-[#1F1E22]">192.168.0.31</span>
+                    </div>
+                    <div className="p-3 rounded-[12px] bg-[#F5F6F8] border-2 border-[#1F1E22] flex flex-col">
+                      <span className="text-[11px] font-bold text-[#5B5F6B] uppercase">Host Valid</span>
+                      <span className="font-mono text-sm sm:text-base font-bold text-[#1F1E22]">192.168.0.1 – .30</span>
+                    </div>
+                    <div className="p-3 rounded-[12px] bg-[#F5F6F8] border-2 border-[#1F1E22] flex flex-col">
+                      <span className="text-[11px] font-bold text-[#5B5F6B] uppercase">Kapasitas</span>
+                      <span className="font-mono text-sm sm:text-base font-bold text-[#1F1E22]">30 Host / 8 Subnet</span>
+                    </div>
+                  </div>
+
+                  {/* Bar Visual Blok Alamat untuk 8 Blok /27 */}
+                  <div className="flex flex-col gap-2 relative z-10 pt-1">
+                    <div className="flex items-center justify-between text-xs font-bold text-[#5B5F6B]">
+                      <span>Visualisasi Blok Subnet (/27 dalam /24):</span>
+                      <span className="font-mono text-[11px]">8 Blok x 32 IP</span>
+                    </div>
+                    <div className="h-6 w-full rounded-full border-2 border-[#1F1E22] overflow-hidden flex bg-[#F5F6F8]">
+                      <div className="h-full bg-[#8BD0FC] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 0 (.0 - .31)">#1</div>
+                      <div className="h-full bg-[#FCE76C] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 1 (.32 - .63)">#2</div>
+                      <div className="h-full bg-[#FF8F5C] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 2 (.64 - .95)">#3</div>
+                      <div className="h-full bg-[#C9D0E4] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 3 (.96 - .127)">#4</div>
+                      <div className="h-full bg-[#8BD0FC] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 4 (.128 - .159)">#5</div>
+                      <div className="h-full bg-[#FCE76C] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 5 (.160 - .191)">#6</div>
+                      <div className="h-full bg-[#FF8F5C] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22] border-r border-[#1F1E22]" title="Subnet 6 (.192 - .223)">#7</div>
+                      <div className="h-full bg-[#C9D0E4] flex-1 flex items-center justify-center text-[10px] font-bold font-mono text-[#1F1E22]" title="Subnet 7 (.224 - .255)">#8</div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* =========================================================
-          4. KEUNGGULAN (Mengapa Menggunakan APJ?)
-         ========================================================= */}
-      <section id="keunggulan" className="px-4 sm:px-8 py-16 sm:py-24 bg-[#FFFFFF] border-y-2 border-[#1F1E22]">
-        <div className="max-w-[1280px] mx-auto space-y-12">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#006699] bg-[#E3F4FE] px-3 py-1 rounded-full border border-[#8BD0FC]">
-              Kenapa Memilih APJ?
-            </span>
-            <h2 className="font-extrabold text-3xl sm:text-4xl text-[#1F1E22] tracking-tight">
-              Bukan Sekadar Kalkulator Subnet Biasa
-            </h2>
-            <p className="font-medium text-sm sm:text-base text-[#5B5F6B]">
-              Sebagian besar kalkulator online hanya memberikan angka akhir tanpa cara pengerjaan, atau menggunakan AI yang rawan berhalusinasi. APJ berbeda.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-[#F5F6F8] rounded-[20px] border-2 border-[#1F1E22] shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FCE76C] border-2 border-[#1F1E22] flex items-center justify-center font-black text-xl">
-                1
-              </div>
-              <h3 className="font-extrabold text-lg text-[#1F1E22]">Deterministik Murni</h3>
-              <p className="text-xs text-[#5B5F6B] leading-relaxed">
-                Tanpa AI atau LLM. Setiap angka dihitung murni dengan operasi bitwise integer (<code className="font-mono text-[#1F1E22]">&amp;, |, ~, &lt;&lt;, &gt;&gt;</code>) sehingga tidak ada angka halusinasi.
-              </p>
             </div>
 
-            <div className="p-6 bg-[#F5F6F8] rounded-[20px] border-2 border-[#1F1E22] shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-[14px] bg-[#8BD0FC] border-2 border-[#1F1E22] flex items-center justify-center font-black text-xl">
-                2
-              </div>
-              <h3 className="font-extrabold text-lg text-[#1F1E22]">Format Lembar Ujian</h3>
-              <p className="text-xs text-[#5B5F6B] leading-relaxed">
-                Jawaban disajikan runut: <em>Diketahui</em>, <em>Langkah Perhitungan</em>, <em>Tabel Hasil Akhir</em>, hingga <em>Kesimpulan</em> siap salin ke lembar responsi lab.
-              </p>
-            </div>
+          </section>
 
-            <div className="p-6 bg-[#F5F6F8] rounded-[20px] border-2 border-[#1F1E22] shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FF8F5C] border-2 border-[#1F1E22] flex items-center justify-center font-black text-xl">
-                3
-              </div>
-              <h3 className="font-extrabold text-lg text-[#1F1E22]">Cisco Packet Tracer Ready</h3>
-              <p className="text-xs text-[#5B5F6B] leading-relaxed">
-                Skrip CLI router siap dipaste ke terminal Cisco IOS, dan seluruh tabel IP memiliki tombol salin TSV satu klik untuk laporan spreadsheet.
-              </p>
-            </div>
-
-            <div className="p-6 bg-[#F5F6F8] rounded-[20px] border-2 border-[#1F1E22] shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FFFFFF] border-2 border-[#1F1E22] flex items-center justify-center font-black text-xl">
-                4
-              </div>
-              <h3 className="font-extrabold text-lg text-[#1F1E22]">Jujur &amp; Transparan</h3>
-              <p className="text-xs text-[#5B5F6B] leading-relaxed">
-                Tidak ada data karangan. Jika terdapat IP yang bentrok atau gateway di luar rentang subnet, sistem memberikan kartu peringatan secara transparan.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          5. ALUR PRAKTIKUM (3 Langkah Mudah)
-         ========================================================= */}
-      <section id="cara-kerja" className="px-4 sm:px-8 py-16 sm:py-24 max-w-[1280px] mx-auto w-full space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#16794C] bg-[#E3F4EA] px-3 py-1 rounded-full border border-[#16794C]">
-            Alur Belajar Mandiri
-          </span>
-          <h2 className="font-extrabold text-3xl sm:text-4xl text-[#1F1E22] tracking-tight">
-            3 Langkah Menyelesaikan Soal Praktikum
-          </h2>
-          <p className="font-medium text-sm sm:text-base text-[#5B5F6B]">
-            Praktis, cepat, dan membantu Anda memahami alur logika di balik setiap konfigurasi.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          <div className="relative bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 space-y-3 shadow-2xs">
-            <span className="font-mono text-3xl font-black text-[#8A5A00]">01.</span>
-            <h3 className="font-extrabold text-lg text-[#1F1E22]">Pilih Modul &amp; Input Data</h3>
-            <p className="text-xs text-[#5B5F6B] leading-relaxed">
-              Buka menu modul yang ingin dikerjakan, masukkan IP dan prefix atau langsung klik tombol <strong>"Isi contoh"</strong> sesuai studi kasus modul lab Anda.
-            </p>
-          </div>
-
-          <div className="relative bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 space-y-3 shadow-2xs">
-            <span className="font-mono text-3xl font-black text-[#006699]">02.</span>
-            <h3 className="font-extrabold text-lg text-[#1F1E22]">Pelajari Langkah Pengerjaan</h3>
-            <p className="text-xs text-[#5B5F6B] leading-relaxed">
-              Simak langkah demi langkah perhitungan yang disajikan dalam bahasa Indonesia, rumus eksak, konversi biner, dan kartu ringkasan visual.
-            </p>
-          </div>
-
-          <div className="relative bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 space-y-3 shadow-2xs">
-            <span className="font-mono text-3xl font-black text-[#B83E00]">03.</span>
-            <h3 className="font-extrabold text-lg text-[#1F1E22]">Salin ke Packet Tracer / Cetak</h3>
-            <p className="text-xs text-[#5B5F6B] leading-relaxed">
-              Salin skrip CLI ke terminal router Packet Tracer, salin tabel IP ke laporan praktikum, atau klik tombol <strong>"Cetak"</strong> untuk lembar cetak rapi.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          6. BOTTOM CALL TO ACTION (Neo-Brutalism Big Box)
-         ========================================================= */}
-      <section className="px-4 sm:px-8 pb-16 sm:pb-24 max-w-[1280px] mx-auto w-full">
-        <div className="relative">
-          <div className="absolute inset-0 bg-[#1F1E22] rounded-[28px] translate-x-2.5 translate-y-2.5" />
-          <div className="relative bg-[#FCE76C] border-3 border-[#1F1E22] rounded-[28px] p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="space-y-3 text-center md:text-left max-w-2xl">
-              <span className="text-xs font-black uppercase tracking-wider text-[#1F1E22] bg-[#FFFFFF] px-3 py-1 rounded-full border border-[#1F1E22] inline-block shadow-2xs">
-                Mulai Sekarang • 100% Gratis
-              </span>
-              <h2 className="font-extrabold text-2xl sm:text-4xl text-[#1F1E22] tracking-tight">
-                Siap Menyelesaikan Praktikum Jaringan Lebih Cepat &amp; Presisi?
+          {/* =========================================================
+              3. GRID 6 ALAT HITUNG (id="fitur", 3 Kolom Desktop, 2 Tablet, 1 Mobile)
+             ========================================================= */}
+          <section id="fitur" className="flex flex-col gap-8 scroll-mt-24">
+            
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl sm:text-[28px] font-extrabold text-[#1F1E22] tracking-tight">
+                Enam Alat Hitung Sesuai Modul Praktikum
               </h2>
-              <p className="font-medium text-sm sm:text-base text-[#1F1E22]">
-                Akses semua modul perhitungan jaringan secara interaktif di browser Anda tanpa perlu instalasi aplikasi tambahan.
-              </p>
             </div>
 
-            <div className="shrink-0 w-full sm:w-auto">
-              <Link
-                to="/app"
-                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-[#FFFFFF] text-[#1F1E22] font-black text-base sm:text-lg rounded-[16px] border-2 border-[#1F1E22] shadow-[4px_4px_0px_#1F1E22] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#1F1E22] active:translate-x-0 active:translate-y-0 transition-all cursor-pointer"
-              >
-                <span>Buka Aplikasi Asisten</span>
-                <ArrowRight size={20} />
-              </Link>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {daftarFitur.map((fitur) => (
+                <div key={fitur.rute} className="relative group">
+                  {/* Lapisan Bergeser 8px (Biru, Kuning, Oranye bergantian) */}
+                  <div
+                    className={`absolute inset-0 translate-x-2 translate-y-2 ${fitur.warnaOffset} border-2 border-[#1F1E22] rounded-[20px] transition-transform group-hover:translate-x-2.5 group-hover:translate-y-2.5`}
+                    aria-hidden="true"
+                  />
+
+                  {/* Kartu Utama yang Dapat Diklik */}
+                  <Link
+                    to={fitur.rute}
+                    className="relative block bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 flex flex-col justify-between h-full gap-5 transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 focus:outline-none"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-title text-[18px] font-bold text-[#1F1E22]">
+                        {fitur.nama}
+                      </h3>
+                      <p className="font-body-sm text-sm text-[#5B5F6B] font-medium leading-relaxed">
+                        {fitur.deskripsi}
+                      </p>
+                    </div>
+
+                    {/* Kotak Contoh Monospace */}
+                    <div className="p-3 bg-[#F5F6F8] rounded-[12px] border-2 border-[#1F1E22] font-mono text-sm text-[#1F1E22] font-semibold">
+                      {fitur.contoh}
+                    </div>
+                  </Link>
+                </div>
+              ))}
             </div>
-          </div>
+
+          </section>
+
+          {/* =========================================================
+              4. BAGIAN URUTAN LEMBAR JAWABAN (3 Kartu Horizontal)
+             ========================================================= */}
+          <section className="flex flex-col gap-8 scroll-mt-24">
+            
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl sm:text-[28px] font-extrabold text-[#1F1E22] tracking-tight">
+                Format Seragam Seperti Lembar Jawaban Ujian
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Langkah 1 */}
+              <div className="bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 flex flex-col gap-4 relative">
+                <div className="w-8 h-8 rounded-full bg-[#1F1E22] text-[#FFFFFF] flex items-center justify-center font-bold text-sm">
+                  1
+                </div>
+                <h3 className="text-lg font-bold text-[#1F1E22]">
+                  Isi Data Soal atau NIM
+                </h3>
+                <p className="text-sm text-[#5B5F6B] font-medium leading-relaxed">
+                  Masukkan alamat IP, jumlah ruangan dan device, atau dua digit terakhir NIM untuk menghasilkan IP Global otomatis.
+                </p>
+              </div>
+
+              {/* Langkah 2 */}
+              <div className="bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 flex flex-col gap-4 relative">
+                <div className="w-8 h-8 rounded-full bg-[#1F1E22] text-[#FFFFFF] flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <h3 className="text-lg font-bold text-[#1F1E22]">
+                  Pelajari Langkah Biner &amp; Rumus
+                </h3>
+                <p className="text-sm text-[#5B5F6B] font-medium leading-relaxed">
+                  Urutan pengerjaan mengikuti Modul 2, 3, dan 4: Diketahui, operasi biner AND/OR, penentuan prefix, hingga tabel alokasi.
+                </p>
+              </div>
+
+              {/* Langkah 3 */}
+              <div className="bg-[#FFFFFF] rounded-[20px] border-2 border-[#1F1E22] p-6 flex flex-col gap-4 relative">
+                <div className="w-8 h-8 rounded-full bg-[#1F1E22] text-[#FFFFFF] flex items-center justify-center font-bold text-sm">
+                  3
+                </div>
+                <h3 className="text-lg font-bold text-[#1F1E22]">
+                  Salin ke Packet Tracer atau Cetak
+                </h3>
+                <p className="text-sm text-[#5B5F6B] font-medium leading-relaxed">
+                  Salin tabel alamat IP dan perintah CLI router dua kolom langsung ke Cisco Packet Tracer atau cetak untuk laporan.
+                </p>
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* =========================================================
+              5. BANNER CTA BAWAH
+             ========================================================= */}
+          <section className="w-full">
+            <div className="w-full rounded-[20px] bg-[#FCE76C] border-2 border-[#1F1E22] p-8 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-[6px_6px_0px_#1F1E22]">
+              
+              <div className="flex flex-col gap-2 max-w-2xl">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1F1E22] tracking-tight leading-tight">
+                  Siap mengerjakan soal praktikum sekarang?
+                </h3>
+                <p className="text-base text-[#1F1E22] font-medium leading-relaxed">
+                  Tanpa akun dan tanpa database. Langsung hitung, pelajari langkahnya, dan salin hasilnya.
+                </p>
+              </div>
+
+              {/* Tombol Secondary pada banner CTA bawah (latar putih #FFFFFF) */}
+              <Link
+                to="/beranda"
+                className="inline-flex items-center justify-center h-12 px-7 rounded-[12px] bg-[#FFFFFF] text-[#1F1E22] font-bold text-base border-2 border-[#1F1E22] hover:bg-[#F5F6F8] active:translate-y-0.5 transition-all whitespace-nowrap cursor-pointer"
+              >
+                Buka Aplikasi Sekarang
+              </Link>
+
+            </div>
+          </section>
+
         </div>
-      </section>
+      </main>
 
       {/* =========================================================
-          7. FOOTER LENGKAP
+          6. FOOTER SEDERHANA
          ========================================================= */}
-      <footer className="bg-[#1F1E22] text-[#FFFFFF] border-t-2 border-[#1F1E22] px-4 sm:px-8 py-12">
-        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-b border-[#3E3D44] pb-8">
-          <div className="space-y-2 max-w-sm">
-            <div className="flex items-center gap-3">
-              <img
-                src="/logo-mark.png"
-                alt="Logo APJ"
-                className="w-8 h-8 object-contain shrink-0"
-              />
-              <span className="font-extrabold text-lg text-white">
-                Asisten Praktikum Jaringan
-              </span>
-            </div>
-            <p className="text-xs text-[#8A8F9C] leading-relaxed">
-              Alat bantu praktikum Jaringan Komputer mandiri langkah demi langkah — deterministik, presisi tanpa AI, dan siap salin/cetak untuk Cisco Packet Tracer.
-            </p>
+      <footer className="w-full bg-[#F5F6F8] border-t border-[#E3E5EA] py-8">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-[#5B5F6B] text-center sm:text-left">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded bg-[#FCE76C] border border-[#1F1E22] inline-block" />
+            <span className="text-[#1F1E22] font-bold">Asisten Praktikum Jaringan</span>
+            <span>•</span>
+            <span>Mengikuti acuan Modul Praktikum Jaringan Komputer (Modul 2, 3, 4)</span>
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs">
-            <div className="space-y-2">
-              <span className="font-bold text-[#FCE76C] uppercase tracking-wider block">
-                Modul 2 Lab
-              </span>
-              <ul className="space-y-1.5 text-[#C9D0E4]">
-                <li><Link to="/subnetting" className="hover:text-white transition-colors">Subnetting CIDR</Link></li>
-                <li><Link to="/flsm-vlsm" className="hover:text-white transition-colors">FLSM &amp; VLSM</Link></li>
-                <li><Link to="/rencana" className="hover:text-white transition-colors">Rencana Ruangan</Link></li>
-                <li><Link to="/konversi" className="hover:text-white transition-colors">Konversi Basis</Link></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <span className="font-bold text-[#8BD0FC] uppercase tracking-wider block">
-                Modul 3 &amp; 4
-              </span>
-              <ul className="space-y-1.5 text-[#C9D0E4]">
-                <li><Link to="/dhcp" className="hover:text-white transition-colors">Generator DHCP</Link></li>
-                <li><Link to="/tabel-ip" className="hover:text-white transition-colors">Tabel IP Node</Link></li>
-                <li><Link to="/tentang" className="hover:text-white transition-colors">Tentang Proyek</Link></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2 col-span-2 sm:col-span-1">
-              <span className="font-bold text-[#FF8F5C] uppercase tracking-wider block">
-                Repositori
-              </span>
-              <ul className="space-y-1.5 text-[#C9D0E4]">
-                <li>
-                  <a
-                    href="https://github.com/firnassw/Asisten-Praktikum-Jarkom"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-white transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>GitHub Repo</span>
-                    <ExternalLink size={11} />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/api/docs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-white transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>API Swagger Docs</span>
-                    <ExternalLink size={11} />
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-[1280px] mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#8A8F9C] gap-2">
-          <p>© 2026 Wahid Firnas • Informatika UPN "Veteran" Yogyakarta. Lisensi MIT.</p>
-          <p className="font-mono text-[11px]">Asisten Praktikum Jaringan v1.0.0</p>
         </div>
       </footer>
     </div>

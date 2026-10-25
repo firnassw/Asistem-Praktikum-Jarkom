@@ -5,10 +5,10 @@ import { Layout } from '../components/Layout';
 
 const renderLayoutApp = () => {
   return render(
-    <MemoryRouter initialEntries={['/app']}>
+    <MemoryRouter initialEntries={['/beranda']}>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="app" element={<div>Konten App</div>} />
+          <Route path="beranda" element={<div>Konten Beranda</div>} />
         </Route>
       </Routes>
     </MemoryRouter>

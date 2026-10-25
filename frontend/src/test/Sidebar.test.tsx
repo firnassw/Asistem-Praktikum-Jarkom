@@ -18,7 +18,7 @@ describe('Sidebar Navigasi', () => {
 
     // 8 Item Menu sesuai PRD & DESIGN.md
     const menuItems = [
-      { name: 'Beranda', href: '/app' },
+      { name: 'Beranda', href: '/beranda' },
       { name: 'Subnetting', href: '/subnetting' },
       { name: 'FLSM dan VLSM', href: '/flsm-vlsm' },
       { name: 'Rencana ruangan', href: '/rencana' },

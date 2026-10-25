@@ -18,7 +18,7 @@ interface SidebarProps {
 }
 
 export const navItems = [
-  { name: 'Beranda', path: '/app', icon: Home, shortName: 'Beranda' },
+  { name: 'Beranda', path: '/beranda', icon: Home, shortName: 'Beranda' },
   { name: 'Subnetting', path: '/subnetting', icon: Network, shortName: 'Subnet' },
   { name: 'FLSM dan VLSM', path: '/flsm-vlsm', icon: GitFork, shortName: 'FLSM/VLSM' },
   { name: 'Rencana ruangan', path: '/rencana', icon: LayoutGrid, shortName: 'Rencana' },
@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobileDrawer = fals
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                end={item.path === '/app'}
+                end={item.path === '/beranda'}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-[12px] font-bold text-[14px] transition-all ${
                     isActive
